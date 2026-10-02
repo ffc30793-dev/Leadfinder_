@@ -1,0 +1,51 @@
+{
+  "users": {
+    "id": "string",
+    "name": "string",
+    "email": "string",
+    "phone": "string",
+    "plan": "FREE|PRO|MAX",
+    "credits": "number",
+    "createdAt": "timestamp",
+    "renewalAt": "timestamp|null",
+    "status": "active|blocked"
+  },
+  "searches": {
+    "userId": "string",
+    "createdAt": "timestamp",
+    "state": "string",
+    "city": "string",
+    "category": "string",
+    "filters": "array",
+    "resultCount": "number",
+    "creditsConsumed": 6
+  },
+  "leads": {
+    "userId": "string",
+    "providerId": "string|null",
+    "name": "string",
+    "category": "string|null",
+    "address": "string|null",
+    "city": "string|null",
+    "state": "string|null",
+    "phone": "string|null",
+    "whatsapp": "string|null",
+    "site": "string|null",
+    "socials": "array",
+    "rating": "number|null",
+    "hours": "object|null",
+    "source": "string",
+    "status": "new|contacted|negotiating|customer|not_interested",
+    "notes": "string",
+    "createdAt": "timestamp"
+  },
+  "plans": {
+    "name": "FREE|PRO|MAX",
+    "price": "number",
+    "credits": "number|null",
+    "maxResults": "number",
+    "features": "array",
+    "checkoutCakto": "string",
+    "active": "boolean"
+  }
+}
