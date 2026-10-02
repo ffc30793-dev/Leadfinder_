@@ -1,0 +1,31 @@
+<svg width="220" height="60" viewBox="0 0 220 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="220" height="60" rx="14" fill="#07111F"/>
+
+    <path
+        d="M22 39V20H28V34H39V39H22Z"
+        fill="#39A7FF"
+    />
+
+    <path
+        d="M48 39V20H54V39H48Z"
+        fill="#7C5CFF"
+    />
+
+    <circle
+        cx="51"
+        cy="15"
+        r="3"
+        fill="#39A7FF"
+    />
+
+    <text
+        x="66"
+        y="38"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="24"
+        font-weight="700"
+        fill="white"
+    >
+        LeadFinder
+    </text>
+</svg>
