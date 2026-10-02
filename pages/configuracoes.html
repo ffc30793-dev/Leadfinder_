@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#020912"
+    >
+
+    <title>Configurações | LeadFinder</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/dashboard.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/responsive.css"
+    >
+</head>
+
+<body>
+
+    <!-- =====================================
+         APP
+    ====================================== -->
+
+    <div class="dashboard-layout">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar" id="sidebar">
+
+            <div class="sidebar-logo">
+                <span class="logo-symbol">⌁</span>
+
+                <div>
+                    <strong>LeadFinder</strong>
+                    <small>Prospecção Inteligente</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <a href="dashboard.html">
+                    Início
+                </a>
+
+                <a href="resultados.html">
+                    Buscar leads
+                </a>
+
+                <a href="historico.html">
+                    Histórico
+                </a>
+
+                <a href="planos.html">
+                    Planos
+                </a>
+
+                <a href="perfil.html">
+                    Perfil
+                </a>
+
+                <a
+                    href="configuracoes.html"
+                    class="active"
+                >
+                    Configurações
+                </a>
+
+            </nav>
+
+            <button
+                type="button"
+                class="logout-btn"
+                data-logout
+            >
+                Sair
+            </button>
+
+        </aside>
+
+
+        <!-- =====================================
+             CONTEÚDO
+        ====================================== -->
+
+        <main class="dashboard-main">
+
+            <!-- HEADER -->
+
+            <header class="dashboard-header">
+
+                <button
+                    type="button"
+                    class="menu-button"
+                    id="menuButton"
+                    aria-label="Abrir menu"
+                >
+                    ☰
+                </button>
+
+                <div>
+                    <span class="page-label">
+                        CONFIGURAÇÕES
+                    </span>
+
+                    <h1>
+                        Configurações
+                    </h1>
+                </div>
+
+                <div class="header-user">
+
+                    <span data-user-name>
+                        Usuário
+                    </span>
+
+                    <span
+                        class="plan-badge"
+                        data-plan
+                    >
+                        Grátis
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- =====================================
+                 CONTEÚDO
+            ====================================== -->
+
+            <section class="dashboard-content">
+
+                <!-- CONTA -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                CONTA
+                            </span>
+
+                            <h2>
+                                Preferências da conta
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="settings-list">
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Notificações
+                                </strong>
+
+                                <p>
+                                    Receber avisos sobre sua conta,
+                                    créditos e novidades.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="notifications"
+                                    checked
+                                >
+
+                                <span></span>
+
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Atualizações de leads
+                                </strong>
+
+                                <p>
+                                    Receber informações sobre
+                                    novas oportunidades.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="leadUpdates"
+                                    checked
+                                >
+
+                                <span></span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PRIVACIDADE -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                PRIVACIDADE
+                            </span>
+
+                            <h2>
+                                Privacidade e segurança
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="settings-list">
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Sessão segura
+                                </strong>
+
+                                <p>
+                                    Mantenha sua conta protegida
+                                    neste dispositivo.
+                                </p>
+                            </div>
+
+                            <span class="status-badge">
+                                Ativa
+                            </span>
+
+                        </div>
+
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Alterar senha
+                                </strong>
+
+                                <p>
+                                    Altere sua senha de acesso
+                                    à conta.
+                                </p>
+                            </div>
+
+                            <a
+                                href="perfil.html"
+                                class="secondary-button"
+                            >
+                                Alterar
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DADOS -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                DADOS
+                            </span>
+
+                            <h2>
+                                Seus dados
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="settings-list">
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Exportar dados
+                                </strong>
+
+                                <p>
+                                    Solicite uma cópia das
+                                    informações da sua conta.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="secondary-button"
+                                id="exportData"
+                            >
+                                Exportar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ZONA DE PERIGO -->
+
+                <div class="dashboard-card danger-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                CONTA
+                            </span>
+
+                            <h2>
+                                Zona de segurança
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="setting-item">
+
+                        <div>
+                            <strong>
+                                Encerrar sessão
+                            </strong>
+
+                            <p>
+                                Sair da sua conta neste dispositivo.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="danger-button"
+                            data-logout
+                        >
+                            Sair
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <!-- =====================================
+         JAVASCRIPT
+    ====================================== -->
+
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/credits.js"></script>
+    <script src="../js/plans.js"></script>
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                const exportButton =
+                    document.querySelector("#exportData");
+
+                if (exportButton) {
+
+                    exportButton.addEventListener(
+                        "click",
+                        () => {
+
+                            const user =
+                                localStorage.getItem(
+                                    "leadfinder_user"
+                                );
+
+                            const data = {
+                                usuario: user
+                                    ? JSON.parse(user)
+                                    : null,
+
+                                creditos:
+                                    localStorage.getItem(
+                                        "leadfinder_credits"
+                                    ),
+
+                                exportadoEm:
+                                    new Date().toISOString()
+                            };
+
+                            const file =
+                                new Blob(
+                                    [
+                                        JSON.stringify(
+                                            data,
+                                            null,
+                                            2
+                                        )
+                                    ],
+                                    {
+                                        type:
+                                            "application/json"
+                                    }
+                                );
+
+                            const url =
+                                URL.createObjectURL(file);
+
+                            const link =
+                                document.createElement("a");
+
+                            link.href = url;
+
+                            link.download =
+                                "leadfinder-dados.json";
+
+                            link.click();
+
+                            URL.revokeObjectURL(url);
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
+</body>
+  </html>
