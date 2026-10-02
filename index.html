@@ -6,12 +6,8 @@
 
     <title>LeadFinder — Prospecção Inteligente</title>
 
-    <meta
-        name="description"
-        content="Encontre empresas e novas oportunidades para seu negócio."
-    >
-
-    <meta name="theme-color" content="#07100b">
+    <meta name="description"
+        content="Encontre empresas e oportunidades para vender sites, sistemas e presença digital.">
 
     <link rel="icon" href="assets/favicon.svg">
 
@@ -21,66 +17,42 @@
 
 <body>
 
-    <!-- =========================
-         HEADER
-    ========================== -->
-
-    <header class="site-header">
-
-        <div class="container header-content">
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container header-inner">
 
             <a href="index.html" class="brand">
-                <img
-                    src="assets/logo.svg"
-                    alt="LeadFinder"
-                    class="brand-logo"
-                >
+                <span class="brand-mark">L</span>
+                <span class="brand-name">Lead<span>Finder</span></span>
             </a>
 
-            <nav class="main-nav">
+            <nav class="nav">
                 <a href="#como-funciona">Como funciona</a>
                 <a href="#oportunidades">Oportunidades</a>
                 <a href="#planos">Planos</a>
             </nav>
 
             <div class="header-actions">
-
-                <a
-                    href="pages/login.html"
-                    class="btn btn-secondary"
-                >
-                    Entrar
-                </a>
-
-                <a
-                    href="pages/cadastro.html"
-                    class="btn btn-primary"
-                >
+                <a href="pages/login.html" class="login-link">Entrar</a>
+                <a href="pages/cadastro.html" class="btn btn-green btn-small">
                     Começar agora
                 </a>
-
             </div>
 
         </div>
-
     </header>
 
 
-    <!-- =========================
-         HERO
-    ========================== -->
-
     <main>
 
+        <!-- HERO -->
         <section class="hero">
 
-            <div class="hero-background"></div>
-
-            <div class="container hero-grid">
+            <div class="container">
 
                 <div class="hero-content">
 
-                    <div class="eyebrow">
+                    <div class="hero-badge">
                         <span class="status-dot"></span>
                         PROSPECÇÃO INTELIGENTE
                     </div>
@@ -91,185 +63,117 @@
                     </h1>
 
                     <p class="hero-description">
-                        Encontre negócios, descubra oportunidades digitais
-                        e transforme empresas em novos clientes.
+                        Encontre oportunidades de negócio, descubra empresas
+                        sem presença digital e transforme pesquisas em novos clientes.
                     </p>
 
                     <div class="hero-actions">
 
-                        <a
-                            href="pages/cadastro.html"
-                            class="btn btn-primary btn-large"
-                        >
-                            Começar agora
+                        <a href="pages/cadastro.html"
+                           class="btn btn-green btn-large">
+                            Começar gratuitamente
                             <span>→</span>
                         </a>
 
-                        <a
-                            href="#como-funciona"
-                            class="btn btn-secondary btn-large"
-                        >
+                        <a href="#como-funciona"
+                           class="btn btn-dark btn-large">
                             Ver como funciona
                         </a>
 
                     </div>
 
                     <div class="hero-trust">
-
-                        <div class="trust-item">
-                            <strong>30</strong>
-                            <span>créditos grátis</span>
-                        </div>
-
-                        <div class="trust-line"></div>
-
-                        <div class="trust-item">
-                            <strong>6</strong>
-                            <span>créditos por busca</span>
-                        </div>
-
+                        <span>✓ 30 créditos grátis</span>
+                        <span>✓ Sem cartão</span>
+                        <span>✓ Pesquise por cidade</span>
                     </div>
 
                 </div>
 
 
-                <!-- PREVIEW -->
+                <!-- SEARCH PANEL -->
+                <div class="search-panel">
 
-                <div class="hero-preview">
+                    <div class="search-panel-top">
 
-                    <div class="preview-glow"></div>
+                        <div>
+                            <small>LeadFinder</small>
+                            <h2>Encontre novas oportunidades</h2>
+                        </div>
 
-                    <div class="search-window">
+                        <div class="live-status">
+                            <span></span>
+                            Sistema online
+                        </div>
 
-                        <div class="window-header">
+                    </div>
 
-                            <div class="window-dots">
-                                <span></span>
-                                <span></span>
-                                <span></span>
+
+                    <div class="search-form">
+
+                        <div class="field">
+                            <label>Nicho</label>
+
+                            <div class="field-input">
+                                <span class="field-icon">⌕</span>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: hamburgueria"
+                                >
                             </div>
-
-                            <div class="window-title">
-                                LeadFinder
-                            </div>
-
-                            <div></div>
-
                         </div>
 
 
-                        <div class="window-body">
+                        <div class="field">
+                            <label>Estado</label>
 
-                            <div class="search-heading">
-
-                                <div>
-                                    <small>Nova pesquisa</small>
-
-                                    <h3>
-                                        Encontrar oportunidades
-                                    </h3>
-                                </div>
-
-                                <div class="credits-badge">
-                                    30 créditos
-                                </div>
-
+                            <div class="field-input">
+                                <select>
+                                    <option>Selecionar estado</option>
+                                    <option>Piauí</option>
+                                    <option>São Paulo</option>
+                                    <option>Rio de Janeiro</option>
+                                    <option>Minas Gerais</option>
+                                    <option>Ceará</option>
+                                    <option>Bahia</option>
+                                </select>
                             </div>
-
-
-                            <div class="fake-filters">
-
-                                <div class="fake-filter">
-                                    <small>Localização</small>
-                                    <strong>São Paulo, SP</strong>
-                                </div>
-
-                                <div class="fake-filter">
-                                    <small>Categoria</small>
-                                    <strong>Hamburgueria</strong>
-                                </div>
-
-                            </div>
-
-
-                            <div class="opportunity-filter">
-
-                                <small>Oportunidade</small>
-
-                                <div class="tags">
-
-                                    <span class="tag active">
-                                        Sem site
-                                    </span>
-
-                                    <span class="tag">
-                                        Redesign
-                                    </span>
-
-                                    <span class="tag">
-                                        Landing page
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <button class="fake-search-button">
-                                Buscar leads
-                                <span>→</span>
-                            </button>
-
-
-                            <div class="fake-result">
-
-                                <div class="result-icon">
-                                    LF
-                                </div>
-
-                                <div class="result-info">
-
-                                    <strong>
-                                        Hamburgueria Central
-                                    </strong>
-
-                                    <span>
-                                        São Paulo · Alimentação
-                                    </span>
-
-                                </div>
-
-                                <div class="result-status">
-                                    Sem site
-                                </div>
-
-                            </div>
-
-                            <div class="fake-result">
-
-                                <div class="result-icon">
-                                    BH
-                                </div>
-
-                                <div class="result-info">
-
-                                    <strong>
-                                        Burger House
-                                    </strong>
-
-                                    <span>
-                                        São Paulo · Hamburgueria
-                                    </span>
-
-                                </div>
-
-                                <div class="result-status">
-                                    Oportunidade
-                                </div>
-
-                            </div>
-
                         </div>
+
+
+                        <div class="field">
+                            <label>Cidade</label>
+
+                            <div class="field-input">
+                                <input
+                                    type="text"
+                                    placeholder="Ex: Teresina"
+                                >
+                            </div>
+                        </div>
+
+
+                        <button class="search-button">
+                            Buscar leads
+                            <span>→</span>
+                        </button>
+
+                    </div>
+
+
+                    <div class="search-panel-bottom">
+
+                        <span>
+                            <strong>6 créditos</strong> por pesquisa
+                        </span>
+
+                        <span>
+                            Empresas e estabelecimentos
+                        </span>
+
+                        <span>
+                            Dados organizados
+                        </span>
 
                     </div>
 
@@ -280,60 +184,29 @@
         </section>
 
 
-        <!-- =========================
-             STATS
-        ========================== -->
+        <!-- NUMBERS -->
+        <section class="numbers">
 
-        <section class="stats-section">
+            <div class="container numbers-grid">
 
-            <div class="container stats-grid">
-
-                <div class="stat-card">
-
-                    <strong>
-                        27
-                    </strong>
-
-                    <span>
-                        estados disponíveis
-                    </span>
-
+                <div class="number-item">
+                    <strong>30</strong>
+                    <span>créditos grátis</span>
                 </div>
 
-                <div class="stat-card">
-
-                    <strong>
-                        5.000+
-                    </strong>
-
-                    <span>
-                        municípios no Brasil
-                    </span>
-
+                <div class="number-item">
+                    <strong>6</strong>
+                    <span>créditos por busca</span>
                 </div>
 
-                <div class="stat-card">
-
-                    <strong>
-                        6
-                    </strong>
-
-                    <span>
-                        créditos por pesquisa
-                    </span>
-
+                <div class="number-item">
+                    <strong>27</strong>
+                    <span>estados brasileiros</span>
                 </div>
 
-                <div class="stat-card">
-
-                    <strong>
-                        24/7
-                    </strong>
-
-                    <span>
-                        prospecção
-                    </span>
-
+                <div class="number-item">
+                    <strong>∞</strong>
+                    <span>possibilidades</span>
                 </div>
 
             </div>
@@ -341,32 +214,25 @@
         </section>
 
 
-        <!-- =========================
-             COMO FUNCIONA
-        ========================== -->
-
-        <section
-            class="section"
-            id="como-funciona"
-        >
+        <!-- COMO FUNCIONA -->
+        <section id="como-funciona" class="section">
 
             <div class="container">
 
                 <div class="section-heading">
 
-                    <span class="section-label">
+                    <div class="section-tag">
                         COMO FUNCIONA
-                    </span>
+                    </div>
 
                     <h2>
-                        Encontre seu próximo cliente
-                        em poucos passos.
+                        Da pesquisa ao cliente
+                        <span>em poucos passos.</span>
                     </h2>
 
                     <p>
-                        O LeadFinder organiza a prospecção para você
-                        encontrar negócios com potencial de receber
-                        seus serviços.
+                        O LeadFinder organiza sua prospecção para você
+                        encontrar oportunidades sem perder tempo.
                     </p>
 
                 </div>
@@ -376,17 +242,15 @@
 
                     <article class="step-card">
 
-                        <div class="step-number">
-                            01
-                        </div>
+                        <div class="step-number">01</div>
 
-                        <h3>
-                            Escolha onde procurar
-                        </h3>
+                        <div class="step-icon">⌕</div>
+
+                        <h3>Escolha o nicho</h3>
 
                         <p>
-                            Selecione estado, cidade e segmento
-                            da empresa que você deseja encontrar.
+                            Pesquise por hamburguerias, salões,
+                            lojas, clínicas, oficinas e muitos outros segmentos.
                         </p>
 
                     </article>
@@ -394,17 +258,15 @@
 
                     <article class="step-card">
 
-                        <div class="step-number">
-                            02
-                        </div>
+                        <div class="step-number">02</div>
 
-                        <h3>
-                            Encontre oportunidades
-                        </h3>
+                        <div class="step-icon">⌖</div>
+
+                        <h3>Defina a localização</h3>
 
                         <p>
-                            Filtre empresas por sinais que indicam
-                            oportunidades para serviços digitais.
+                            Escolha o estado e a cidade onde
+                            você quer encontrar novas oportunidades.
                         </p>
 
                     </article>
@@ -412,17 +274,31 @@
 
                     <article class="step-card">
 
-                        <div class="step-number">
-                            03
-                        </div>
+                        <div class="step-number">03</div>
 
-                        <h3>
-                            Entre em contato
-                        </h3>
+                        <div class="step-icon">◈</div>
+
+                        <h3>Encontre oportunidades</h3>
 
                         <p>
-                            Analise o lead, salve seus favoritos
-                            e inicie o contato pelo WhatsApp.
+                            Veja empresas e estabelecimentos
+                            que podem precisar de uma solução digital.
+                        </p>
+
+                    </article>
+
+
+                    <article class="step-card">
+
+                        <div class="step-number">04</div>
+
+                        <div class="step-icon">↗</div>
+
+                        <h3>Entre em contato</h3>
+
+                        <p>
+                            Organize seus leads e utilize o WhatsApp
+                            para iniciar sua abordagem.
                         </p>
 
                     </article>
@@ -434,145 +310,96 @@
         </section>
 
 
-        <!-- =========================
-             OPORTUNIDADES
-        ========================== -->
-
-        <section
-            class="section section-dark"
-            id="oportunidades"
-        >
+        <!-- OPORTUNIDADES -->
+        <section id="oportunidades" class="section section-dark">
 
             <div class="container">
 
                 <div class="section-heading">
 
-                    <span class="section-label">
+                    <div class="section-tag">
                         OPORTUNIDADES
-                    </span>
+                    </div>
 
                     <h2>
                         Não procure apenas empresas.
-                        Procure oportunidades.
+                        <span>Procure necessidades.</span>
                     </h2>
 
                     <p>
-                        Encontre negócios que podem precisar
-                        de diferentes soluções digitais.
+                        Encontre diferentes tipos de oportunidades
+                        para oferecer seus serviços.
                     </p>
 
                 </div>
 
 
-                <div class="opportunities-grid">
+                <div class="opportunity-grid">
 
-                    <article class="opportunity-card featured">
+                    <article class="opportunity-card">
 
-                        <span class="opportunity-icon">
-                            /
-                        </span>
+                        <div class="opportunity-icon">⌂</div>
 
-                        <h3>
-                            Sem site
-                        </h3>
+                        <div>
+                            <h3>Sem site</h3>
+                            <p>
+                                Empresas que ainda não possuem
+                                um site próprio.
+                            </p>
+                        </div>
 
-                        <p>
-                            Empresas sem um site identificado.
-                        </p>
-
-                        <span class="opportunity-priority">
-                            Alta oportunidade
-                        </span>
+                        <span class="priority">ALTA</span>
 
                     </article>
 
 
                     <article class="opportunity-card">
 
-                        <span class="opportunity-icon">
-                            ↗
-                        </span>
+                        <div class="opportunity-icon">↻</div>
 
-                        <h3>
-                            Redesign
-                        </h3>
+                        <div>
+                            <h3>Site desatualizado</h3>
+                            <p>
+                                Negócios que podem precisar
+                                de uma presença digital melhor.
+                            </p>
+                        </div>
 
-                        <p>
-                            Sites que podem precisar de uma
-                            aparência mais moderna.
-                        </p>
-
-                    </article>
-
-
-                    <article class="opportunity-card">
-
-                        <span class="opportunity-icon">
-                            +
-                        </span>
-
-                        <h3>
-                            Landing page
-                        </h3>
-
-                        <p>
-                            Negócios com potencial para páginas
-                            focadas em conversão.
-                        </p>
+                        <span class="priority">ALTA</span>
 
                     </article>
 
 
                     <article class="opportunity-card">
 
-                        <span class="opportunity-icon">
-                            #
-                        </span>
+                        <div class="opportunity-icon">▣</div>
 
-                        <h3>
-                            E-commerce
-                        </h3>
+                        <div>
+                            <h3>Redesign</h3>
+                            <p>
+                                Empresas que já possuem site
+                                mas precisam modernizá-lo.
+                            </p>
+                        </div>
 
-                        <p>
-                            Empresas que podem vender produtos
-                            pela internet.
-                        </p>
-
-                    </article>
-
-
-                    <article class="opportunity-card">
-
-                        <span class="opportunity-icon">
-                            ≡
-                        </span>
-
-                        <h3>
-                            Catálogo online
-                        </h3>
-
-                        <p>
-                            Organize produtos e serviços
-                            em uma presença digital.
-                        </p>
+                        <span class="priority">MÉDIA</span>
 
                     </article>
 
 
                     <article class="opportunity-card">
 
-                        <span class="opportunity-icon">
-                            ▣
-                        </span>
+                        <div class="opportunity-icon">+</div>
 
-                        <h3>
-                            Cardápio online
-                        </h3>
+                        <div>
+                            <h3>Presença digital</h3>
+                            <p>
+                                Oportunidades para melhorar
+                                a presença online do negócio.
+                            </p>
+                        </div>
 
-                        <p>
-                            Soluções digitais para restaurantes
-                            e negócios de alimentação.
-                        </p>
+                        <span class="priority">MÉDIA</span>
 
                     </article>
 
@@ -583,81 +410,101 @@
         </section>
 
 
-        <!-- =========================
-             BUSCA
-        ========================== -->
-
+        <!-- LEAD PREVIEW -->
         <section class="section">
 
             <div class="container">
 
-                <div class="search-demo">
+                <div class="section-heading left">
 
-                    <div class="search-demo-content">
+                    <div class="section-tag">
+                        SEUS LEADS
+                    </div>
 
-                        <span class="section-label">
-                            BUSCA INTELIGENTE
-                        </span>
+                    <h2>
+                        Veja como suas
+                        <span>oportunidades ficam organizadas.</span>
+                    </h2>
 
-                        <h2>
-                            Você escolhe o alvo.
-                            O LeadFinder organiza a pesquisa.
-                        </h2>
+                </div>
 
-                        <p>
-                            Combine localização, categoria e
-                            oportunidades para encontrar leads
-                            mais relevantes para o seu serviço.
-                        </p>
 
-                        <a
-                            href="pages/cadastro.html"
-                            class="btn btn-primary"
-                        >
-                            Começar prospecção
-                            <span>→</span>
-                        </a>
+                <div class="leads-preview">
+
+                    <div class="lead-toolbar">
+
+                        <div>
+                            <strong>Resultados encontrados</strong>
+                            <span>24 oportunidades</span>
+                        </div>
+
+                        <button class="filter-button">
+                            Filtros
+                        </button>
 
                     </div>
 
 
-                    <div class="filter-preview">
+                    <div class="lead-list">
 
-                        <div class="filter-title">
-                            Filtros da pesquisa
-                        </div>
+                        <div class="lead-row">
 
-                        <div class="filter-row">
+                            <div class="lead-avatar">B</div>
 
-                            <div>
-                                <small>Estado</small>
-                                <strong>São Paulo</strong>
+                            <div class="lead-info">
+                                <strong>Burger House</strong>
+                                <span>Hamburgueria · Teresina, PI</span>
                             </div>
 
-                            <div>
-                                <small>Cidade</small>
-                                <strong>Todo o estado</strong>
+                            <div class="lead-status">
+                                Sem site
                             </div>
 
-                        </div>
-
-                        <div class="filter-row">
-
-                            <div>
-                                <small>Categoria</small>
-                                <strong>Alimentação</strong>
-                            </div>
-
-                            <div>
-                                <small>Oportunidade</small>
-                                <strong>Sem site</strong>
-                            </div>
+                            <button class="whatsapp-button">
+                                WhatsApp
+                            </button>
 
                         </div>
 
-                        <button class="demo-search">
-                            BUSCAR LEADS
-                        </button>
+
+                        <div class="lead-row">
+
+                            <div class="lead-avatar">S</div>
+
+                            <div class="lead-info">
+                                <strong>Studio Bella</strong>
+                                <span>Beleza · Fortaleza, CE</span>
+                            </div>
+
+                            <div class="lead-status">
+                                Presença digital
+                            </div>
+
+                            <button class="whatsapp-button">
+                                WhatsApp
+                            </button>
+
+                        </div>
+
+
+                        <div class="lead-row">
+
+                            <div class="lead-avatar">A</div>
+
+                            <div class="lead-info">
+                                <strong>Auto Center Brasil</strong>
+                                <span>Automotivo · São Paulo, SP</span>
+                            </div>
+
+                            <div class="lead-status">
+                                Redesign
+                            </div>
+
+                            <button class="whatsapp-button">
+                                WhatsApp
+                            </button>
+
+                        </div>
 
                     </div>
 
@@ -668,30 +515,25 @@
         </section>
 
 
-        <!-- =========================
-             PLANOS
-        ========================== -->
-
-        <section
-            class="section section-dark"
-            id="planos"
-        >
+        <!-- PLANOS -->
+        <section id="planos" class="section section-dark">
 
             <div class="container">
 
                 <div class="section-heading">
 
-                    <span class="section-label">
+                    <div class="section-tag">
                         PLANOS
-                    </span>
+                    </div>
 
                     <h2>
-                        Escolha como você quer prospectar.
+                        Escolha o plano
+                        <span>para sua prospecção.</span>
                     </h2>
 
                     <p>
-                        Comece gratuitamente e aumente sua capacidade
-                        conforme sua prospecção crescer.
+                        Comece gratuitamente e evolua quando precisar
+                        de mais créditos e recursos.
                     </p>
 
                 </div>
@@ -699,51 +541,31 @@
 
                 <div class="plans-grid">
 
-                    <!-- GRÁTIS -->
-
+                    <!-- FREE -->
                     <article class="plan-card">
 
-                        <span class="plan-name">
-                            GRÁTIS
-                        </span>
+                        <div class="plan-name">GRÁTIS</div>
 
-                        <div class="plan-price">
-                            <small>R$</small>
-                            0
-                        </div>
+                        <h3>
+                            R$ <strong>0</strong>
+                        </h3>
 
                         <p class="plan-description">
-                            Para começar a testar a plataforma.
+                            Para começar a explorar a ferramenta.
                         </p>
 
+                        <div class="plan-line"></div>
+
                         <ul>
-
-                            <li>
-                                ✓ 30 créditos
-                            </li>
-
-                            <li>
-                                ✓ Pesquisas
-                            </li>
-
-                            <li>
-                                ✓ Filtros de localização
-                            </li>
-
-                            <li>
-                                ✓ Busca por categoria
-                            </li>
-
-                            <li>
-                                ✓ Abordagem simples
-                            </li>
-
+                            <li>✓ 30 créditos</li>
+                            <li>✓ Pesquisas básicas</li>
+                            <li>✓ Filtros de localização</li>
+                            <li>✓ Categorias</li>
+                            <li>✓ Abordagem simples</li>
                         </ul>
 
-                        <a
-                            href="pages/cadastro.html"
-                            class="btn btn-secondary plan-button"
-                        >
+                        <a href="pages/cadastro.html"
+                           class="plan-button">
                             Começar grátis
                         </a>
 
@@ -751,107 +573,67 @@
 
 
                     <!-- PRO -->
+                    <article class="plan-card featured">
 
-                    <article class="plan-card featured-plan">
-
-                        <div class="plan-popular">
+                        <div class="featured-label">
                             MAIS POPULAR
                         </div>
 
-                        <span class="plan-name">
-                            PRO
-                        </span>
+                        <div class="plan-name">PRO</div>
 
-                        <div class="plan-price">
-                            <small>R$</small>
-                            19,90
-                            <span>/mês</span>
-                        </div>
+                        <h3>
+                            R$ <strong>19,90</strong>
+                            <small>/mês</small>
+                        </h3>
 
                         <p class="plan-description">
                             Para quem quer prospectar com mais recursos.
                         </p>
 
+                        <div class="plan-line"></div>
+
                         <ul>
-
-                            <li>
-                                ✓ 100 créditos
-                            </li>
-
-                            <li>
-                                ✓ Busca avançada
-                            </li>
-
-                            <li>
-                                ✓ Estados e cidades
-                            </li>
-
-                            <li>
-                                ✓ WhatsApp
-                            </li>
-
-                            <li>
-                                ✓ Abordagem profissional
-                            </li>
-
+                            <li>✓ 100 créditos</li>
+                            <li>✓ Pesquisas avançadas</li>
+                            <li>✓ Estados e cidades</li>
+                            <li>✓ WhatsApp</li>
+                            <li>✓ Abordagem profissional</li>
                         </ul>
 
-                        <a
-                            href="pages/cadastro.html"
-                            class="btn btn-primary plan-button"
-                        >
-                            Começar com Pro
+                        <a href="pages/planos.html"
+                           class="plan-button green">
+                            Escolher Pro
                         </a>
 
                     </article>
 
 
                     <!-- MAX -->
-
                     <article class="plan-card">
 
-                        <span class="plan-name">
-                            MAX
-                        </span>
+                        <div class="plan-name">MAX</div>
 
-                        <div class="plan-price">
-                            <small>R$</small>
-                            30
-                            <span>/mês</span>
-                        </div>
+                        <h3>
+                            R$ <strong>30</strong>
+                            <small>/mês</small>
+                        </h3>
 
                         <p class="plan-description">
-                            Para uma prospecção mais intensa.
+                            Para quem quer ampliar sua prospecção.
                         </p>
 
+                        <div class="plan-line"></div>
+
                         <ul>
-
-                            <li>
-                                ✓ 300 créditos
-                            </li>
-
-                            <li>
-                                ✓ Mais resultados
-                            </li>
-
-                            <li>
-                                ✓ Busca avançada
-                            </li>
-
-                            <li>
-                                ✓ WhatsApp
-                            </li>
-
-                            <li>
-                                ✓ Abordagem premium
-                            </li>
-
+                            <li>✓ 300 créditos</li>
+                            <li>✓ Busca avançada</li>
+                            <li>✓ Mais resultados</li>
+                            <li>✓ WhatsApp</li>
+                            <li>✓ Abordagem premium</li>
                         </ul>
 
-                        <a
-                            href="pages/cadastro.html"
-                            class="btn btn-secondary plan-button"
-                        >
+                        <a href="pages/planos.html"
+                           class="plan-button">
                             Escolher Max
                         </a>
 
@@ -864,36 +646,29 @@
         </section>
 
 
-        <!-- =========================
-             CTA
-        ========================== -->
-
+        <!-- CTA -->
         <section class="final-cta">
 
             <div class="container">
 
-                <div class="cta-box">
+                <div class="final-cta-box">
 
-                    <div class="cta-glow"></div>
-
-                    <span class="section-label">
+                    <div class="section-tag">
                         LEADFINDER
-                    </span>
+                    </div>
 
                     <h2>
-                        Seu próximo cliente
+                        Sua próxima oportunidade
                         pode estar a uma pesquisa de distância.
                     </h2>
 
                     <p>
-                        Comece gratuitamente e descubra novas
-                        oportunidades para o seu serviço.
+                        Comece gratuitamente e descubra novos negócios
+                        para oferecer seus serviços.
                     </p>
 
-                    <a
-                        href="pages/cadastro.html"
-                        class="btn btn-primary btn-large"
-                    >
+                    <a href="pages/cadastro.html"
+                       class="btn btn-green btn-large">
                         Começar agora
                         <span>→</span>
                     </a>
@@ -907,27 +682,22 @@
     </main>
 
 
-    <!-- =========================
-         FOOTER
-    ========================== -->
+    <!-- FOOTER -->
+    <footer class="footer">
 
-    <footer class="site-footer">
+        <div class="container footer-inner">
 
-        <div class="container footer-content">
-
-            <div>
+            <div class="footer-brand">
 
                 <a href="index.html" class="brand">
-                    <img
-                        src="assets/logo.svg"
-                        alt="LeadFinder"
-                        class="brand-logo"
-                    >
+                    <span class="brand-mark">L</span>
+                    <span class="brand-name">
+                        Lead<span>Finder</span>
+                    </span>
                 </a>
 
                 <p>
-                    Prospecção inteligente para encontrar
-                    novas oportunidades.
+                    Prospecção inteligente para novos negócios.
                 </p>
 
             </div>
@@ -962,18 +732,18 @@
                 © 2026 LeadFinder. Todos os direitos reservados.
             </span>
 
+            <span>
+                Prospecção Inteligente
+            </span>
+
         </div>
 
     </footer>
 
-
-    <!-- =========================
-         SCRIPTS
-    ========================== -->
 
     <script src="config/app-config.js"></script>
     <script src="js/script.js"></script>
     <script src="js/app.js"></script>
 
 </body>
-                              </html>
+</html>
