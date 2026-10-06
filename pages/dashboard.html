@@ -1,11 +1,642 @@
-<!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard — LeadFinder</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/dashboard.css"><link rel="stylesheet" href="css/responsive.css"></head>
-<body data-page="dashboard">
-<div class="app-shell"><aside class="sidebar" id="sidebar"><div class="sidebar-brand"><a class="brand" href="dashboard.html"><span class="brand-mark">LF</span>LeadFinder</a><button class="icon-btn mobile-only" id="close-sidebar">×</button></div><nav><a class="active" href="dashboard.html">⌂ <span>Início</span></a><a href="#buscar">⌕ <span>Buscar leads</span></a><a href="historico.html">◷ <span>Histórico</span></a><a href="#meus-leads">◇ <span>Meus leads</span></a><a href="planos.html">◆ <span>Planos</span></a><a href="perfil.html">◎ <span>Perfil</span></a><a href="perfil.html#configuracoes">⚙ <span>Configurações</span></a></nav><button class="logout" id="logout">Sair</button></aside>
-<div class="main-shell"><header class="dash-topbar"><button class="icon-btn mobile-only" id="open-sidebar">☰</button><div><span class="eyebrow">PAINEL</span><h1>Encontre seu próximo cliente.</h1></div><div class="account-pill"><span class="avatar" id="avatar">LF</span><div><b id="user-name">Visitante</b><small id="user-plan">FREE</small></div></div></header>
-<main class="dashboard container">
-<div class="stats-grid"><div class="stat glass"><span>Créditos</span><strong id="stat-credits">30</strong><small>disponíveis</small></div><div class="stat glass"><span>Pesquisas</span><strong id="stat-searches">0</strong><small>realizadas</small></div><div class="stat glass"><span>Leads</span><strong id="stat-leads">0</strong><small>encontrados</small></div><div class="stat glass"><span>Plano</span><strong id="stat-plan">FREE</strong><small>atual</small></div></div>
-<section id="buscar" class="search-panel glass"><div class="panel-heading"><div><span class="eyebrow">BUSCA AVANÇADA</span><h2>Encontre seu próximo cliente</h2></div><div class="credit-badge"><span>Créditos</span><b id="credit-badge">30</b></div></div>
-<form id="lead-search-form"><div class="filter-grid"><label>Estado<select id="state-select" required><option value="">Selecione o estado</option></select></label><label>Cidade<select id="city-select" required disabled><option value="">Selecione o estado primeiro</option></select></label><label>Categoria<select id="category-select"><option value="">Todas as categorias</option></select></label><label>Subcategoria<input id="subcategory" placeholder="Opcional"></label></div><div class="filter-block"><span class="filter-title">O que procurar?</span><div class="multi-select" id="opportunity-select"></div></div><div class="search-footer"><span><b>6 créditos</b> serão consumidos por pesquisa.</span><button class="btn btn-primary" type="submit">BUSCAR LEADS <span>→</span></button></div></form><div id="search-message" class="form-message"></div></section>
-<section class="section compact"><div class="section-heading inline"><div><span class="eyebrow">VISÃO GERAL</span><h2>Comece sua próxima busca</h2></div><a class="text-link" href="historico.html">Ver histórico →</a></div><div class="quick-grid"><a href="#buscar" class="quick glass"><b>Pesquisar empresas</b><span>Filtre por estado, cidade e segmento.</span></a><a href="planos.html" class="quick glass"><b>Ver planos</b><span>Mais resultados e abordagens avançadas.</span></a><a href="#meus-leads" class="quick glass"><b>Organizar leads</b><span>Acompanhe novos contatos e negociações.</span></a></div></section>
-</main></div></div><script type="module" src="js/app.js"></script><script type="module" src="js/leads.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LeadFinder — Prospecção</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body class="dashboard-body">
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-top">
+
+            <a href="../index.html" class="brand">
+                <div class="brand-mark">L</div>
+
+                <div class="brand-text">
+                    <strong>LeadFinder</strong>
+                    <span>Prospecção inteligente</span>
+                </div>
+            </a>
+
+            <button class="sidebar-close" id="sidebarClose">×</button>
+
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="dashboard.html" class="nav-item active">
+                <span class="nav-icon">⌕</span>
+                <span>Prospecção</span>
+            </a>
+
+            <a href="resultados.html" class="nav-item">
+                <span class="nav-icon">▦</span>
+                <span>Meus leads</span>
+            </a>
+
+            <a href="historico.html" class="nav-item">
+                <span class="nav-icon">◷</span>
+                <span>Histórico</span>
+            </a>
+
+            <a href="planos.html" class="nav-item">
+                <span class="nav-icon">◇</span>
+                <span>Planos</span>
+            </a>
+
+            <div class="nav-divider"></div>
+
+            <a href="perfil.html" class="nav-item">
+                <span class="nav-icon">○</span>
+                <span>Meu perfil</span>
+            </a>
+
+            <a href="configuracoes.html" class="nav-item">
+                <span class="nav-icon">⚙</span>
+                <span>Configurações</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="upgrade-card">
+                <div class="upgrade-icon">✦</div>
+
+                <strong>Desbloqueie mais leads</strong>
+
+                <p>
+                    Aumente seus créditos e encontre mais oportunidades.
+                </p>
+
+                <a href="planos.html">
+                    Ver planos
+                    <span>→</span>
+                </a>
+            </div>
+
+            <button class="logout-btn" id="logout">
+                <span>↪</span>
+                Sair
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- OVERLAY MOBILE -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <button class="mobile-menu-btn" id="menuButton">
+                ☰
+            </button>
+
+            <div class="topbar-title">
+                <span class="topbar-label">PROSPECÇÃO</span>
+                <h1>Encontre novas oportunidades</h1>
+            </div>
+
+            <div class="topbar-actions">
+
+                <div class="credits-pill">
+                    <span class="credits-dot"></span>
+                    <span>
+                        <strong data-credits>30</strong>
+                        créditos
+                    </span>
+                </div>
+
+                <a href="perfil.html" class="profile-button">
+
+                    <div class="profile-avatar">
+                        <span data-user-name-short>U</span>
+                    </div>
+
+                    <div class="profile-info">
+                        <strong data-user-name>Usuário</strong>
+                        <span>Plano grátis</span>
+                    </div>
+
+                    <span class="profile-arrow">⌄</span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <section class="dashboard-content">
+
+            <!-- INTRO -->
+            <div class="page-intro">
+
+                <div>
+                    <h2>Encontre empresas para prospectar</h2>
+
+                    <p>
+                        Escolha o segmento, localização e oportunidade.
+                        O LeadFinder encontra negócios com potencial para seus serviços.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- SEARCH PANEL -->
+            <section class="search-panel">
+
+                <div class="search-panel-header">
+
+                    <div class="search-heading">
+
+                        <div class="search-icon">
+                            ⌕
+                        </div>
+
+                        <div>
+                            <h3>Nova prospecção</h3>
+
+                            <p>
+                                Defina os filtros para encontrar os melhores leads.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="search-cost">
+                        <span>Esta busca</span>
+                        <strong>6 créditos</strong>
+                    </div>
+
+                </div>
+
+
+                <form id="leadSearchForm" class="search-form">
+
+                    <!-- CATEGORIA -->
+                    <div class="field-group">
+
+                        <label for="category">
+                            Nicho
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">◈</span>
+
+                            <select id="category" name="category">
+
+                                <option value="">
+                                    Selecione o nicho
+                                </option>
+
+                                <option value="Hamburgueria">
+                                    Hamburgueria
+                                </option>
+
+                                <option value="Pizzaria">
+                                    Pizzaria
+                                </option>
+
+                                <option value="Restaurante">
+                                    Restaurante
+                                </option>
+
+                                <option value="Cafeteria">
+                                    Cafeteria
+                                </option>
+
+                                <option value="Bar">
+                                    Bar
+                                </option>
+
+                                <option value="Padaria">
+                                    Padaria
+                                </option>
+
+                                <option value="Salão de beleza">
+                                    Salão de beleza
+                                </option>
+
+                                <option value="Barbearia">
+                                    Barbearia
+                                </option>
+
+                                <option value="Clínica">
+                                    Clínica
+                                </option>
+
+                                <option value="Dentista">
+                                    Dentista
+                                </option>
+
+                                <option value="Academia">
+                                    Academia
+                                </option>
+
+                                <option value="Hotel">
+                                    Hotel
+                                </option>
+
+                                <option value="Pousada">
+                                    Pousada
+                                </option>
+
+                                <option value="Pet shop">
+                                    Pet shop
+                                </option>
+
+                                <option value="Oficina">
+                                    Oficina
+                                </option>
+
+                                <option value="Auto center">
+                                    Auto center
+                                </option>
+
+                                <option value="Loja">
+                                    Loja
+                                </option>
+
+                                <option value="Mercado">
+                                    Mercado
+                                </option>
+
+                                <option value="Imobiliária">
+                                    Imobiliária
+                                </option>
+
+                                <option value="Escritório">
+                                    Escritório
+                                </option>
+
+                                <option value="Escola">
+                                    Escola / Curso
+                                </option>
+
+                                <option value="Fotografia">
+                                    Fotografia
+                                </option>
+
+                                <option value="Eventos">
+                                    Eventos
+                                </option>
+
+                                <option value="Construtora">
+                                    Construtora
+                                </option>
+
+                                <option value="Prestador de serviços">
+                                    Prestador de serviços
+                                </option>
+
+                                <option value="Outro">
+                                    Outro
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ESTADO -->
+                    <div class="field-group">
+
+                        <label for="state">
+                            Estado
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">⌖</span>
+
+                            <select id="state" name="state">
+
+                                <option value="">
+                                    Selecione o estado
+                                </option>
+
+                                <option value="AC">Acre</option>
+                                <option value="AL">Alagoas</option>
+                                <option value="AP">Amapá</option>
+                                <option value="AM">Amazonas</option>
+                                <option value="BA">Bahia</option>
+                                <option value="CE">Ceará</option>
+                                <option value="DF">Distrito Federal</option>
+                                <option value="ES">Espírito Santo</option>
+                                <option value="GO">Goiás</option>
+                                <option value="MA">Maranhão</option>
+                                <option value="MT">Mato Grosso</option>
+                                <option value="MS">Mato Grosso do Sul</option>
+                                <option value="MG">Minas Gerais</option>
+                                <option value="PA">Pará</option>
+                                <option value="PB">Paraíba</option>
+                                <option value="PR">Paraná</option>
+                                <option value="PE">Pernambuco</option>
+                                <option value="PI">Piauí</option>
+                                <option value="RJ">Rio de Janeiro</option>
+                                <option value="RN">Rio Grande do Norte</option>
+                                <option value="RS">Rio Grande do Sul</option>
+                                <option value="RO">Rondônia</option>
+                                <option value="RR">Roraima</option>
+                                <option value="SC">Santa Catarina</option>
+                                <option value="SP">São Paulo</option>
+                                <option value="SE">Sergipe</option>
+                                <option value="TO">Tocantins</option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CIDADE -->
+                    <div class="field-group">
+
+                        <label for="city">
+                            Cidade
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">⌂</span>
+
+                            <select id="city" name="city" disabled>
+
+                                <option value="">
+                                    Primeiro selecione o estado
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- OPORTUNIDADE -->
+                    <div class="field-group">
+
+                        <label for="opportunity">
+                            Oportunidade
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">✦</span>
+
+                            <select id="opportunity" name="opportunity">
+
+                                <option value="">
+                                    Todas as oportunidades
+                                </option>
+
+                                <option value="sem-site">
+                                    Sem site
+                                </option>
+
+                                <option value="site-desatualizado">
+                                    Site desatualizado
+                                </option>
+
+                                <option value="redesign">
+                                    Precisa de redesign
+                                </option>
+
+                                <option value="landing-page">
+                                    Landing page
+                                </option>
+
+                                <option value="ecommerce">
+                                    Loja virtual
+                                </option>
+
+                                <option value="catalogo">
+                                    Catálogo digital
+                                </option>
+
+                                <option value="cardapio">
+                                    Cardápio digital
+                                </option>
+
+                                <option value="sistema-web">
+                                    Sistema personalizado
+                                </option>
+
+                                <option value="presenca-digital">
+                                    Presença digital
+                                </option>
+
+                                <option value="agendamento-online">
+                                    Agendamento online
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <button type="submit" class="search-button">
+
+                        <span>Encontrar leads</span>
+
+                        <span class="search-button-icon">
+                            →
+                        </span>
+
+                    </button>
+
+                </form>
+
+            </section>
+
+
+            <!-- RESULTS HEADER -->
+            <div class="results-header">
+
+                <div>
+
+                    <span class="results-label">
+                        RESULTADOS
+                    </span>
+
+                    <h2>
+                        Empresas encontradas
+                    </h2>
+
+                </div>
+
+                <div class="results-actions">
+
+                    <span id="resultsCount">
+                        6 oportunidades
+                    </span>
+
+                    <select id="sortResults">
+
+                        <option value="relevant">
+                            Mais relevantes
+                        </option>
+
+                        <option value="score">
+                            Maior oportunidade
+                        </option>
+
+                        <option value="rating">
+                            Melhor avaliação
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <!-- RESULTS -->
+            <section class="results-layout">
+
+                <div class="lead-list" id="leadResults">
+
+
+                    <!-- LEAD 1 -->
+                    <article class="lead-card">
+
+                        <div class="lead-main">
+
+                            <div class="lead-logo">
+                                BH
+                            </div>
+
+                            <div class="lead-content">
+
+                                <div class="lead-title-row">
+
+                                    <h3>
+                                        Burger House
+                                    </h3>
+
+                                    <span class="opportunity-badge high">
+                                        Alta oportunidade
+                                    </span>
+
+                                </div>
+
+                                <p class="lead-category">
+                                    Hamburgueria · Centro
+                                </p>
+
+                                <div class="lead-rating">
+
+                                    <span class="star">★</span>
+
+                                    <strong>4.8</strong>
+
+                                    <span>
+                                        127 avaliações
+                                    </span>
+
+                                </div>
+
+                                <div class="lead-location">
+                                    ⌖ Teresina, PI
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="lead-opportunity">
+
+                            <div class="score-circle">
+                                <strong>6</strong>
+                                <span>/7</span>
+                            </div>
+
+                            <div class="score-info">
+
+                                <span class="score-title">
+                                    Score de oportunidade
+                                </span>
+
+                                <div class="signals">
+
+                                    <span>
+                                        +3 Sem site próprio
+                                    </span>
+
+                                    <span>
+                                        +2 Mais de 100 avaliações
+                                    </span>
+
+                                    <span>
+                                        +1 Telefone disponível
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="lead-footer">
+
+                            <button class="secondary-action approach-btn">
+                                <span>✦</span>
+                                Abordagem
+                            </button>
+
+                            <button class="whatsapp-btn">
+                                <span>◉</span>
+                                WhatsApp
+                            </button>
+
+                            <button class="save-btn">
+                                ♡
+                            </button>
+
+                        </div>
+
+                    </article>
+
+
+                    <!-- LEAD 2 -->
+                    <article class="lead-card">
+
+                        <div class="lead-main">
+
+                            <div class="lead-logo">
+                                SB
+                            </div>
+
+                            <div class="lead-content">
+
+             
