@@ -1,7 +1,7 @@
 import {
   getFirebase,
   firebaseReady
-} from "../config/firebase.js";
+} } from "../config/config/firebase.js";
 
 const $ = (selector) => document.querySelector(selector);
 
