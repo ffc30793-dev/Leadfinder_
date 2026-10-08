@@ -1,3 +1,71 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Criar conta — LeadFinder</title><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/responsive.css"></head>
-<body class="auth-page"><div class="auth-shell"><a class="brand auth-brand" href="index.html"><span class="brand-mark">LF</span>LeadFinder</a><section class="auth-card glass wide"><span class="eyebrow">COMECE SUA PROSPECÇÃO</span><h1>Crie sua conta.</h1><p>Seu acesso começa no plano Free. Você poderá fazer upgrade depois.</p><form id="signup-form" class="two-col-form"><label>Nome completo<input id="signup-name" required autocomplete="name" placeholder="Seu nome"></label><label>E-mail<input id="signup-email" type="email" required autocomplete="email" placeholder="voce@gmail.com"></label><label>Celular<input id="signup-phone" required inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000"></label><label>Senha<div class="password-wrap"><input id="signup-password" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"><button type="button" class="password-toggle" data-target="signup-password">Mostrar</button></div></label><label>Confirmar senha<div class="password-wrap"><input id="signup-confirm" type="password" required minlength="8" autocomplete="new-password" placeholder="Repita a senha"><button type="button" class="password-toggle" data-target="signup-confirm">Mostrar</button></div></label><label class="checkline full"><input id="terms" type="checkbox" required> <span>Concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a>.</span></label><button class="btn btn-primary btn-block full" type="submit">Criar conta</button><div id="signup-message" class="form-message full"></div></form><p class="auth-switch">Já possui uma conta? <a href="login.html">Entrar</a></p></section></div><script type="module" src="js/auth.js"></script></body></html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Criar conta — LeadFinder</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/responsive.css">
+</head>
+
+<body class="auth-page">
+  <div class="auth-shell">
+    <a class="brand auth-brand" href="../index.html">
+      <span class="brand-mark">LF</span>
+      LeadFinder
+    </a>
+
+    <section class="auth-card glass wide">
+      <span class="eyebrow">COMECE SUA PROSPECÇÃO</span>
+      <h1>Crie sua conta.</h1>
+      <p>Seu acesso começa no plano Free, com 30 créditos.</p>
+
+      <form id="signup-form" class="two-col-form">
+        <label>
+          Nome completo
+          <input id="signup-name" required autocomplete="name" placeholder="Seu nome">
+        </label>
+
+        <label>
+          E-mail
+          <input id="signup-email" type="email" required autocomplete="email" placeholder="voce@gmail.com">
+        </label>
+
+        <label>
+          Celular
+          <input id="signup-phone" type="tel" required autocomplete="tel" placeholder="(00) 00000-0000">
+        </label>
+
+        <label>
+          Senha
+          <input id="signup-password" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo de 8 caracteres">
+        </label>
+
+        <label>
+          Confirmar senha
+          <input id="signup-confirm" type="password" required minlength="8" autocomplete="new-password" placeholder="Repita a senha">
+        </label>
+
+        <label class="checkline full">
+          <input id="terms" type="checkbox" required>
+          <span>Concordo com os Termos de Uso e a Política de Privacidade.</span>
+        </label>
+
+        <button class="btn btn-primary btn-block full" type="submit">
+          Criar conta
+        </button>
+
+        <div id="signup-message" class="form-message full" role="status"></div>
+      </form>
+
+      <p class="auth-switch">
+        Já possui uma conta?
+        <a href="login.html">Entrar</a>
+      </p>
+    </section>
+  </div>
+
+  <script type="module" src="../js/auth.js"></script>
+</body>
+</html>
