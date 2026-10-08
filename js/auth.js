@@ -1,9 +1,9 @@
 import {
   getFirebase,
   firebaseReady
-} } from "../config/config/firebase.js";
+} from "../config/config/firebase.js";
 
-const $ = (selector) => document.querySelector(selector);
+const $ = (selector) => document.querySelector(" " .trim() + selector);
 
 // Mostrar ou ocultar senha
 document.querySelectorAll(".password-toggle").forEach((button) => {
@@ -12,8 +12,7 @@ document.querySelectorAll(".password-toggle").forEach((button) => {
     if (!input) return;
 
     input.type = input.type === "password" ? "text" : "password";
-    button.textContent =
-      input.type === "password" ? "Mostrar" : "Ocultar";
+    button.textContent = input.type === "password" ? "Mostrar" : "Ocultar";
   });
 });
 
@@ -39,10 +38,7 @@ $("#login-form")?.addEventListener("submit", async (event) => {
   }
 
   if (!firebaseReady) {
-    return setMsg(
-      "#login-message",
-      "Firebase não configurado. Verifique a conexão."
-    );
+    return setMsg("#login-message", "Firebase não configurado.");
   }
 
   try {
@@ -94,10 +90,7 @@ $("#signup-form")?.addEventListener("submit", async (event) => {
   }
 
   if (!firebaseReady) {
-    return setMsg(
-      "#signup-message",
-      "Firebase não configurado. Verifique a conexão."
-    );
+    return setMsg("#signup-message", "Firebase não configurado.");
   }
 
   try {
@@ -179,24 +172,18 @@ function friendlyAuthError(error) {
   const code = error?.code || "";
 
   const messages = {
-    "auth/invalid-credential":
-      "E-mail ou senha inválidos.",
-    "auth/email-already-in-use":
-      "Este e-mail já está cadastrado.",
-    "auth/weak-password":
-      "A senha deve ter pelo menos 8 caracteres.",
-    "auth/invalid-email":
-      "O e-mail informado é inválido.",
-    "auth/too-many-requests":
-      "Muitas tentativas. Aguarde e tente novamente.",
-    "auth/network-request-failed":
-      "Falha de conexão. Verifique sua internet.",
+    "auth/invalid-credential": "E-mail ou senha inválidos.",
+    "auth/email-already-in-use": "Este e-mail já está cadastrado.",
+    "auth/weak-password": "A senha deve ter pelo menos 8 caracteres.",
+    "auth/invalid-email": "O e-mail informado é inválido.",
+    "auth/too-many-requests": "Muitas tentativas. Aguarde e tente novamente.",
+    "auth/network-request-failed": "Falha de conexão. Verifique sua internet.",
     "auth/operation-not-allowed":
-      "Ative E-mail/senha nas configurações de autenticação do Firebase.",
+      "Ative E-mail/senha nas configurações do Firebase.",
     "permission-denied":
-      "O banco bloqueou a operação. Verifique as regras do Firestore."
+      "O Firestore bloqueou a operação. Verifique as regras do banco."
   };
 
   return messages[code] ||
     "Não foi possível concluir. Verifique os dados e tente novamente.";
-      }
+}
