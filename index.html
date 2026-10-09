@@ -1,118 +1,93 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#030705">
-<title>LeadFinder — Prospecção Inteligente</title>
-<style>
-:root{--bg:#030705;--p:#07100b;--p2:#09150e;--l:#17271d;--t:#f2f7f3;--m:#89958e;--g:#20ed67}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--t);font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.hidden{display:none!important}.green{color:var(--g)}.muted{color:var(--m)}.container{width:min(1120px,calc(100% - 32px));margin:auto}
-.topbar{height:76px;border-bottom:1px solid #102018;background:#030705ed;backdrop-filter:blur(18px);display:flex;align-items:center;position:sticky;top:0;z-index:20}.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}.logo{width:40px;height:40px;border-radius:12px;background:var(--g);color:#031007;display:grid;place-items:center;font-weight:900}.brand span+ b span,.brand b span{color:var(--g)}.nav{display:flex;align-items:center;gap:28px;margin-left:auto;color:#9ba59f;font-size:14px}.nav a:hover{color:#fff}.btn{border:1px solid var(--l);background:#07100b;color:#fff;padding:13px 20px;border-radius:12px;font-weight:750;transition:.2s}.btn:hover{transform:translateY(-1px)}.btn-green{background:var(--g);color:#021008;border-color:var(--g)}.menu-btn{display:none;background:#07100b;border:1px solid var(--l);color:#fff;border-radius:11px;width:44px;height:44px}
-.hero{padding:100px 0 75px;text-align:center}.badge,.eyebrow{color:var(--g);font-size:11px;font-weight:900;letter-spacing:1.5px}.badge{display:inline-flex;border:1px solid #14572d;background:#082316;padding:8px 13px;border-radius:999px}.hero h1{font-size:clamp(43px,7vw,78px);line-height:.98;letter-spacing:-4px;max-width:850px;margin:25px auto 22px}.hero h1 span{color:var(--g)}.hero p{max-width:730px;margin:auto;color:#9ba59f;font-size:19px;line-height:1.65}.hero-actions{display:flex;justify-content:center;gap:12px;margin-top:30px}.search-demo,.panel{background:var(--p);border:1px solid var(--l);border-radius:20px;box-shadow:0 20px 70px #0005}.search-demo{margin:60px auto 0;padding:25px;max-width:920px;text-align:left}.demo-title,.panel-head{display:flex;justify-content:space-between;gap:20px;align-items:center}.demo-title h3{margin:0}.credits,.credits-pill{border:1px solid #203028;border-radius:11px;padding:10px 13px;color:#a9b4ad;font-size:13px}.credits i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--g);margin-right:7px}.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.field label{display:block;color:#718078;text-transform:uppercase;font-size:10px;font-weight:800;letter-spacing:1px;margin:12px 0 8px}.field input,.field select,.auth-card input{width:100%;height:50px;background:#050b07;color:#fff;border:1px solid var(--l);border-radius:11px;padding:0 14px;outline:none}.field input:focus,.field select:focus,.auth-card input:focus{border-color:var(--g)}.demo-search{margin-top:14px;width:100%;height:52px}.section{padding:80px 0;border-top:1px solid #0c1711}.section-head{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:30px}.section h2{font-size:clamp(30px,4vw,48px);letter-spacing:-2px;margin:10px 0}.section-head p{color:#8e9992;line-height:1.7}.preview{display:grid;grid-template-columns:230px 1fr;border:1px solid var(--l);border-radius:20px;overflow:hidden;background:#050a07}.preview-side{padding:28px;border-right:1px solid var(--l)}.side-item{padding:12px;border-radius:10px;color:#87928b;font-size:13px;margin:6px 0}.side-item.active{background:#062817;color:var(--g)}.preview-main{padding:28px}.result-card{display:grid;grid-template-columns:55px 1fr 70px 100px;gap:16px;align-items:center;border:1px solid var(--l);background:#070d09;border-radius:15px;padding:18px;margin-top:12px}.avatar,.user-avatar{background:#0b1b12;color:var(--g);display:grid;place-items:center;font-weight:800}.avatar{width:48px;height:48px;border-radius:13px}.score,.lead-score{color:var(--g);font-weight:900}.score{font-size:25px}.signal,.tag{color:var(--g);font-size:11px;margin-top:6px}.stats{display:grid;grid-template-columns:repeat(4,1fr);border-block:1px solid #142019}.stat{padding:40px;text-align:center;border-right:1px solid #142019}.stat:last-child{border:0}.stat strong{display:block;color:var(--g);font-size:34px}.stat span{color:#748079;font-size:12px}.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.plan{border:1px solid var(--l);background:#050a07;border-radius:18px;padding:25px}.plan.featured{border-color:#1f8c46}.plan h3{margin:0}.price{font-size:34px;font-weight:900;margin:18px 0}.plan p{color:#89948d;min-height:45px}.plan .btn{width:100%}.footer{padding:35px 0;color:#657169;border-top:1px solid #0e1812}
-.auth-page{min-height:100vh;display:grid;place-items:center;padding:25px}.auth-wrap{width:min(460px,100%)}.auth-brand{justify-content:center;margin-bottom:25px}.auth-card{background:var(--p);border:1px solid #1b2c21;border-radius:22px;padding:30px}.auth-card h1{margin:0 0 8px;font-size:30px}.auth-card>p{color:#87928c;margin:0 0 25px}.auth-card label{display:block;color:#9ca7a0;font-size:12px;font-weight:700;margin:14px 0 7px}.auth-card input{height:52px}.auth-card .btn{width:100%;margin-top:20px;height:52px}.auth-switch{text-align:center;color:#7d8982;margin-top:20px;font-size:14px}.auth-switch button{border:0;background:none;color:var(--g);font-weight:800}.back{display:block;text-align:center;color:#657169;margin-top:18px;font-size:13px}
-.app{min-height:100vh;display:flex;background:#030705}.sidebar{width:260px;flex:none;background:#050b07;border-right:1px solid #142019;padding:22px 14px;display:flex;flex-direction:column}.side-brand{padding:0 10px 25px}.side-nav{display:grid;gap:5px}.side-nav button{background:none;border:0;color:#8b968f;text-align:left;padding:13px 14px;border-radius:10px;font-weight:700}.side-nav button:hover,.side-nav button.active{background:#092315;color:var(--g)}.side-bottom{margin-top:auto}.upgrade{border:1px solid #173b24;background:linear-gradient(135deg,#082013,#07100b);padding:16px;border-radius:15px;margin:15px 3px}.upgrade p{font-size:12px;color:#829087;line-height:1.5}.logout{width:100%;background:none;border:0;color:#758079;text-align:left;padding:14px}.main{min-width:0;flex:1}.appbar{height:78px;border-bottom:1px solid #142019;display:flex;align-items:center;padding:0 28px;gap:16px;background:#030705ed;position:sticky;top:0;z-index:10}.mobile-toggle{display:none;width:40px;height:40px;border:1px solid #183022;background:#07100b;color:var(--g);border-radius:10px}.app-title{flex:1}.app-title small{display:block;color:var(--g);font-size:10px;font-weight:900;letter-spacing:1.4px}.app-title strong{font-size:17px}.user-pill{display:flex;align-items:center;gap:10px;border:1px solid var(--l);padding:7px 10px;border-radius:12px}.user-avatar{width:30px;height:30px;border-radius:9px}.content{padding:45px 38px;max-width:1050px}.content h1{font-size:38px;letter-spacing:-1.5px;margin:0 0 8px}.content>p{color:#89948d;margin:0 0 30px}.panel{padding:25px}.search-form .btn{width:100%;height:52px;margin-top:18px}.cost{text-align:right}.cost small{display:block;color:#68756d;font-size:9px}.cost b{color:var(--g)}.results{margin-top:45px}.results-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.results-head h2{margin:4px 0}.sort{background:#07100b;border:1px solid var(--l);color:#9ba69f;border-radius:10px;padding:10px}.lead{border:1px solid var(--l);background:#060c08;border-radius:16px;padding:20px;display:grid;grid-template-columns:55px 1fr 75px 110px;gap:16px;align-items:center;margin-top:12px}.lead h3{margin:0 0 5px}.meta{color:#78847c;font-size:12px}.lead-score{font-size:26px}.lead-score small{font-size:10px;color:#6c7871}.lead-actions{display:grid;gap:7px}.lead-actions button{height:38px;border-radius:9px;font-size:12px;font-weight:800}.whats{background:var(--g);border:0;color:#021008}.approach{background:#07100b;border:1px solid #203027;color:white}.empty{padding:40px;text-align:center;color:#78847c}.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.profile-grid .full{grid-column:1/-1}.save{margin-top:16px;width:100%}.settings-list{display:grid;gap:12px}.setting{padding:17px;border:1px solid var(--l);border-radius:13px;display:flex;justify-content:space-between;gap:20px}.setting span{display:block;color:#77837c;font-size:13px;margin-top:5px}.toggle{width:45px;height:25px;border-radius:20px;border:0;background:#193021;position:relative}.toggle.on{background:var(--g)}.toggle:after{content:"";position:absolute;width:19px;height:19px;background:white;border-radius:50%;top:3px;left:3px}.toggle.on:after{left:23px}.mobile-overlay{display:none}
-@media(max-width:800px){.nav{display:none}.menu-btn{display:block;margin-left:auto}.hero{padding:70px 0 50px}.hero h1{letter-spacing:-2px}.hero p{font-size:16px}.hero-actions{flex-direction:column}.hero-actions .btn{width:100%}.filters{grid-template-columns:1fr 1fr}.section-head{grid-template-columns:1fr;gap:0}.preview{grid-template-columns:1fr}.preview-side{display:none}.result-card{grid-template-columns:45px 1fr 60px}.result-card .btn{display:none}.stats{grid-template-columns:1fr 1fr}.stat{padding:28px 10px}.sidebar{position:fixed;left:-280px;top:0;bottom:0;z-index:50;transition:.25s}.sidebar.open{left:0}.mobile-toggle{display:block}.content{padding:30px 17px}.content h1{font-size:30px}.appbar{padding:0 16px}.user-pill{display:none}.lead{grid-template-columns:45px 1fr}.lead-score{grid-column:2}.lead-actions{grid-column:2;grid-template-columns:1fr 1fr}.panel-head{display:block}.cost{text-align:left;margin-top:12px}.profile-grid{grid-template-columns:1fr}.profile-grid .full{grid-column:auto}.plans{grid-template-columns:1fr}.mobile-overlay.show{display:block;position:fixed;inset:0;background:#0008;z-index:40}}
-@media(max-width:480px){.filters{grid-template-columns:1fr}.hero h1{font-size:43px}.search-demo{padding:18px}.section{padding:60px 0}.plans{grid-template-columns:1fr}}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#06110c">
+  <title>LeadFinder — Prospecção Inteligente</title>
+  <link rel="stylesheet" href="./CSS/style.css">
+  <link rel="stylesheet" href="./CSS/responsive.css">
 </head>
 <body>
+  <header class="topbar">
+    <a class="brand" href="#inicio">LeadFinder</a>
+    <nav>
+      <a href="#inicio">Início</a>
+      <a href="#planos">Planos</a>
+      <button id="btn-login">Entrar</button>
+      <button id="btn-cadastro">Criar conta</button>
+    </nav>
+  </header>
 
-<section id="landing">
-<header class="topbar"><div class="container" style="display:flex;align-items:center;width:100%">
-<a class="brand" href="#inicio"><span class="logo">LF</span><b>Lead<span>Finder</span></b></a>
-<nav class="nav"><a href="#como">Como funciona</a><a href="#recursos">Recursos</a><a href="#planos">Planos</a><button class="btn" onclick="showAuth('login')">Entrar</button><button class="btn btn-green" onclick="showAuth('signup')">Começar grátis</button></nav>
-<button class="menu-btn" onclick="document.getElementById('lm').classList.toggle('hidden')">☰</button></div></header>
-<div id="lm" class="hidden" style="position:absolute;right:16px;top:70px;background:#07100b;border:1px solid #1b2c21;border-radius:14px;padding:12px;z-index:30;width:210px"><button class="btn" style="width:100%;margin-bottom:8px" onclick="showAuth('login')">Entrar</button><button class="btn btn-green" style="width:100%" onclick="showAuth('signup')">Começar grátis</button></div>
-<main class="container">
-<section id="inicio" class="hero"><div class="badge">PROSPECÇÃO INTELIGENTE</div><h1>Encontre empresas <span>para vender.</span></h1><p>Descubra empresas que precisam dos seus serviços, identifique oportunidades e comece a conversa pelo WhatsApp.</p><div class="hero-actions"><button class="btn btn-green" onclick="showAuth('signup')">Começar grátis →</button><a class="btn" href="#como">Ver como funciona</a></div>
-<div class="search-demo"><div class="demo-title"><div><h3>Encontre novos leads</h3><span class="muted">Escolha o nicho e a localização.</span></div><div class="credits"><i></i>30 créditos</div></div><div class="filters"><div class="field"><label>Nicho</label><select><option>Todos os nichos</option><option>Hamburgueria</option><option>Pizzaria</option><option>Restaurante</option><option>Cafeteria</option><option>Salão de beleza</option><option>Barbearia</option><option>Clínica</option><option>Academia</option><option>Hotel</option><option>Imobiliária</option></select></div><div class="field"><label>Estado</label><select id="demoEstado"><option value="">Todos os estados</option><option value="AC">Acre (AC)</option><option value="AL">Alagoas (AL)</option><option value="AP">Amapá (AP)</option><option value="AM">Amazonas (AM)</option><option value="BA">Bahia (BA)</option><option value="CE">Ceará (CE)</option><option value="DF">Distrito Federal (DF)</option><option value="ES">Espírito Santo (ES)</option><option value="GO">Goiás (GO)</option><option value="MA">Maranhão (MA)</option><option value="MT">Mato Grosso (MT)</option><option value="MS">Mato Grosso do Sul (MS)</option><option value="MG">Minas Gerais (MG)</option><option value="PA">Pará (PA)</option><option value="PB">Paraíba (PB)</option><option value="PR">Paraná (PR)</option><option value="PE">Pernambuco (PE)</option><option value="PI">Piauí (PI)</option><option value="RJ">Rio de Janeiro (RJ)</option><option value="RN">Rio Grande do Norte (RN)</option><option value="RS">Rio Grande do Sul (RS)</option><option value="RO">Rondônia (RO)</option><option value="RR">Roraima (RR)</option><option value="SC">Santa Catarina (SC)</option><option value="SP">São Paulo (SP)</option><option value="SE">Sergipe (SE)</option><option value="TO">Tocantins (TO)</option></select></div><div class="field"><label>Cidade</label><select id="demoCidade" disabled><option>Selecione o estado primeiro</option></select></div><div class="field"><label>Oportunidade</label><select><option>Todas as oportunidades</option><option>Sem site</option><option>Site desatualizado</option><option>Redesign de site</option><option>Landing page</option><option>Loja virtual</option><option>Catálogo online</option><option>Cardápio digital</option><option>Google/Maps</option><option>Perfil da empresa</option><option>Identidade visual</option><option>Design</option><option>Redes sociais</option><option>Automação</option><option>Agendamento online</option><option>Sistema personalizado</option><option>Página institucional</option><option>Formulário de contato</option><option>Link na bio</option><option>Marketing digital</option><option>SEO</option><option>Anúncios online</option><option>CRM</option><option>Chatbot</option><option>Área de membros</option><option>Integração com WhatsApp</option><option>Orçamento online</option><option>Outro</option></select></div></div><button class="btn btn-green demo-search" onclick="showAuth('signup')">Encontrar leads →</button><p style="text-align:center;color:#657169;font-size:11px;margin:12px 0 0">● Pesquisa demonstrativa • 6 créditos por busca</p></div></section>
-<section id="como" class="section"><div class="section-head"><div><div class="eyebrow">PRÉVIA DA PROSPECÇÃO</div><h2>Sua pesquisa vira <span class="green">oportunidades.</span></h2></div><p>Encontre empresas, veja os sinais de oportunidade e escolha quem abordar primeiro.</p></div><div class="preview"><aside class="preview-side"><small class="muted">PESQUISA</small><div class="side-item active">○ Hamburguerias</div><div class="side-item">○ Castelo do Piauí</div><div class="side-item">○ Sem site</div><hr style="border-color:#18271e;border-width:1px 0 0;margin:22px 0"><small class="muted">RESULTADOS</small><h2 style="font-size:30px;margin:10px 0 0">18</h2><small class="muted">empresas</small></aside><div class="preview-main"><h3 style="margin:0">Empresas encontradas</h3><small class="muted">18 oportunidades</small><div class="result-card"><div class="avatar">BH</div><div><h4>Burger House</h4><small>Hamburgueria · Castelo do Piauí — PI</small><div class="signal">Sem site</div></div><div class="score">6<small>/7</small></div><button class="btn btn-green">WhatsApp</button></div><div class="result-card"><div class="avatar">BC</div><div><h4>Burger Castelo</h4><small>Hamburgueria · Castelo do Piauí — PI</small><div class="signal">Sem site</div></div><div class="score">5<small>/7</small></div><button class="btn btn-green">WhatsApp</button></div></div></div></section>
-<section id="recursos" class="section"><div class="section-head"><div><div class="eyebrow">RECURSOS</div><h2>Feito para <span class="green">vender mais.</span></h2></div><p>Filtros, score de oportunidade, abordagem e organização dos seus leads em um só lugar.</p></div><div class="stats"><div class="stat"><strong>30</strong><span>créditos grátis</span></div><div class="stat"><strong>6</strong><span>créditos por busca</span></div><div class="stat"><strong>27</strong><span>estados disponíveis</span></div><div class="stat"><strong>100%</strong><span>focado em prospecção</span></div></div></section>
-<section id="planos" class="section"><div class="section-head"><div><div class="eyebrow">PLANOS</div><h2>Comece grátis e <span class="green">escale.</span></h2></div><p>Escolha o plano que acompanha seu ritmo de prospecção.</p></div><div class="plans"><div class="plan"><h3>Grátis</h3><div class="price">R$ 0</div><p>30 créditos · prospecção básica · WhatsApp</p><button class="btn" onclick="showAuth('signup')">Começar grátis</button></div><div class="plan featured"><h3>Pro</h3><div class="price">R$ 19,90</div><p>100 créditos · mais resultados · abordagens avançadas</p><button class="btn btn-green" onclick="showAuth('signup')">Assinar Pro</button></div><div class="plan"><h3>Max</h3><div class="price">R$ 30</div><p>300 créditos · até 50 leads · recursos premium</p><button class="btn" onclick="showAuth('signup')">Assinar Max</button></div></div></section>
-</main><footer class="footer"><div class="container">© 2026 LeadFinder — Prospecção Inteligente</div></footer>
-</section>
+  <main>
+    <section id="inicio" class="hero">
+      <span>PROSPECÇÃO INTELIGENTE</span>
+      <h1>Encontre empresas que precisam de um site.</h1>
+      <p>
+        Descubra oportunidades para oferecer criação de sites
+        e serviços digitais.
+      </p>
+      <button id="comecar">Começar agora</button>
+    </section>
 
-<section id="auth" class="auth-page hidden"><div class="auth-wrap"><div class="brand auth-brand"><span class="logo">LF</span><b>Lead<span>Finder</span></b></div><div class="auth-card">
-<div id="loginBox"><h1>Entrar na conta</h1><p>Acesse seu painel de prospecção.</p><label>E-mail</label><input id="le" type="email" placeholder="voce@email.com"><label>Senha</label><input id="lp" type="password" placeholder="Sua senha"><button class="btn btn-green" onclick="login()">Entrar no LeadFinder →</button><div class="auth-switch">Ainda não tem conta? <button onclick="showAuth('signup')">Criar conta</button></div></div>
-<div id="signupBox" class="hidden"><h1>Criar sua conta</h1><p>Comece grátis com 30 créditos.</p><label>Nome</label><input id="sn" placeholder="Seu nome"><label>E-mail / Gmail</label><input id="se" type="email" placeholder="voce@gmail.com"><label>Telefone</label><input id="sp" placeholder="(00) 00000-0000"><label>Senha</label><input id="ss" type="password" placeholder="Crie uma senha"><button class="btn btn-green" onclick="signup()">Criar conta grátis →</button><div class="auth-switch">Já possui uma conta? <button onclick="showAuth('login')">Entrar</button></div></div>
-</div><button class="back" onclick="showLanding()">← Voltar para o site</button></div></section>
+    <section id="autenticacao" hidden>
+      <h2 id="auth-titulo">Entrar na sua conta</h2>
 
-<section id="app" class="app hidden"><div id="overlay" class="mobile-overlay" onclick="closeSide()"></div><aside id="side" class="sidebar"><div class="side-brand"><a class="brand" href="#" onclick="go('prospect')"><span class="logo">LF</span><b>Lead<span>Finder</span></b></a><small style="display:block;color:#647068;font-size:9px;letter-spacing:1px;margin:6px 0 0 50px">PROSPECÇÃO INTELIGENTE</small></div><nav class="side-nav"><button data-v="prospect" onclick="go('prospect')">⌕ &nbsp; Prospecção</button><button data-v="leads" onclick="go('leads')">▦ &nbsp; Meus leads</button><button data-v="history" onclick="go('history')">◷ &nbsp; Histórico</button><hr style="width:90%;border-color:#142019;border-width:1px 0 0;margin:12px auto"><button data-v="plans" onclick="go('plans')">◆ &nbsp; Planos</button><button data-v="profile" onclick="go('profile')">◉ &nbsp; Meu perfil</button><button data-v="settings" onclick="go('settings')">⚙ &nbsp; Configurações</button></nav><div class="side-bottom"><div class="upgrade"><strong>Desbloqueie mais leads</strong><p>Tenha mais créditos para acelerar sua prospecção.</p><button class="btn btn-green" style="padding:8px 12px;font-size:12px" onclick="go('plans')">Ver planos →</button></div><button class="logout" onclick="logout()">↪ &nbsp; Sair da conta</button></div></aside>
-<main class="main"><header class="appbar"><button class="mobile-toggle" onclick="toggleSide()">☰</button><div class="app-title"><small>PROSPECÇÃO</small><strong>Encontre novas oportunidades</strong></div><div class="credits-pill">● <b id="ct">30</b> créditos</div><div class="user-pill"><span id="ui" class="user-avatar">U</span><span><b id="un">Usuário</b><small style="display:block;color:#68756d">Plano grátis</small></span></div></header><div id="view" class="content"></div></main></section>
+      <form id="auth-form">
+        <input id="nome" type="text" placeholder="Seu nome" hidden>
+        <input id="email" type="email" placeholder="Seu e-mail" required>
+        <input id="senha" type="password" placeholder="Sua senha"
+          minlength="6" required>
+        <input id="telefone" type="tel" placeholder="Celular com DDD" hidden>
+        <button id="auth-submit" type="submit">Entrar</button>
+      </form>
 
-<script>
-let S={user:null,credits:30,leads:[],hist:[]};
-const $=id=>document.getElementById(id);
-function read(){try{S.user=JSON.parse(localStorage.getItem('lf_user')||'null');S.credits=Number(localStorage.getItem('lf_credits')||30);S.leads=JSON.parse(localStorage.getItem('lf_leads')||'[]');S.hist=JSON.parse(localStorage.getItem('lf_hist')||'[]')}catch(e){}}
-function write(){localStorage.setItem('lf_user',JSON.stringify(S.user));localStorage.setItem('lf_credits',S.credits);localStorage.setItem('lf_leads',JSON.stringify(S.leads));localStorage.setItem('lf_hist',JSON.stringify(S.hist))}
-function showLanding(){hide('auth');hide('app');show('landing');scrollTo(0,0)}
-function showAuth(x){hide('landing');hide('app');show('auth');hide('loginBox');hide('signupBox');show(x==='signup'?'signupBox':'loginBox');scrollTo(0,0)}
-function signup(){let n=$('sn').value.trim(),e=$('se').value.trim(),p=$('sp').value.trim(),s=$('ss').value;if(!n||!e||!p||!s)return alert('Preencha todos os campos.');localStorage.setItem('lf_account',JSON.stringify({name:n,email:e,phone:p,pass:s}));alert('Conta criada! Agora entre com seu e-mail e senha.');showAuth('login');$('le').value=e}
-function login(){let e=$('le').value.trim(),p=$('lp').value,a=JSON.parse(localStorage.getItem('lf_account')||'null');if(!e||!p)return alert('Digite seu e-mail e sua senha.');if(a&&(e!==a.email||p!==a.pass))return alert('E-mail ou senha incorretos.');S.user=a||{name:e.split('@')[0],email:e,phone:''};S.credits=30;write();openApp()}
-function openApp(){read();hide('landing');hide('auth');show('app');header();go('prospect')}
-function logout(){localStorage.removeItem('lf_user');S.user=null;showLanding()}
-function header(){read();$('ct').textContent=S.credits;$('un').textContent=S.user?.name||'Usuário';$('ui').textContent=(S.user?.name||'U')[0].toUpperCase()}
-function hide(id){$(id).classList.add('hidden')}function show(id){$(id).classList.remove('hidden')}
-function toggleSide(){$('side').classList.toggle('open');$('overlay').classList.toggle('show')}function closeSide(){$('side').classList.remove('open');$('overlay').classList.remove('show')}
-function go(v){closeSide();document.querySelectorAll('.side-nav button').forEach(b=>b.classList.toggle('active',b.dataset.v===v));({prospect:prospect,leads:leads,history:history,plans:plans,profile:profile,settings:settings}[v]||prospect)();header();scrollTo(0,0)}
-function prospect(){$('view').innerHTML=`<h1>Encontre empresas para <span class="green">prospectar.</span></h1><p>Escolha o segmento, localização e oportunidade. O LeadFinder encontra negócios com potencial para seus serviços.</p><div class="panel"><div class="panel-head"><div><h2>Nova prospecção</h2><p class="muted">Defina os filtros para encontrar os melhores leads.</p></div><div class="cost"><small>CUSTO DA BUSCA</small><b>6 CRÉDITOS</b></div></div><div class="filters"><div class="field"><label>Nicho</label><select><option>Todos os nichos</option><option>Hamburgueria</option><option>Pizzaria</option><option>Restaurante</option><option>Cafeteria</option><option>Salão de beleza</option><option>Barbearia</option><option>Clínica</option><option>Academia</option><option>Hotel</option><option>Imobiliária</option></select></div><div class="field"><label>Estado</label><select id="es" onchange="loadCities(this.value)"><option value="">Todos os estados</option><option value="AC">Acre (AC)</option><option value="AL">Alagoas (AL)</option><option value="AP">Amapá (AP)</option><option value="AM">Amazonas (AM)</option><option value="BA">Bahia (BA)</option><option value="CE">Ceará (CE)</option><option value="DF">Distrito Federal (DF)</option><option value="ES">Espírito Santo (ES)</option><option value="GO">Goiás (GO)</option><option value="MA">Maranhão (MA)</option><option value="MT">Mato Grosso (MT)</option><option value="MS">Mato Grosso do Sul (MS)</option><option value="MG">Minas Gerais (MG)</option><option value="PA">Pará (PA)</option><option value="PB">Paraíba (PB)</option><option value="PR">Paraná (PR)</option><option value="PE">Pernambuco (PE)</option><option value="PI">Piauí (PI)</option><option value="RJ">Rio de Janeiro (RJ)</option><option value="RN">Rio Grande do Norte (RN)</option><option value="RS">Rio Grande do Sul (RS)</option><option value="RO">Rondônia (RO)</option><option value="RR">Roraima (RR)</option><option value="SC">Santa Catarina (SC)</option><option value="SP">São Paulo (SP)</option><option value="SE">Sergipe (SE)</option><option value="TO">Tocantins (TO)</option></select></div><div class="field"><label>Cidade</label><select id="ci" disabled><option value="">Todas as cidades</option></select></div><div class="field"><label>Oportunidade</label><select id="op"><option>Todas as oportunidades</option><option>Sem site</option><option>Site desatualizado</option><option>Redesign de site</option><option>Landing page</option><option>Loja virtual</option><option>Catálogo online</option><option>Cardápio digital</option><option>Google/Maps</option><option>Perfil da empresa</option><option>Identidade visual</option><option>Design</option><option>Redes sociais</option><option>Automação</option><option>Agendamento online</option><option>Sistema personalizado</option><option>Página institucional</option><option>Formulário de contato</option><option>Link na bio</option><option>Marketing digital</option><option>SEO</option><option>Anúncios online</option><option>CRM</option><option>Chatbot</option><option>Área de membros</option><option>Integração com WhatsApp</option><option>Orçamento online</option><option>Outro</option></select></div></div><button class="btn btn-green" onclick="search()">Encontrar leads →</button></div><div class="results"><div class="results-head"><div><small class="eyebrow">RESULTADOS</small><h2>Empresas encontradas</h2></div><select class="sort"><option>Mais relevantes</option><option>Maior score</option><option>Melhor avaliação</option></select></div><div id="rs">${S.leads.length?S.leads.map(card).join(''):'<div class="panel empty">Faça uma pesquisa para encontrar oportunidades.</div>'}</div></div>`}
-function loadCities(uf){
-    const city = $('ci');
-    if(!city) return;
-    city.innerHTML = '<option value="">Carregando cidades...</option>';
-    city.disabled = true;
-    if(!uf){
-        city.innerHTML = '<option value="">Todas as cidades</option>';
-        return;
-    }
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`)
-      .then(r=>r.json())
-      .then(cities=>{
-          city.innerHTML = '<option value="">Todas as cidades</option>' +
-            cities.map(c=>`<option value="${c.nome}">${c.nome}</option>`).join('');
-          city.disabled = false;
-      })
-      .catch(()=>{
-          city.innerHTML = '<option value="">Todas as cidades</option>';
-          city.disabled = false;
-      });
-}
-function makeLeads(){let c=$('ci').value||'Castelo do Piauí',n=$('ni').value;return[{n:'Burger House',cat:n==='Todos os nichos'?'Hamburgueria':n,sc:6,r:'4,8',rv:127,o:'Sem site',p:'5588999999999',c},{n:'Burger Castelo',cat:n==='Todos os nichos'?'Hamburgueria':n,sc:5,r:'4,6',rv:89,o:'Sem site',p:'5588998888888',c},{n:'Grill Burger',cat:'Restaurante',sc:4,r:'4,5',rv:64,o:'Site desatualizado',p:'5588997777777',c}]}
-function card(x){return `<article class="lead"><div class="avatar">${x.n.split(' ').map(z=>z[0]).slice(0,2).join('')}</div><div><h3>${x.n}</h3><div class="meta">${x.cat} · ${x.c} — PI</div><div class="meta">★ ${x.r} · ${x.rv} avaliações</div><span class="tag">${x.o}</span></div><div class="lead-score">${x.sc}<small>/7</small></div><div class="lead-actions"><button class="whats" onclick="window.open('https://wa.me/${x.p}','_blank')">WhatsApp</button><button class="approach" onclick="approach('${x.n}')">Abordagem</button></div></article>`}
-function search(){if(S.credits<6)return alert('Você não possui créditos suficientes.');S.credits-=6;S.leads=makeLeads();S.hist.unshift({d:new Date().toLocaleString('pt-BR'),n:$('ni').value,c:$('ci').value||'Castelo do Piauí',q:3});write();header();$('rs').innerHTML=S.leads.map(card).join('');alert('Pesquisa concluída. 6 créditos utilizados.')}
-function approach(n){let m=`Olá, ${n}! Tudo bem? Encontrei sua empresa e percebi uma oportunidade para melhorar a presença digital de vocês. Posso te mostrar uma ideia rápida?`;navigator.clipboard?.writeText(m);alert('Mensagem de abordagem copiada!')}
-function leads(){$('view').innerHTML=`<h1>Meus <span class="green">leads.</span></h1><p>Empresas que você salvou para abordar depois.</p><div class="panel">${S.leads.length?S.leads.map(card).join(''):'<div class="empty">Você ainda não tem leads salvos.</div>'}</div>`}
-function history(){$('view').innerHTML=`<h1>Seu <span class="green">histórico.</span></h1><p>Pesquisas realizadas nesta conta.</p><div class="panel">${S.hist.length?S.hist.map(x=>`<div class="setting"><div><strong>${x.n}</strong><span>${x.c} · ${x.q} oportunidades</span></div><span>${x.d}</span></div>`).join(''):'<div class="empty">Nenhuma pesquisa realizada ainda.</div>'}</div>`}
-function plans(){$('view').innerHTML=`<h1>Escolha como quer <span class="green">prospectar.</span></h1><p>Comece grátis e aumente seus créditos quando precisar.</p><div class="plans"><div class="plan"><h3>Grátis</h3><div class="price">R$ 0</div><p>30 créditos · prospecção básica · WhatsApp</p><button class="btn" disabled>Plano atual</button></div><div class="plan featured"><h3>Pro</h3><div class="price">R$ 19,90</div><p>100 créditos · mais resultados · abordagens avançadas</p><button class="btn btn-green" onclick="alert('Pagamento será conectado ao Cakto na próxima etapa.')">Assinar Pro</button></div><div class="plan"><h3>Max</h3><div class="price">R$ 30</div><p>300 créditos · até 50 leads · recursos premium</p><button class="btn" onclick="alert('Pagamento será conectado ao Cakto na próxima etapa.')">Assinar Max</button></div></div>`}
-function profile(){let u=S.user||{};$('view').innerHTML=`<h1>Meu <span class="green">perfil.</span></h1><p>Gerencie as informações da sua conta.</p><div class="panel"><h2>Informações da conta</h2><div class="profile-grid"><div class="field"><label>Nome</label><input id="pn" value="${u.name||''}"></div><div class="field"><label>Telefone</label><input id="pp" value="${u.phone||''}"></div><div class="field full"><label>E-mail</label><input value="${u.email||''}" disabled></div></div><button class="btn btn-green save" onclick="saveProfile()">Salvar alterações</button></div>`}
-function saveProfile(){S.user.name=$('pn').value;S.user.phone=$('pp').value;write();header();alert('Perfil salvo!')}
-function settings(){$('view').innerHTML=`<h1>Configurações</h1><p>Preferências, privacidade e segurança da conta.</p><div class="panel"><div class="eyebrow">CONTA</div><h2>Preferências da conta</h2><div class="settings-list"><div class="setting"><div><strong>Notificações</strong><span>Receber avisos sobre sua conta, créditos e novidades.</span></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div><div class="setting"><div><strong>Atualizações de leads</strong><span>Receber informações sobre novas oportunidades.</span></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div></div><div class="eyebrow" style="margin-top:30px">PRIVACIDADE</div><h2>Privacidade e segurança</h2><div class="setting"><div><strong>Alterar senha</strong><span>Altere sua senha de acesso à conta.</span></div><button class="btn" onclick="alert('A troca de senha será conectada ao Firebase Auth.')">Alterar</button></div><div class="eyebrow" style="margin-top:30px">DADOS</div><h2>Seus dados</h2><div class="setting"><div><strong>Exportar dados</strong><span>Solicite uma cópia das informações da sua conta.</span></div><button class="btn" onclick="exportData()">Exportar</button></div></div>`}
-function exportData(){let b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='leadfinder-dados.json';a.click()}
-function init(){read();/* ignora a antiga chave leadfinder_logged para não liberar o painel */showLanding()}init();
+      <p id="auth-mensagem" role="status"></p>
+      <button id="trocar-auth" type="button">
+        Ainda não tem conta? Cadastre-se
+      </button>
+    </section>
 
-const demoEstado=document.getElementById('demoEstado');
-const demoCidade=document.getElementById('demoCidade');
-if(demoEstado && demoCidade){
-  demoEstado.addEventListener('change',()=>{
-    const uf=demoEstado.value;
-    demoCidade.disabled=true;
-    demoCidade.innerHTML=uf
-      ? '<option>Carregando cidades...</option>'
-      : '<option>Selecione o estado primeiro</option>';
-    if(!uf) return;
-    fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`)
-      .then(r=>r.json())
-      .then(cities=>{
-        demoCidade.innerHTML='<option value="">Todas as cidades</option>'+cities.map(c=>`<option>${c.nome}</option>`).join('');
-        demoCidade.disabled=false;
-      })
-      .catch(()=>{
-        demoCidade.innerHTML='<option value="">Todas as cidades</option>';
-        demoCidade.disabled=false;
-      });
-  });
-}
+    <section id="painel" hidden>
+      <h2>Painel de prospecção</h2>
+      <p>Encontre novas oportunidades para seu negócio.</p>
 
-</script>
-</body></html>
+      <div class="filtros">
+        <select id="estado">
+          <option value="">Selecione o estado</option>
+        </select>
+
+        <select id="cidade" disabled>
+          <option value="">Selecione a cidade</option>
+        </select>
+
+        <select id="nicho">
+          <option value="">Escolha um segmento</option>
+          <option>Restaurante</option>
+          <option>Pizzaria</option>
+          <option>Barbearia</option>
+          <option>Clínica</option>
+          <option>Academia</option>
+          <option>Oficina</option>
+          <option>Loja de roupas</option>
+          <option>Imobiliária</option>
+        </select>
+
+        <button id="buscar-leads" type="button">Buscar empresas</button>
+      </div>
+
+      <p id="resultado-status" role="status"></p>
+      <div id="resultados"></div>
+      <button id="sair" type="button">Sair da conta</button>
+    </section>
+
+    <section id="planos">
+      <h2>Planos do LeadFinder</h2>
+      <p>Comece gratuitamente e encontre novas oportunidades.</p>
+    </section>
+  </main>
+
+  <script type="module" src="./js/site.js"></script>
+</body>
+</html>
