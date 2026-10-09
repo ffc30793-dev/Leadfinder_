@@ -1,7 +1,8 @@
 import { getFirebase, firebaseReady } from "./firebase.js";
 const $=s=>document.querySelector(s);
-const API_BASE = ""; // Em produção: URL do seu backend/Cloud Function, nunca uma API privada direta.
-const CITIES_ENDPOINT = ""; // Ex.: endpoint público/backend que devolve cidades por UF.
+
+const API_BASE = "/api/leads";
+const CITIES_ENDPOINT = "https://servicodados.ibge.gov.br/api/v1/localidades/estados";
 
 async function loadCities(uf){
   const select=$("#city-select"); if(!select) return;
