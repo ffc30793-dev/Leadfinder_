@@ -5,9 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#06110c">
+  <meta name="description" content="Encontre empresas que precisam de um site com o LeadFinder.">
   <title>LeadFinder — Prospecção Inteligente</title>
-  <link rel="stylesheet" href="./CSS/style.css">
-  <link rel="stylesheet" href="./CSS/responsive.css">
+
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/responsive.css">
 </head>
 <body>
   <header class="topbar">
@@ -15,8 +17,8 @@
     <nav>
       <a href="#inicio">Início</a>
       <a href="#planos">Planos</a>
-      <button id="btn-login">Entrar</button>
-      <button id="btn-cadastro">Criar conta</button>
+      <button id="btn-login" type="button">Entrar</button>
+      <button id="btn-cadastro" type="button">Criar conta</button>
     </nav>
   </header>
 
@@ -28,22 +30,51 @@
         Descubra oportunidades para oferecer criação de sites
         e serviços digitais.
       </p>
-      <button id="comecar">Começar agora</button>
+      <button id="comecar" type="button">Começar agora</button>
     </section>
 
     <section id="autenticacao" hidden>
       <h2 id="auth-titulo">Entrar na sua conta</h2>
 
       <form id="auth-form">
-        <input id="nome" type="text" placeholder="Seu nome" hidden>
-        <input id="email" type="email" placeholder="Seu e-mail" required>
-        <input id="senha" type="password" placeholder="Sua senha"
-          minlength="6" required>
-        <input id="telefone" type="tel" placeholder="Celular com DDD" hidden>
+        <input
+          id="nome"
+          type="text"
+          placeholder="Seu nome"
+          autocomplete="name"
+          hidden
+        >
+
+        <input
+          id="email"
+          type="email"
+          placeholder="Seu e-mail"
+          autocomplete="email"
+          required
+        >
+
+        <input
+          id="senha"
+          type="password"
+          placeholder="Sua senha"
+          autocomplete="current-password"
+          minlength="6"
+          required
+        >
+
+        <input
+          id="telefone"
+          type="tel"
+          placeholder="Celular com DDD"
+          autocomplete="tel"
+          hidden
+        >
+
         <button id="auth-submit" type="submit">Entrar</button>
       </form>
 
-      <p id="auth-mensagem" role="status"></p>
+      <p id="auth-mensagem" role="status" aria-live="polite"></p>
+
       <button id="trocar-auth" type="button">
         Ainda não tem conta? Cadastre-se
       </button>
@@ -74,11 +105,14 @@
           <option>Imobiliária</option>
         </select>
 
-        <button id="buscar-leads" type="button">Buscar empresas</button>
+        <button id="buscar-leads" type="button">
+          Buscar empresas
+        </button>
       </div>
 
-      <p id="resultado-status" role="status"></p>
+      <p id="resultado-status" role="status" aria-live="polite"></p>
       <div id="resultados"></div>
+
       <button id="sair" type="button">Sair da conta</button>
     </section>
 
