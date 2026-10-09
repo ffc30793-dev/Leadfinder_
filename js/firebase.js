@@ -14,7 +14,7 @@ export const firebaseConfig = {
 
 export const firebaseReady = true;
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = authMod.getAuth(app);
 export const firestore = fsMod.getFirestore(app);
