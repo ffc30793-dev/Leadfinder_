@@ -1,251 +1,123 @@
+
 import {
-  getFirebase,
-  firebaseReady
-} from "../config/config/firebase.js";
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 
-const $ = (selector) => document.querySelector(selector);
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// Mostrar ou ocultar senha
-document.querySelectorAll(".password-toggle").forEach((button) => {
-  button.addEventListener("click", () => {
-    const input = document.getElementById(button.dataset.target);
+import { app } from "./firebase.js";
 
-    if (!input) return;
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-    input.type = input.type === "password" ? "text" : "password";
-    button.textContent =
-      input.type === "password" ? "Mostrar" : "Ocultar";
-  });
-});
+const PAINEL = document.getElementById("painel");
+const INICIO = document.getElementById("inicio");
+const AUTH = document.getElementById("autenticacao");
+const FORM = document.getElementById("auth-form");
+const MENSAGEM = document.getElementById("auth-mensagem");
 
-// Exibir mensagens
-function setMsg(selector, message, success = false) {
-  const element = $(selector);
-
-  if (!element) return;
-
-  element.textContent = message;
-  element.style.color = success ? "#20d59a" : "#ff9aad";
+function mostrarTela(tela) {
+  if (INICIO) INICIO.hidden = tela !== "inicio";
+  if (AUTH) AUTH.hidden = tela !== "auth";
+  if (PAINEL) PAINEL.hidden = tela !== "painel";
+  const planos = document.getElementById("planos");
+  if (planos) planos.hidden = tela !== "inicio";
 }
 
-// Verificar se o Firebase está configurado
-async function connectFirebase(selector) {
-  if (!firebaseReady) {
-    setMsg(selector, "Firebase não configurado. Verifique a configuração.");
-    return null;
-  }
-
-  try {
-    const firebase = await getFirebase();
-
-    if (!firebase) {
-      setMsg(selector, "Não foi possível conectar ao Firebase.");
-      return null;
-    }
-
-    return firebase;
-  } catch (error) {
-    console.error("Erro ao conectar ao Firebase:", error);
-    setMsg(selector, "Erro de conexão. Confira sua internet e tente novamente.");
-    return null;
-  }
+function mensagem(texto) {
+  if (MENSAGEM) MENSAGEM.textContent = texto;
 }
 
-// LOGIN
-$("#login-form")?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const email = $("#login-email")?.value.trim();
-  const password = $("#login-password")?.value;
-
-  if (!email || !password) {
-    setMsg("#login-message", "Preencha o e-mail e a senha.");
-    return;
-  }
-
-  const firebase = await connectFirebase("#login-message");
-  if (!firebase) return;
-
-  try {
-    await firebase.authMod.signInWithEmailAndPassword(
-      firebase.auth,
-      email,
-      password
-    );
-
-    window.location.href = "dashboard.html";
-  } catch (error) {
-    console.error("Erro no login:", error);
-    setMsg("#login-message", friendlyAuthError(error));
+onAuthStateChanged(auth, async (usuario) => {
+  if (usuario) {
+    mostrarTela("painel");
+    mensagem("");
+  } else {
+    mostrarTela("inicio");
   }
 });
 
-// CADASTRO
-$("#signup-form")?.addEventListener("submit", async (event) => {
-  event.preventDefault();
+if (FORM) {
+  FORM.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
 
-  const name = $("#signup-name")?.value.trim();
-  const email = $("#signup-email")?.value.trim();
-  const phone = $("#signup-phone")?.value.trim();
-  const password = $("#signup-password")?.value;
-  const confirmation = $("#signup-confirm")?.value;
+    const email = document.getElementById("email").value.trim();
+    const senha = document.getElementById("senha").value;
+    const nome = document.getElementById("nome")?.value.trim() || "";
+    const telefone =
+      document.getElementById("telefone")?.value.trim() || "";
 
-  if (!name || !email || !phone || !password || !confirmation) {
-    setMsg("#signup-message", "Preencha todos os campos.");
-    return;
-  }
+    const modoCadastro =
+      document.getElementById("nome") &&
+      !document.getElementById("nome").hidden;
 
-  if (!/^\S+@\S+\.\S+$/.test(email)) {
-    setMsg("#signup-message", "Informe um e-mail válido.");
-    return;
-  }
+    const botao = document.getElementById("auth-submit");
+    if (botao) botao.disabled = true;
 
-  if (phone.replace(/\D/g, "").length < 10) {
-    setMsg("#signup-message", "Informe um número de celular válido.");
-    return;
-  }
+    try {
+      if (modoCadastro) {
+        const credencial = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          senha
+        );
 
-  if (password.length < 8) {
-    setMsg("#signup-message", "A senha deve ter pelo menos 8 caracteres.");
-    return;
-  }
+        await setDoc(doc(db, "usuarios", credencial.user.uid), {
+          nome,
+          email,
+          telefone,
+          plano: "FREE",
+          creditos: 30,
+          criadoEm: serverTimestamp()
+        });
 
-  if (password !== confirmation) {
-    setMsg("#signup-message", "As senhas não coincidem.");
-    return;
-  }
-
-  const terms = $("#terms");
-
-  if (terms && !terms.checked) {
-    setMsg("#signup-message", "Aceite os termos para continuar.");
-    return;
-  }
-
-  const firebase = await connectFirebase("#signup-message");
-  if (!firebase) return;
-
-  let credential;
-
-  try {
-    // Criar a conta no Firebase Authentication
-    credential = await firebase.authMod.createUserWithEmailAndPassword(
-      firebase.auth,
-      email,
-      password
-    );
-
-    // Salvar o nome no perfil do usuário
-    await firebase.authMod.updateProfile(credential.user, {
-      displayName: name
-    });
-
-  } catch (error) {
-    console.error("Erro ao criar a conta:", error);
-    setMsg("#signup-message", friendlyAuthError(error));
-    return;
-  }
-
-  // Salvar os dados adicionais no Firestore
-  try {
-    await firebase.fsMod.setDoc(
-      firebase.fsMod.doc(
-        firebase.firestore,
-        "users",
-        credential.user.uid
-      ),
-      {
-        name: name,
-        email: email,
-        phone: phone,
-        plan: "FREE",
-        credits: 30,
-        searches: 0,
-        leads: 0,
-        status: "active",
-        createdAt: firebase.fsMod.serverTimestamp()
+        mensagem("Conta criada com sucesso!");
+      } else {
+        await signInWithEmailAndPassword(auth, email, senha);
+        mensagem("Login realizado com sucesso!");
       }
-    );
 
-    window.location.href = "dashboard.html";
+      mostrarTela("painel");
+    } catch (erro) {
+      console.error("Erro na autenticação:", erro);
 
-  } catch (error) {
-    console.error("Conta criada, mas houve erro ao salvar no Firestore:", error);
+      const erros = {
+        "auth/email-already-in-use": "Este e-mail já está cadastrado.",
+        "auth/invalid-email": "Digite um e-mail válido.",
+        "auth/weak-password": "A senha deve ter pelo menos 6 caracteres.",
+        "auth/invalid-credential": "E-mail ou senha incorretos.",
+        "auth/network-request-failed": "Verifique sua conexão."
+      };
 
-    setMsg(
-      "#signup-message",
-      "Sua conta foi criada no Firebase Authentication, mas não conseguimos salvar seu perfil no banco. Verifique as regras do Firestore."
-    );
-  }
-});
+      mensagem(
+        erros[erro.code] ||
+        "Não foi possível concluir. Verifique a configuração do Firebase e as regras do Firestore."
+      );
+    } finally {
+      if (botao) botao.disabled = false;
+    }
+  });
+}
 
-// RECUPERAÇÃO DE SENHA
-$("#forgot-password")?.addEventListener("click", async (event) => {
-  event.preventDefault();
-
-  const email = $("#login-email")?.value.trim();
-
-  if (!email) {
-    setMsg(
-      "#login-message",
-      "Digite seu e-mail antes de solicitar a recuperação."
-    );
-    return;
-  }
-
-  const firebase = await connectFirebase("#login-message");
-  if (!firebase) return;
-
-  try {
-    await firebase.authMod.sendPasswordResetEmail(
-      firebase.auth,
-      email
-    );
-
-    setMsg(
-      "#login-message",
-      "Se o e-mail estiver cadastrado, você receberá instruções para recuperar a senha.",
-      true
-    );
-  } catch (error) {
-    console.error("Erro ao solicitar recuperação:", error);
-    setMsg("#login-message", friendlyAuthError(error));
-  }
-});
-
-// TRADUZIR ERROS DO FIREBASE
-function friendlyAuthError(error) {
-  const code = error?.code || "";
-
-  const messages = {
-    "auth/invalid-credential":
-      "E-mail ou senha inválidos.",
-
-    "auth/email-already-in-use":
-      "Este e-mail já está cadastrado.",
-
-    "auth/weak-password":
-      "A senha deve ter pelo menos 8 caracteres.",
-
-    "auth/invalid-email":
-      "O e-mail informado é inválido.",
-
-    "auth/too-many-requests":
-      "Muitas tentativas. Aguarde e tente novamente.",
-
-    "auth/network-request-failed":
-      "Falha de conexão. Verifique sua internet.",
-
-    "auth/operation-not-allowed":
-      "Ative o método E-mail/senha nas configurações do Firebase.",
-
-    "auth/invalid-api-key":
-      "A chave de API do Firebase é inválida. Confira a configuração.",
-
-    "permission-denied":
-      "O Firestore bloqueou a operação. Verifique as regras do banco."
-  };
-
-  return messages[code] ||
-    "Não foi possível concluir. Confira os dados e tente novamente.";
+const sair = document.getElementById("sair");
+if (sair) {
+  sair.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      mostrarTela("inicio");
+    } catch (erro) {
+      console.error(erro);
+      mensagem("Não foi possível sair da conta.");
+    }
+  });
 }
