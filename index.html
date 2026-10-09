@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -10,81 +9,270 @@
 
   <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="./css/responsive.css">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050b08;
+      --panel: #0b1510;
+      --green: #25e68a;
+      --muted: #9aaba1;
+      --border: rgba(37, 230, 138, .18);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at top, #103322 0%, transparent 50%),
+        var(--bg);
+      color: #f3fff7;
+      font-family: Inter, system-ui, Arial, sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+
+    button {
+      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 17px;
+      color: #f3fff7;
+      background: #12251a;
+      transition: .2s ease;
+    }
+
+    button:hover {
+      border-color: var(--green);
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      color: #03140b;
+      background: var(--green);
+      border-color: var(--green);
+      font-weight: 800;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px clamp(16px, 5vw, 70px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(5, 11, 8, .8);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+
+    .brand {
+      color: var(--green);
+      text-decoration: none;
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      color: #d4e5d9;
+      text-decoration: none;
+      padding: 8px;
+    }
+
+    main {
+      width: min(1100px, 92%);
+      margin: auto;
+    }
+
+    .hero {
+      text-align: center;
+      padding: clamp(65px, 12vw, 130px) 0 85px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      color: var(--green);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 9px 14px;
+      letter-spacing: 2px;
+      font-size: .75rem;
+      font-weight: 800;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin: 25px auto 18px;
+      font-size: clamp(2.3rem, 7vw, 4.8rem);
+      line-height: 1.05;
+      letter-spacing: -2px;
+    }
+
+    .highlight { color: var(--green); }
+
+    .hero p, .muted {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .hero p {
+      max-width: 600px;
+      margin: 0 auto 28px;
+    }
+
+    section:not(.hero) { margin: 25px 0 55px; }
+
+    .panel {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: clamp(20px, 5vw, 35px);
+      background: rgba(11, 21, 16, .92);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, .25);
+    }
+
+    .panel h2 { margin-top: 0; }
+
+    form, .filters {
+      display: grid;
+      gap: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      min-width: 0;
+      padding: 14px;
+      color: #f3fff7;
+      background: #07110b;
+      border: 1px solid #263b2e;
+      border-radius: 11px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--green);
+    }
+
+    [hidden] { display: none !important; }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+      gap: 18px;
+      margin: 25px 0 60px;
+    }
+
+    .plan {
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(145deg, #102117, #08100b);
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--green);
+    }
+
+    #resultados {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .result-card {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    footer {
+      padding: 25px 16px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      .topbar { align-items: flex-start; flex-direction: column; }
+      nav { width: 100%; }
+      nav button { flex: 1; }
+      h1 { letter-spacing: -1px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <header class="topbar">
-    <a class="brand" href="#inicio">LeadFinder</a>
-    <nav>
+    <a class="brand" href="#inicio">LeadFinder<span class="highlight">.</span></a>
+
+    <nav aria-label="Navegação principal">
       <a href="#inicio">Início</a>
       <a href="#planos">Planos</a>
       <button id="btn-login" type="button">Entrar</button>
-      <button id="btn-cadastro" type="button">Criar conta</button>
+      <button id="btn-cadastro" class="primary" type="button">Criar conta</button>
     </nav>
   </header>
 
   <main>
     <section id="inicio" class="hero">
-      <span>PROSPECÇÃO INTELIGENTE</span>
-      <h1>Encontre empresas que precisam de um site.</h1>
+      <span class="eyebrow">PROSPECÇÃO INTELIGENTE</span>
+      <h1>Encontre empresas que <span class="highlight">precisam de um site.</span></h1>
       <p>
-        Descubra oportunidades para oferecer criação de sites
-        e serviços digitais.
+        Descubra oportunidades, encontre estabelecimentos por localização
+        e prepare abordagens para oferecer seus serviços digitais.
       </p>
-      <button id="comecar" type="button">Começar agora</button>
+      <button id="comecar" class="primary" type="button">Começar agora →</button>
     </section>
 
-    <section id="autenticacao" hidden>
+    <section id="autenticacao" class="panel" hidden>
       <h2 id="auth-titulo">Entrar na sua conta</h2>
+      <p class="muted">Acesse sua área de prospecção.</p>
 
       <form id="auth-form">
-        <input
-          id="nome"
-          type="text"
-          placeholder="Seu nome"
-          autocomplete="name"
-          hidden
-        >
-
-        <input
-          id="email"
-          type="email"
-          placeholder="Seu e-mail"
-          autocomplete="email"
-          required
-        >
-
-        <input
-          id="senha"
-          type="password"
-          placeholder="Sua senha"
-          autocomplete="current-password"
-          minlength="6"
-          required
-        >
-
-        <input
-          id="telefone"
-          type="tel"
-          placeholder="Celular com DDD"
-          autocomplete="tel"
-          hidden
-        >
-
-        <button id="auth-submit" type="submit">Entrar</button>
+        <input id="nome" type="text" placeholder="Seu nome"
+               autocomplete="name" hidden>
+        <input id="email" type="email" placeholder="Seu e-mail"
+               autocomplete="email" required>
+        <input id="senha" type="password" placeholder="Sua senha"
+               autocomplete="current-password" minlength="6" required>
+        <input id="telefone" type="tel" placeholder="Celular com DDD"
+               autocomplete="tel" hidden>
+        <button id="auth-submit" class="primary" type="submit">Entrar</button>
       </form>
 
-      <p id="auth-mensagem" role="status" aria-live="polite"></p>
-
-      <button id="trocar-auth" type="button">
-        Ainda não tem conta? Cadastre-se
-      </button>
+      <p id="auth-mensagem" class="muted" role="status" aria-live="polite"></p>
+      <button id="trocar-auth" type="button">Ainda não tem conta? Cadastre-se</button>
+      <button id="voltar-inicio" type="button">Voltar ao início</button>
     </section>
 
-    <section id="painel" hidden>
+    <section id="painel" class="panel" hidden>
       <h2>Painel de prospecção</h2>
-      <p>Encontre novas oportunidades para seu negócio.</p>
+      <p class="muted">Escolha a localização e o segmento das empresas.</p>
 
-      <div class="filtros">
+      <div class="filters">
         <select id="estado">
           <option value="">Selecione o estado</option>
         </select>
@@ -105,23 +293,62 @@
           <option>Imobiliária</option>
         </select>
 
-        <button id="buscar-leads" type="button">
+        <button id="buscar-leads" class="primary" type="button">
           Buscar empresas
         </button>
       </div>
 
-      <p id="resultado-status" role="status" aria-live="polite"></p>
+      <p id="resultado-status" class="muted" role="status" aria-live="polite"></p>
       <div id="resultados"></div>
-
       <button id="sair" type="button">Sair da conta</button>
     </section>
 
     <section id="planos">
-      <h2>Planos do LeadFinder</h2>
-      <p>Comece gratuitamente e encontre novas oportunidades.</p>
+      <h2 style="text-align:center">Planos do LeadFinder</h2>
+      <p class="muted" style="text-align:center">
+        Comece gratuitamente e evolua quando precisar.
+      </p>
+
+      <div class="plans">
+        <article class="plan">
+          <h3>Grátis</h3>
+          <div class="price">R$ 0</div>
+          <p class="muted">Para conhecer a ferramenta.</p>
+          <p>30 créditos iniciais*</p>
+          <button class="btn-plano" data-plano="FREE" type="button">
+            Começar grátis
+          </button>
+        </article>
+
+        <article class="plan">
+          <h3>Básico</h3>
+          <div class="price">R$ 19,90</div>
+          <p class="muted">Para quem está começando a prospectar.</p>
+          <p>Mais recursos de prospecção*</p>
+          <button class="btn-plano" data-plano="BASIC" type="button">
+            Escolher Básico
+          </button>
+        </article>
+
+        <article class="plan">
+          <h3>Pro</h3>
+          <div class="price">R$ 30</div>
+          <p class="muted">Para uma rotina mais intensa de prospecção.</p>
+          <p>Recursos avançados*</p>
+          <button class="btn-plano" data-plano="PRO" type="button">
+            Escolher Pro
+          </button>
+        </article>
+      </div>
+      <p class="muted">*Créditos, recursos pagos e cobranças precisam ser configurados no sistema antes de serem oferecidos como ativos.</p>
     </section>
   </main>
 
-  <script type="module" src="./js/site.js"></script>
+  <footer>
+    LeadFinder — Prospecção Inteligente
+  </footer>
+
+  <!-- O arquivo existente está em js/js/Site.js, com S maiúsculo. -->
+  <script src="./js/js/Site.js" defer></script>
 </body>
 </html>
