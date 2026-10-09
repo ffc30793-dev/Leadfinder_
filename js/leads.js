@@ -32,14 +32,54 @@ $("#lead-search-form")?.addEventListener("submit", async e=>{
   const btn=e.submitter; btn.disabled=true; btn.innerHTML="PESQUISANDO...";
   $("#search-message").textContent="";
   try{
-    let results=[];
-    if(API_BASE){
-      const r=await fetch(`${API_BASE}/search-leads`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(filters)});
-      if(!r.ok) throw new Error("api");
-      const data=await r.json(); results=data.leads||[];
-    }else{
-      // Demonstração funcional: não apresenta dados inventados como resultados reais.
-      results=[];
+    
+const { auth } = await getFirebase();
+const currentUser = auth.currentUser;
+
+if (!currentUser) {
+  throw new Error("Faça login novamente para pesquisar.");
+}
+
+if (filters.city === "ALL") {
+  throw new Error("Selecione uma cidade específica.");
+}
+
+const idToken = await currentUser.getIdToken();
+
+const response = await fetch("/api/leads", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${idToken}`
+  },
+  body: JSON.stringify({
+    cidade: filters.city,
+    estado: filters.state,
+    nicho: filters.subcategory || filters.category || "empresa"
+  })
+});
+
+const data = await response.json();
+
+if (!response.ok || !data.sucesso) {
+  throw new Error(data.erro || "Falha ao buscar empresas.");
+}
+
+const results = (data.empresas || []).map(e => ({
+  id: e.id,
+  name: e.nome,
+  category: filters.subcategory || filters.category || "Empresa",
+  city: filters.city,
+  state: filters.state,
+  address: e.endereco,
+  phone: e.telefone,
+  site: e.site,
+  whatsapp: e.whatsapp,
+  mapa: e.mapa,
+  situacao: e.situacao
+}));
+
+  
     }
     const history={id:crypto.randomUUID(),date:new Date().toISOString(),...filters,count:results.length,credits:6,results};
     const historyArr=JSON.parse(localStorage.getItem("lf_history")||"[]");historyArr.unshift(history);localStorage.setItem("lf_history",JSON.stringify(historyArr.slice(0,50)));
