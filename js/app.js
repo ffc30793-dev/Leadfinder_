@@ -1,7 +1,9 @@
-import { auth, firestore, authMod, fsMod } from "./firebase.js";
+import { auth, firestore, getFirebase } from "./firebase.js";
+
+let authMod;
+let fsMod;
 
 const $ = (seletor) => document.querySelector(seletor);
-
 const estados = [
   ["AC", "Acre"], ["AL", "Alagoas"], ["AP", "Amapá"],
   ["AM", "Amazonas"], ["BA", "Bahia"], ["CE", "Ceará"],
