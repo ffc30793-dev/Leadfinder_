@@ -13,9 +13,12 @@
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="#inicio" aria-label="LeadFinder início">
-        <span class="brand-mark">L</span><span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
+        <span class="brand-mark">L</span>
+        <span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
       </a>
+
       <div class="side-label">MENU PRINCIPAL</div>
+
       <nav class="side-nav" aria-label="Menu principal">
         <button class="nav-item active" data-view="inicio"><span class="nav-icon">⌂</span>Início</button>
         <button class="nav-item" data-view="buscar"><span class="nav-icon">⌕</span>Buscar empresas</button>
@@ -24,131 +27,536 @@
         <button class="nav-item" data-view="planos"><span class="nav-icon">♛</span>Planos</button>
         <button class="nav-item" data-view="configuracoes"><span class="nav-icon">⚙</span>Configurações</button>
       </nav>
+
       <div class="sidebar-promo">
         <div class="promo-symbol">↗</div>
         <strong>Quer mais oportunidades?</strong>
         <p>Conheça os planos para ampliar sua prospecção.</p>
         <button class="btn btn-primary btn-full" data-view="planos">Ver planos <span>→</span></button>
       </div>
-      <div class="sidebar-bottom"><span class="status-dot"></span> Sistema operacional <small>LeadFinder v1.0</small></div>
+
+      <div class="sidebar-bottom">
+        <span class="status-dot"></span> Sistema operacional
+        <small>LeadFinder v1.0</small>
+      </div>
     </aside>
 
     <div class="workspace">
       <header class="topbar">
         <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu">☰</button>
-        <div class="top-search"><span>⌕</span><input id="global-search" type="search" placeholder="Encontre empresas que precisam de um site..."></div>
+
+        <div class="top-search">
+          <span>⌕</span>
+          <input id="global-search" type="search" placeholder="Encontre empresas que precisam de um site...">
+        </div>
+
         <div class="top-actions">
           <div class="credit-pill"><span>▤</span><b id="credit-count">30</b> créditos</div>
           <button class="icon-button" aria-label="Notificações">♧</button>
-          <div class="profile-chip"><span class="avatar">L</span><span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span></div>
+
+          <div class="profile-chip">
+            <span class="avatar">L</span>
+            <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
+          </div>
+
           <button id="btn-login" class="btn btn-ghost top-login">Entrar</button>
           <button id="btn-cadastro" class="btn btn-primary top-signup">Criar conta</button>
         </div>
       </header>
 
       <main class="main-content">
+
+        <!-- INÍCIO -->
         <section class="view active" id="view-inicio">
           <div class="hero-grid">
             <div class="hero-card">
               <div class="eyebrow"><span class="status-dot"></span> PROSPECÇÃO INTELIGENTE</div>
               <h1>Encontre empresas que <span class="green">precisam de um site.</span></h1>
               <p>Descubra oportunidades, encontre estabelecimentos por localização e prepare abordagens para oferecer seus serviços digitais.</p>
-              <div class="hero-actions"><button class="btn btn-primary" data-view="buscar">Começar agora <span>→</span></button><button class="btn btn-ghost" data-scroll="como-funciona">Saiba mais</button></div>
-              <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
-              <div class="hero-graphic"><div class="graphic-window"><div class="window-dots">● ● ●</div><div class="graph-line">⌁⌁⌁↗</div><span class="graphic-pin">⌖</span></div><div class="floating-tag tag-one">⌖ Localização</div><div class="floating-tag tag-two">↗ Oportunidades</div></div>
+
+              <div class="hero-actions">
+                <button class="btn btn-primary" data-view="buscar">Começar agora <span>→</span></button>
+                <button class="btn btn-ghost" data-scroll="como-funciona">Saiba mais</button>
+              </div>
+
+              <div class="hero-orbit orbit-one"></div>
+              <div class="hero-orbit orbit-two"></div>
+
+              <div class="hero-graphic">
+                <div class="graphic-window">
+                  <div class="window-dots">● ● ●</div>
+                  <div class="graph-line">⌁⌁⌁↗</div>
+                  <span class="graphic-pin">⌖</span>
+                </div>
+                <div class="floating-tag tag-one">⌖ Localização</div>
+                <div class="floating-tag tag-two">↗ Oportunidades</div>
+              </div>
             </div>
+
             <div class="quick-search panel">
-              <div class="panel-heading"><div><span class="section-kicker">ENCONTRE SEU PRÓXIMO CLIENTE</span><h2>Buscar empresas</h2></div><span class="panel-icon">⌕</span></div>
+              <div class="panel-heading">
+                <div>
+                  <span class="section-kicker">ENCONTRE SEU PRÓXIMO CLIENTE</span>
+                  <h2>Buscar empresas</h2>
+                </div>
+                <span class="panel-icon">⌕</span>
+              </div>
+
               <p class="muted">Defina a região e o segmento para encontrar negócios.</p>
-              <label for="estado">Estado</label><select id="estado"><option value="">Selecione o estado</option></select>
-              <label for="cidade">Cidade</label><select id="cidade" disabled><option value="">Selecione primeiro o estado</option></select>
-              <label for="nicho">Segmento</label><select id="nicho"><option value="">Escolha um segmento</option><option>Restaurante</option><option>Pizzaria</option><option>Hamburgueria</option><option>Barbearia</option><option>Salão de beleza</option><option>Clínica</option><option>Dentista</option><option>Academia</option><option>Oficina mecânica</option><option>Loja de roupas</option><option>Imobiliária</option><option>Hotel</option><option>Pet shop</option><option>Padaria</option><option>Cafeteria</option></select>
-              <label for="necessidade">Necessidade de serviço</label><select id="necessidade"><option value="todos">Todas as oportunidades</option><option value="sem-site">Possível empresa sem site listado</option><option value="site">Empresas com site informado</option></select>
-              <button id="buscar-leads" class="btn btn-primary btn-full search-button">⌕ Buscar empresas</button>
+
+              <label for="estado">Estado</label>
+              <select id="estado" required>
+                <option value="">Selecione o estado</option>
+              </select>
+
+              <label for="cidade">Cidade</label>
+              <select id="cidade" disabled required>
+                <option value="">Selecione primeiro o estado</option>
+              </select>
+
+              <label for="nicho">Segmento</label>
+              <select id="nicho" required>
+                <option value="">Escolha um segmento</option>
+                <option>Restaurante</option>
+                <option>Pizzaria</option>
+                <option>Hamburgueria</option>
+                <option>Barbearia</option>
+                <option>Salão de beleza</option>
+                <option>Clínica</option>
+                <option>Dentista</option>
+                <option>Academia</option>
+                <option>Oficina mecânica</option>
+                <option>Loja de roupas</option>
+                <option>Imobiliária</option>
+                <option>Hotel</option>
+                <option>Pet shop</option>
+                <option>Padaria</option>
+                <option>Cafeteria</option>
+              </select>
+
+              <label for="necessidade">Necessidade de serviço</label>
+              <select id="necessidade">
+                <option value="todos">Todas as oportunidades</option>
+                <option value="sem-site">Possível empresa sem site listado</option>
+                <option value="site">Empresas com site informado</option>
+              </select>
+
+              <button id="buscar-leads" class="btn btn-primary btn-full search-button" type="button">
+                ⌕ Buscar empresas
+              </button>
+
               <small class="credit-note">◉ A busca pode consumir créditos conforme seu plano.</small>
             </div>
           </div>
 
           <div class="feature-grid">
-            <article class="feature-card"><span class="feature-icon">⌖</span><h3>Busca inteligente</h3><p>Encontre empresas por estado, cidade e segmento.</p></article>
-            <article class="feature-card"><span class="feature-icon">▤</span><h3>Dados organizados</h3><p>Visualize nome, endereço, telefone e site informado.</p></article>
-            <article class="feature-card"><span class="feature-icon">↗</span><h3>Abordagem pronta</h3><p>Prepare mensagens para iniciar conversas com potenciais clientes.</p></article>
-            <article class="feature-card"><span class="feature-icon">◎</span><h3>Mais oportunidades</h3><p>Salve os negócios encontrados e organize sua prospecção.</p></article>
+            <article class="feature-card">
+              <span class="feature-icon">⌖</span>
+              <h3>Busca inteligente</h3>
+              <p>Encontre empresas por estado, cidade e segmento.</p>
+            </article>
+
+            <article class="feature-card">
+              <span class="feature-icon">▤</span>
+              <h3>Dados organizados</h3>
+              <p>Visualize nome, endereço, telefone e site informado.</p>
+            </article>
+
+            <article class="feature-card">
+              <span class="feature-icon">↗</span>
+              <h3>Abordagem pronta</h3>
+              <p>Prepare mensagens para iniciar conversas com potenciais clientes.</p>
+            </article>
+
+            <article class="feature-card">
+              <span class="feature-icon">◎</span>
+              <h3>Mais oportunidades</h3>
+              <p>Salve os negócios encontrados e organize sua prospecção.</p>
+            </article>
           </div>
 
           <section class="section-block" id="como-funciona">
-            <div class="section-heading"><div><span class="section-kicker">SIMPLES E DIRETO</span><h2>Como funciona?</h2><p class="muted">Do filtro ao primeiro contato em poucos passos.</p></div></div>
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">SIMPLES E DIRETO</span>
+                <h2>Como funciona?</h2>
+                <p class="muted">Do filtro ao primeiro contato em poucos passos.</p>
+              </div>
+            </div>
+
             <div class="steps-grid">
-              <article class="step-card"><span>01</span><h3>Escolha a localização</h3><p>Selecione o estado e a cidade em que deseja prospectar.</p></article>
-              <article class="step-card"><span>02</span><h3>Defina o segmento</h3><p>Encontre empresas de acordo com o tipo de negócio.</p></article>
-              <article class="step-card"><span>03</span><h3>Veja os resultados</h3><p>Confira as informações disponíveis para cada estabelecimento.</p></article>
-              <article class="step-card"><span>04</span><h3>Entre em contato</h3><p>Use o WhatsApp quando disponível e personalize sua abordagem.</p></article>
+              <article class="step-card">
+                <span>01</span>
+                <h3>Escolha a localização</h3>
+                <p>Selecione o estado e a cidade em que deseja prospectar.</p>
+              </article>
+
+              <article class="step-card">
+                <span>02</span>
+                <h3>Defina o segmento</h3>
+                <p>Encontre empresas de acordo com o tipo de negócio.</p>
+              </article>
+
+              <article class="step-card">
+                <span>03</span>
+                <h3>Veja os resultados</h3>
+                <p>Confira as informações disponíveis para cada estabelecimento.</p>
+              </article>
+
+              <article class="step-card">
+                <span>04</span>
+                <h3>Entre em contato</h3>
+                <p>Use o WhatsApp quando disponível e personalize sua abordagem.</p>
+              </article>
             </div>
           </section>
 
           <section class="section-block">
-            <div class="section-heading"><div><span class="section-kicker">PLANOS E CRÉDITOS</span><h2>Escolha seu ritmo de prospecção</h2><p class="muted">Comece grátis e evolua conforme sua necessidade.</p></div><button class="btn btn-ghost" data-view="planos">Ver todos os planos →</button></div>
-            <div class="plans-grid">
-              <article class="plan-card"><span class="plan-label">PARA COMEÇAR</span><h3>Grátis</h3><div class="plan-price">R$ 0 <small>/ mês</small></div><p>30 créditos iniciais</p><ul><li>Busca de empresas</li><li>Resultados organizados</li><li>Abordagem básica</li></ul><button class="btn btn-ghost btn-full" data-view="buscar">Começar grátis</button></article>
-              <article class="plan-card"><span class="plan-label">MAIS POPULAR</span><h3>Básico</h3><div class="plan-price">R$ 19,90 <small>/ mês</small></div><p>Para quem está começando</p><ul><li>Mais créditos</li><li>Organização de leads</li><li>Mais oportunidades</li></ul><button class="btn btn-primary btn-full" data-plan="BASIC">Escolher Básico</button></article>
-              <article class="plan-card featured"><span class="plan-label">PARA CRESCER</span><h3>Pro</h3><div class="plan-price">R$ 30 <small>/ mês</small></div><p>Para prospecção intensiva</p><ul><li>Recursos avançados</li><li>Mais filtros</li><li>Fluxo de prospecção ampliado</li></ul><button class="btn btn-primary btn-full" data-plan="PRO">Escolher Pro</button></article>
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">PLANOS E CRÉDITOS</span>
+                <h2>Escolha seu ritmo de prospecção</h2>
+                <p class="muted">Comece grátis e evolua conforme sua necessidade.</p>
+              </div>
+              <button class="btn btn-ghost" data-view="planos">Ver todos os planos →</button>
             </div>
+
+            <div class="plans-grid">
+              <article class="plan-card">
+                <span class="plan-label">PARA COMEÇAR</span>
+                <h3>Grátis</h3>
+                <div class="plan-price">R$ 0 <small>/ mês</small></div>
+                <p>30 créditos iniciais</p>
+                <ul>
+                  <li>Busca de empresas</li>
+                  <li>Resultados organizados</li>
+                  <li>Abordagem básica</li>
+                </ul>
+                <button class="btn btn-ghost btn-full" data-view="buscar">Começar grátis</button>
+              </article>
+
+              <article class="plan-card">
+                <span class="plan-label">MAIS POPULAR</span>
+                <h3>Básico</h3>
+                <div class="plan-price">R$ 19,90 <small>/ mês</small></div>
+                <p>Para quem está começando</p>
+                <ul>
+                  <li>Mais créditos</li>
+                  <li>Organização de leads</li>
+                  <li>Mais oportunidades</li>
+                </ul>
+                <button class="btn btn-primary btn-full" data-plan="BASIC">Escolher Básico</button>
+              </article>
+
+              <article class="plan-card featured">
+                <span class="plan-label">PARA CRESCER</span>
+                <h3>Pro</h3>
+                <div class="plan-price">R$ 30 <small>/ mês</small></div>
+                <p>Para prospecção intensiva</p>
+                <ul>
+                  <li>Recursos avançados</li>
+                  <li>Mais filtros</li>
+                  <li>Fluxo de prospecção ampliado</li>
+                </ul>
+                <button class="btn btn-primary btn-full" data-plan="PRO">Escolher Pro</button>
+              </article>
+            </div>
+
             <p class="fine-print">Os recursos pagos e as cobranças precisam estar configurados antes de serem oferecidos como ativos.</p>
           </section>
         </section>
 
+        <!-- BUSCAR EMPRESAS -->
         <section class="view" id="view-buscar">
-          <div class="page-heading"><div><span class="section-kicker">PROSPECÇÃO</span><h1>Buscar empresas</h1><p class="muted">Encontre negócios para apresentar seus serviços digitais.</p></div><span class="credit-pill"><b id="credit-count-search">30</b> créditos</span></div>
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">PROSPECÇÃO</span>
+              <h1>Buscar empresas</h1>
+              <p class="muted">Encontre negócios para apresentar seus serviços digitais.</p>
+            </div>
+            <span class="credit-pill"><b id="credit-count-search">30</b> créditos</span>
+          </div>
+
           <div class="search-layout">
-            <div class="panel filter-panel"><div class="panel-heading"><h2>Filtros de busca</h2><span class="panel-icon">⚙</span></div>
-              <label for="estado-search">Estado</label><select id="estado-search"><option value="">Selecione o estado</option></select>
-              <label for="cidade-search">Cidade</label><select id="cidade-search" disabled><option value="">Selecione primeiro o estado</option></select>
-              <label for="nicho-search">Segmento</label><select id="nicho-search"><option value="">Escolha um segmento</option><option>Restaurante</option><option>Pizzaria</option><option>Hamburgueria</option><option>Barbearia</option><option>Salão de beleza</option><option>Clínica</option><option>Dentista</option><option>Academia</option><option>Oficina mecânica</option><option>Loja de roupas</option><option>Imobiliária</option><option>Hotel</option><option>Pet shop</option><option>Padaria</option><option>Cafeteria</option></select>
-              <label for="necessidade-search">Necessidade de serviço</label><select id="necessidade-search"><option value="todos">Todas as oportunidades</option><option value="sem-site">Possível empresa sem site listado</option><option value="site">Empresas com site informado</option></select>
-              <button id="buscar-leads-2" class="btn btn-primary btn-full">⌕ Buscar empresas</button>
+            <div class="panel filter-panel">
+              <div class="panel-heading">
+                <h2>Filtros de busca</h2>
+                <span class="panel-icon">⚙</span>
+              </div>
+
+              <label for="estado-search">Estado</label>
+              <select id="estado-search" required>
+                <option value="">Selecione o estado</option>
+              </select>
+
+              <label for="cidade-search">Cidade</label>
+              <select id="cidade-search" disabled required>
+                <option value="">Selecione primeiro o estado</option>
+              </select>
+
+              <label for="nicho-search">Segmento</label>
+              <select id="nicho-search" required>
+                <option value="">Escolha um segmento</option>
+                <option>Restaurante</option>
+                <option>Pizzaria</option>
+                <option>Hamburgueria</option>
+                <option>Barbearia</option>
+                <option>Salão de beleza</option>
+                <option>Clínica</option>
+                <option>Dentista</option>
+                <option>Academia</option>
+                <option>Oficina mecânica</option>
+                <option>Loja de roupas</option>
+                <option>Imobiliária</option>
+                <option>Hotel</option>
+                <option>Pet shop</option>
+                <option>Padaria</option>
+                <option>Cafeteria</option>
+              </select>
+
+              <label for="necessidade-search">Necessidade de serviço</label>
+              <select id="necessidade-search">
+                <option value="todos">Todas as oportunidades</option>
+                <option value="sem-site">Possível empresa sem site listado</option>
+                <option value="site">Empresas com site informado</option>
+              </select>
+
+              <button id="buscar-leads-2" class="btn btn-primary btn-full" type="button">
+                ⌕ Buscar empresas
+              </button>
+
               <p class="credit-note">Uma ausência de site listado não garante que a empresa não tenha um site.</p>
             </div>
-            <div class="panel results-panel"><div class="results-header"><div><span class="section-kicker">SEUS RESULTADOS</span><h2>Resultados da busca</h2></div><span id="results-count" class="count-badge">0 encontrados</span></div><p id="resultado-status" class="muted" role="status" aria-live="polite">Escolha os filtros e inicie uma busca.</p><div id="resultados" class="results-list"></div></div>
+
+            <div class="panel results-panel">
+              <div class="results-header">
+                <div>
+                  <span class="section-kicker">SEUS RESULTADOS</span>
+                  <h2>Resultados da busca</h2>
+                </div>
+                <span id="results-count" class="count-badge">0 encontrados</span>
+              </div>
+
+              <p id="resultado-status" class="muted" role="status" aria-live="polite">
+                Escolha os filtros e inicie uma busca.
+              </p>
+
+              <div id="resultados" class="results-list"></div>
+            </div>
           </div>
         </section>
 
+        <!-- MEUS LEADS -->
         <section class="view" id="view-leads">
-          <div class="page-heading"><div><span class="section-kicker">SUA PROSPECÇÃO</span><h1>Meus leads</h1><p class="muted">Empresas que você salvou para entrar em contato depois.</p></div></div>
-          <div class="panel"><div class="results-header"><h2>Leads salvos</h2><span id="saved-count" class="count-badge">0 salvos</span></div><div id="saved-leads" class="results-list"><div class="empty-state"><span>◇</span><h3>Nenhum lead salvo ainda</h3><p>Faça uma busca e salve empresas para encontrá-las aqui.</p><button class="btn btn-primary" data-view="buscar">Buscar empresas</button></div></div></div>
-        </section>
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">SUA PROSPECÇÃO</span>
+              <h1>Meus leads</h1>
+              <p class="muted">Empresas que você salvou para entrar em contato depois.</p>
+            </div>
+          </div>
 
-        <section class="view" id="view-creditos">
-          <div class="page-heading"><div><span class="section-kicker">USO DA FERRAMENTA</span><h1>Créditos</h1><p class="muted">Acompanhe seu saldo e entenda o uso.</p></div></div>
-          <div class="stats-grid"><article class="stat-card"><span class="stat-icon">▤</span><span>Saldo atual</span><strong><span id="credit-count-page">30</span></strong><small>Créditos da conta</small></article><article class="stat-card"><span class="stat-icon">⌕</span><span>Custo da busca</span><strong>6</strong><small>Créditos por busca*</small></article><article class="stat-card"><span class="stat-icon">♛</span><span>Seu plano</span><strong id="credit-plan">Grátis</strong><small>Plano atual</small></article></div>
-          <div class="panel"><h2>Como funcionam os créditos?</h2><p class="muted">O custo final depende da configuração do backend. Confira o saldo antes de iniciar novas pesquisas.</p><button class="btn btn-primary" data-view="planos">Conhecer planos</button></div>
-        </section>
+          <div class="panel">
+            <div class="results-header">
+              <h2>Leads salvos</h2>
+              <span id="saved-count" class="count-badge">0 salvos</span>
+            </div>
 
-        <section class="view" id="view-planos">
-          <div class="page-heading"><div><span class="section-kicker">PLANOS DO LEADFINDER</span><h1>Encontre seu próximo cliente</h1><p class="muted">Escolha o plano adequado à sua rotina.</p></div></div>
-          <div class="plans-grid plans-page">
-            <article class="plan-card"><span class="plan-label">PARA COMEÇAR</span><h3>Grátis</h3><div class="plan-price">R$ 0 <small>/ mês</small></div><p>30 créditos iniciais</p><ul><li>Busca de empresas</li><li>Resultados organizados</li><li>Abordagem básica</li></ul><button class="btn btn-ghost btn-full" data-view="buscar">Usar plano grátis</button></article>
-            <article class="plan-card"><span class="plan-label">MAIS POPULAR</span><h3>Básico</h3><div class="plan-price">R$ 19,90 <small>/ mês</small></div><p>Para quem está começando</p><ul><li>Mais créditos</li><li>Organização de leads</li><li>Mais oportunidades</li></ul><button class="btn btn-primary btn-full" data-plan="BASIC">Escolher Básico</button></article>
-            <article class="plan-card featured"><span class="plan-label">PARA CRESCER</span><h3>Pro</h3><div class="plan-price">R$ 30 <small>/ mês</small></div><p>Para prospecção intensiva</p><ul><li>Recursos avançados</li><li>Mais filtros</li><li>Fluxo ampliado</li></ul><button class="btn btn-primary btn-full" data-plan="PRO">Escolher Pro</button></article>
-          </div><p class="fine-print">Os botões dos planos ainda precisam ser conectados ao checkout para processar pagamentos.</p>
-        </section>
-
-        <section class="view" id="view-configuracoes">
-          <div class="page-heading"><div><span class="section-kicker">PREFERÊNCIAS</span><h1>Configurações</h1><p class="muted">Informações da sua conta e sessão.</p></div></div>
-          <div class="settings-grid"><article class="panel settings-card"><span class="panel-icon">♙</span><h2>Perfil da conta</h2><p class="muted">Confira as informações usadas no seu cadastro.</p><div class="setting-row"><span>Nome</span><strong id="settings-name">—</strong></div><div class="setting-row"><span>E-mail</span><strong id="settings-email">—</strong></div><div class="setting-row"><span>Plano</span><strong id="settings-plan">Grátis</strong></div></article><article class="panel settings-card"><span class="panel-icon">⚿</span><h2>Sessão</h2><p class="muted">Saia da sua conta neste dispositivo.</p><button id="sair" class="btn btn-danger">Sair da conta</button><p id="auth-mensagem-settings" class="muted" role="status"></p></article></div>
-        </section>
-
-        <section class="view auth-view" id="view-auth">
-          <div class="auth-card panel"><a class="brand auth-brand" href="#" data-view="inicio"><span class="brand-mark">L</span><span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span></a><span class="section-kicker">BEM-VINDO DE VOLTA</span><h1 id="auth-titulo">Entre na sua conta</h1><p class="muted">Acesse seu painel de prospecção.</p>
-            <form id="auth-form"><input id="nome" type="text" placeholder="Nome completo" autocomplete="name" hidden><input id="email" type="email" placeholder="Seu e-mail" autocomplete="email" required><input id="telefone" type="tel" placeholder="Celular com DDD" autocomplete="tel" hidden><input id="senha" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password" minlength="6" required><button id="auth-submit" class="btn btn-primary btn-full" type="submit">Entrar</button></form>
-            <p id="auth-mensagem" class="auth-message" role="status" aria-live="polite"></p><button id="trocar-auth" class="auth-switch">Ainda não tem conta? Cadastre-se</button><button id="voltar-inicio" class="auth-back">← Voltar à página inicial</button>
+            <div id="saved-leads" class="results-list">
+              <div class="empty-state">
+                <span>◇</span>
+                <h3>Nenhum lead salvo ainda</h3>
+                <p>Faça uma busca e salve empresas para encontrá-las aqui.</p>
+                <button class="btn btn-primary" data-view="buscar">Buscar empresas</button>
+              </div>
+            </div>
           </div>
         </section>
+
+        <!-- CRÉDITOS -->
+        <section class="view" id="view-creditos">
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">USO DA FERRAMENTA</span>
+              <h1>Créditos</h1>
+              <p class="muted">Acompanhe seu saldo e entenda o uso.</p>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card">
+              <span class="stat-icon">▤</span>
+              <span>Saldo atual</span>
+              <strong><span id="credit-count-page">30</span></strong>
+              <small>Créditos da conta</small>
+            </article>
+
+            <article class="stat-card">
+              <span class="stat-icon">⌕</span>
+              <span>Custo da busca</span>
+              <strong>6</strong>
+              <small>Créditos por busca*</small>
+            </article>
+
+            <article class="stat-card">
+              <span class="stat-icon">♛</span>
+              <span>Seu plano</span>
+              <strong id="credit-plan">Grátis</strong>
+              <small>Plano atual</small>
+            </article>
+          </div>
+
+          <div class="panel">
+            <h2>Como funcionam os créditos?</h2>
+            <p class="muted">O custo final depende da configuração do backend. Confira o saldo antes de iniciar novas pesquisas.</p>
+            <button class="btn btn-primary" data-view="planos">Conhecer planos</button>
+          </div>
+        </section>
+
+        <!-- PLANOS -->
+        <section class="view" id="view-planos">
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">PLANOS DO LEADFINDER</span>
+              <h1>Encontre seu próximo cliente</h1>
+              <p class="muted">Escolha o plano adequado à sua rotina.</p>
+            </div>
+          </div>
+
+          <div class="plans-grid plans-page">
+            <article class="plan-card">
+              <span class="plan-label">PARA COMEÇAR</span>
+              <h3>Grátis</h3>
+              <div class="plan-price">R$ 0 <small>/ mês</small></div>
+              <p>30 créditos iniciais</p>
+              <ul>
+                <li>Busca de empresas</li>
+                <li>Resultados organizados</li>
+                <li>Abordagem básica</li>
+              </ul>
+              <button class="btn btn-ghost btn-full" data-view="buscar">Usar plano grátis</button>
+            </article>
+
+            <article class="plan-card">
+              <span class="plan-label">MAIS POPULAR</span>
+              <h3>Básico</h3>
+              <div class="plan-price">R$ 19,90 <small>/ mês</small></div>
+              <p>Para quem está começando</p>
+              <ul>
+                <li>Mais créditos</li>
+                <li>Organização de leads</li>
+                <li>Mais oportunidades</li>
+              </ul>
+              <button class="btn btn-primary btn-full" data-plan="BASIC">Escolher Básico</button>
+            </article>
+
+            <article class="plan-card featured">
+              <span class="plan-label">PARA CRESCER</span>
+              <h3>Pro</h3>
+              <div class="plan-price">R$ 30 <small>/ mês</small></div>
+              <p>Para prospecção intensiva</p>
+              <ul>
+                <li>Recursos avançados</li>
+                <li>Mais filtros</li>
+                <li>Fluxo ampliado</li>
+              </ul>
+              <button class="btn btn-primary btn-full" data-plan="PRO">Escolher Pro</button>
+            </article>
+          </div>
+
+          <p class="fine-print">Os botões dos planos ainda precisam ser conectados ao checkout para processar pagamentos.</p>
+        </section>
+
+        <!-- CONFIGURAÇÕES -->
+        <section class="view" id="view-configuracoes">
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">PREFERÊNCIAS</span>
+              <h1>Configurações</h1>
+              <p class="muted">Informações da sua conta e sessão.</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <article class="panel settings-card">
+              <span class="panel-icon">♙</span>
+              <h2>Perfil da conta</h2>
+              <p class="muted">Confira as informações usadas no seu cadastro.</p>
+
+              <div class="setting-row">
+                <span>Nome</span>
+                <strong id="settings-name">—</strong>
+              </div>
+
+              <div class="setting-row">
+                <span>E-mail</span>
+                <strong id="settings-email">—</strong>
+              </div>
+
+              <div class="setting-row">
+                <span>Plano</span>
+                <strong id="settings-plan">Grátis</strong>
+              </div>
+            </article>
+
+            <article class="panel settings-card">
+              <span class="panel-icon">⚿</span>
+              <h2>Sessão</h2>
+              <p class="muted">Saia da sua conta neste dispositivo.</p>
+              <button id="sair" class="btn btn-danger" type="button">Sair da conta</button>
+              <p id="auth-mensagem-settings" class="muted" role="status" aria-live="polite"></p>
+            </article>
+          </div>
+        </section>
+
+        <!-- LOGIN E CADASTRO -->
+        <section class="view auth-view" id="view-auth">
+          <div class="auth-card panel">
+            <a class="brand auth-brand" href="#inicio" data-view="inicio">
+              <span class="brand-mark">L</span>
+              <span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
+            </a>
+
+            <span class="section-kicker">BEM-VINDO DE VOLTA</span>
+            <h1 id="auth-titulo">Entre na sua conta</h1>
+            <p class="muted">Acesse seu painel de prospecção.</p>
+
+            <form id="auth-form">
+              <input id="nome" type="text" placeholder="Nome completo" autocomplete="name" hidden>
+              <input id="email" type="email" placeholder="Seu e-mail" autocomplete="email" required>
+              <input id="telefone" type="tel" placeholder="Celular com DDD" autocomplete="tel" hidden>
+              <input id="senha" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password" minlength="6" required>
+
+              <button id="auth-submit" class="btn btn-primary btn-full" type="submit">Entrar</button>
+            </form>
+
+            <p id="auth-mensagem" class="auth-message" role="status" aria-live="polite"></p>
+
+            <button id="trocar-auth" class="auth-switch" type="button">
+              Ainda não tem conta? Cadastre-se
+            </button>
+
+            <button id="voltar-inicio" class="auth-back" type="button">
+              ← Voltar à página inicial
+            </button>
+          </div>
+        </section>
+
       </main>
 
-      <footer class="app-footer"><span>© 2026 LeadFinder — Prospecção Inteligente</span><div><span>● Tecnologia moderna</span><span>⌖ Dados de empresas</span><span>▣ Sistema responsivo</span></div></footer>
+      <footer class="app-footer">
+        <span>© 2026 LeadFinder — Prospecção Inteligente</span>
+        <div>
+          <span>● Tecnologia moderna</span>
+          <span>⌖ Dados de empresas</span>
+          <span>▣ Sistema responsivo</span>
+        </div>
+      </footer>
     </div>
   </div>
-  <script src="./js/js/Site.js" defer></script>
+
+  <!-- Arquivos JavaScript corretos -->
+  <script type="module" src="./js/app.js"></script>
   <script type="module" src="./js/auth.js"></script>
 </body>
-</html>
+              </html>
