@@ -555,15 +555,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-  $("#sair")?.addEventListener("click", async () => {
-    try {
-      await authMod.signOut(auth);
-      usuarioAtual = null;
-      mensagemAuth("Você saiu da sua conta.");
-      mostrarView("inicio");
-    } catch (erro) {
-      console.error(erro);
-      mensagemAuth("Não foi possível sair da conta.");
-    }
-  });
-});
+  
