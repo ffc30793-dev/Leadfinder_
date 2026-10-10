@@ -519,12 +519,41 @@ function configurarBusca() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  configurarFiltros();
-  configurarNavegacao();
-  configurarBusca();
-  configurarUsuario();
-  renderizarSalvos();
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const firebase = await getFirebase();
+    authMod = firebase.authMod;
+    fsMod = firebase.fsMod;
+
+    configurarFiltros();
+    configurarNavegacao();
+    configurarBusca();
+    configurarUsuario();
+    renderizarSalvos();
+
+    $("#sair")?.addEventListener("click", async () => {
+      try {
+        await authMod.signOut(auth);
+        usuarioAtual = null;
+        atualizarPerfil({
+          nome: "Visitante",
+          plano: "FREE",
+          creditos: 30
+        });
+        mensagemAuth("Você saiu da sua conta.");
+        mostrarView("inicio");
+      } catch (erro) {
+        console.error(erro);
+        mensagemAuth("Não foi possível sair da conta.");
+      }
+    });
+  } catch (erro) {
+    console.error("Erro ao iniciar o LeadFinder:", erro);
+    mensagem("Não foi possível iniciar o sistema. Confira a configuração do Firebase.");
+  }
+});
+
 
   $("#sair")?.addEventListener("click", async () => {
     try {
