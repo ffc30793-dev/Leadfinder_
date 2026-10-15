@@ -6,21 +6,17 @@ const CITIES_ENDPOINT = "https://servicodados.ibge.gov.br/api/v1/localidades/est
 
 async function loadCities(uf){
   const select=$("#city-select"); if(!select) return;
-  select.disabled=true; select.innerHTML='<option>Carregando cidades...</option>';
+  select.disabled=true; select.innerHTML='<option value="">Carregando cidades...</option>';
   try{
-    // Quando configurado, o backend deve devolver [{id,nome}] ou {cities:[...]}.
-    if(CITIES_ENDPOINT){
-      const r=await fetch(`${CITIES_ENDPOINT}?uf=${encodeURIComponent(uf)}`);
-      if(!r.ok) throw new Error("cities");
-      const data=await r.json();
-      const cities=data.cities||data;
-      select.innerHTML='<option value="ALL">Todo o estado</option>'+cities.map(c=>`<option value="${c.id||c.nome}">${c.nome||c.name}</option>`).join("");
-    }else{
-      // Estado do protótipo: não finge possuir a base completa de municípios.
-      select.innerHTML='<option value="ALL">Todo o estado</option><option value="">Configure a fonte de cidades</option>';
-    }
-    select.disabled=false;
-  }catch{select.innerHTML='<option value="">Não foi possível carregar cidades</option>';select.disabled=false;}
+    const url=`${CITIES_ENDPOINT}/${encodeURIComponent(uf)}/municipios?orderBy=nome`;
+    const response=await fetch(url);
+    if(!response.ok) throw new Error("Não foi possível carregar municípios.");
+    const cities=await response.json();
+    select.innerHTML='<option value="">Selecione uma cidade</option>'+cities.map(c=>`<option value="${String(c.nome).replace(/[&<>\"']/g, '')}">${String(c.nome).replace(/[&<>\"']/g, '')}</option>`).join("");
+  }catch(error){
+    select.innerHTML='<option value="">Não foi possível carregar cidades</option>';
+    console.error("Erro ao carregar municípios do IBGE:",error);
+  }finally{select.disabled=false;}
 }
 $("#state-select")?.addEventListener("change",e=>{if(e.target.value) loadCities(e.target.value);});
 $("#lead-search-form")?.addEventListener("submit", async e=>{
@@ -32,60 +28,50 @@ $("#lead-search-form")?.addEventListener("submit", async e=>{
   const btn=e.submitter; btn.disabled=true; btn.innerHTML="PESQUISANDO...";
   $("#search-message").textContent="";
   try{
-    
-const { auth } = await getFirebase();
-const currentUser = auth.currentUser;
+    let results=[];
+    const { auth } = await getFirebase();
+    const currentUser = auth?.currentUser;
 
-if (!currentUser) {
-  throw new Error("Faça login novamente para pesquisar.");
-}
-
-if (filters.city === "ALL") {
-  throw new Error("Selecione uma cidade específica.");
-}
-
-const idToken = await currentUser.getIdToken();
-
-const response = await fetch("/api/leads", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${idToken}`
-  },
-  body: JSON.stringify({
-    cidade: filters.city,
-    estado: filters.state,
-    nicho: filters.subcategory || filters.category || "empresa"
-  })
-});
-
-const data = await response.json();
-
-if (!response.ok || !data.sucesso) {
-  throw new Error(data.erro || "Falha ao buscar empresas.");
-}
-
-const results = (data.empresas || []).map(e => ({
-  id: e.id,
-  name: e.nome,
-  category: filters.subcategory || filters.category || "Empresa",
-  city: filters.city,
-  state: filters.state,
-  address: e.endereco,
-  phone: e.telefone,
-  site: e.site,
-  whatsapp: e.whatsapp,
-  mapa: e.mapa,
-  situacao: e.situacao
-}));
-
-  
+    if (firebaseReady && currentUser) {
+      const idToken = await currentUser.getIdToken();
+      const response = await fetch(API_BASE, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
+          cidade: filters.city,
+          estado: filters.state,
+          nicho: filters.subcategory || filters.category || "empresa"
+        })
+      });
+      const data = await response.json();
+      if (!response.ok || !data.sucesso) throw new Error(data.erro || "Falha ao buscar empresas.");
+      results = (data.empresas || []).map(e => ({
+        id: e.id,
+        name: e.nome,
+        category: filters.subcategory || filters.category || "Empresa",
+        city: filters.city,
+        state: filters.state,
+        address: e.endereco,
+        phone: e.telefone,
+        site: e.site,
+        whatsapp: e.whatsapp,
+        mapa: e.mapa,
+        situacao: e.situacao
+      }));
+    } else {
+      throw new Error("Faça login com uma conta válida para pesquisar leads.");
     }
+
     const history={id:crypto.randomUUID(),date:new Date().toISOString(),...filters,count:results.length,credits:6,results};
-    const historyArr=JSON.parse(localStorage.getItem("lf_history")||"[]");historyArr.unshift(history);localStorage.setItem("lf_history",JSON.stringify(historyArr.slice(0,50)));
-    if(!firebaseReady){user.credits=credits-6;user.searches=(user.searches||0)+1;user.leads=(user.leads||0)+results.length;localStorage.setItem("lf_demo_user",JSON.stringify(user));}
-    sessionStorage.setItem("lf_last_results",JSON.stringify(history)); location.href="resultados.html";
-  }catch(err){$("#search-message").textContent="Não foi possível concluir a pesquisa. Tente novamente."}
+    const historyArr=JSON.parse(localStorage.getItem("lf_history")||"[]");
+    historyArr.unshift(history);
+    localStorage.setItem("lf_history",JSON.stringify(historyArr.slice(0,50)));
+    sessionStorage.setItem("lf_last_results",JSON.stringify(history));
+    location.href="resultados.html";
+  }catch(err){console.error(err);$("#search-message").textContent=err?.message||"Não foi possível concluir a pesquisa. Tente novamente."}
   finally{btn.disabled=false;btn.innerHTML="BUSCAR LEADS →";}
 });
 
