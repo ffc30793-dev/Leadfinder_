@@ -1,4 +1,6 @@
-// api/leads.js
+
+import { getApps, initializeApp, cert } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 
 const SOCIAL_DOMAINS = [
   "instagram.com",
@@ -12,6 +14,28 @@ const SOCIAL_DOMAINS = [
   "wa.me",
   "whatsapp.com"
 ];
+
+function obterFirebaseAdmin() {
+  if (getApps().length) return getAuth();
+
+  const credencialRaw =
+    process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+
+  if (!credencialRaw) {
+    throw new Error(
+      "Configure FIREBASE_SERVICE_ACCOUNT_KEY na Vercel."
+    );
+  }
+
+  const credencial = JSON.parse(credencialRaw);
+
+  initializeApp({
+    credential: cert(credencial)
+  });
+
+  return getAuth();
+}
 
 function normalizarTexto(valor = "") {
   return String(valor)
@@ -34,7 +58,8 @@ function classificarUrl(url = "") {
       .replace(/^www\./, "");
 
     const ehRedeSocial = SOCIAL_DOMAINS.some(
-      dominio => host === dominio || host.endsWith(`.${dominio}`)
+      dominio =>
+        host === dominio || host.endsWith(`.${dominio}`)
     );
 
     return ehRedeSocial ? "SO_REDE_SOCIAL" : "TEM_SITE";
@@ -49,31 +74,44 @@ function normalizarTelefone(telefone = "") {
 
 function criarLinkWhatsApp(telefone = "") {
   const numero = normalizarTelefone(telefone);
-
-  if (!numero) return null;
-
-  // O link é uma tentativa de contato; não confirma que o número
-  // esteja cadastrado no WhatsApp.
-  return `https://wa.me/${numero}`;
+  return numero ? `https://wa.me/${numero}` : "";
 }
 
-function pontuarLead(lead) {
-  let pontos = 0;
+function formatarLead(place) {
+  const site = place.websiteUri || "";
+  const telefone =
+    place.nationalPhoneNumber ||
+    place.internationalPhoneNumber ||
+    "";
 
-  if (lead.statusSite === "SITE_NAO_ENCONTRADO") pontos += 10;
-  if (lead.statusSite === "SO_REDE_SOCIAL") pontos += 6;
-  if (lead.telefone) pontos += 3;
-  if (lead.endereco) pontos += 1;
-  if (lead.site && lead.statusSite === "TEM_SITE") pontos -= 10;
+  const statusSite = classificarUrl(site);
 
-  return pontos;
+  let pontuacao = 0;
+  if (statusSite === "SITE_NAO_ENCONTRADO") pontuacao += 10;
+  if (statusSite === "SO_REDE_SOCIAL") pontuacao += 6;
+  if (telefone) pontuacao += 3;
+  if (place.formattedAddress) pontuacao += 1;
+  if (statusSite === "TEM_SITE") pontuacao -= 10;
+
+  return {
+    id: place.id || "",
+    nome: place.displayName?.text || "Estabelecimento sem nome",
+    endereco: place.formattedAddress || "",
+    telefone,
+    whatsapp: criarLinkWhatsApp(telefone),
+    site,
+    mapa: place.googleMapsUri || "",
+    situacao: statusSite,
+    categoria: place.primaryTypeDisplayName?.text || "",
+    avaliacao: place.rating ?? null,
+    totalAvaliacoes: place.userRatingCount ?? 0,
+    pontuacao
+  };
 }
 
 function chaveLead(lead) {
-  if (lead.placeId) return `place:${lead.placeId}`;
+  if (lead.id) return `id:${lead.id}`;
 
-  // Não deduplicar somente pelo telefone: filiais diferentes podem
-  // compartilhar o mesmo número.
   return [
     normalizarTexto(lead.nome),
     normalizarTexto(lead.endereco)
@@ -85,50 +123,19 @@ function removerDuplicados(leads) {
 
   for (const lead of leads) {
     const chave = chaveLead(lead);
-
-    if (!unicos.has(chave)) {
-      unicos.set(chave, lead);
-      continue;
-    }
-
-    // Quando há registros equivalentes, conservar o mais completo.
     const anterior = unicos.get(chave);
+
     const completude = item =>
       Number(Boolean(item.telefone)) +
       Number(Boolean(item.site)) +
-      Number(Boolean(item.endereco)) +
-      Number(Boolean(item.placeId));
+      Number(Boolean(item.endereco));
 
-    if (completude(lead) > completude(anterior)) {
+    if (!anterior || completude(lead) > completude(anterior)) {
       unicos.set(chave, lead);
     }
   }
 
   return [...unicos.values()];
-}
-
-function formatarLead(place) {
-  const site = place.websiteUri || "";
-  const telefone = place.nationalPhoneNumber || place.internationalPhoneNumber || "";
-  const statusSite = classificarUrl(site);
-
-  const lead = {
-    placeId: place.id || "",
-    nome: place.displayName?.text || "Estabelecimento sem nome",
-    endereco: place.formattedAddress || "",
-    telefone,
-    whatsapp: criarLinkWhatsApp(telefone),
-    site,
-    statusSite,
-    categoria: place.primaryTypeDisplayName?.text || "",
-    avaliacao: place.rating ?? null,
-    totalAvaliacoes: place.userRatingCount ?? 0,
-    mapsUrl: place.googleMapsUri || ""
-  };
-
-  lead.pontuacao = pontuarLead(lead);
-
-  return lead;
 }
 
 async function buscarGooglePlaces({
@@ -167,36 +174,82 @@ async function buscarGooglePlaces({
   );
 
   if (!resposta.ok) {
-    const erro = await resposta.text();
-    throw new Error(`Google Places retornou ${resposta.status}: ${erro}`);
+    const detalhe = await resposta.text();
+    console.error(
+      "Google Places:",
+      resposta.status,
+      detalhe
+    );
+
+    throw new Error(
+      `Google Places retornou HTTP ${resposta.status}. Verifique a API, o faturamento, as restrições da chave e a cota.`
+    );
   }
 
   const dados = await resposta.json();
   return dados.places || [];
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store");
+
   if (req.method !== "POST") {
+    res.setHeader("Allow", "POST");
     return res.status(405).json({
       sucesso: false,
-      erro: "Método não permitido."
+      erro: "Método não permitido. Use POST."
     });
   }
 
   try {
+    // Validar a sessão do Firebase antes de pesquisar.
+    const autorizacao = req.headers.authorization || "";
+    const token = autorizacao.startsWith("Bearer ")
+      ? autorizacao.slice(7)
+      : "";
+
+    if (!token) {
+      return res.status(401).json({
+        sucesso: false,
+        erro: "Faça login para pesquisar leads."
+      });
+    }
+
+    let usuario;
+    try {
+      const firebaseAuth = obterFirebaseAdmin();
+      usuario = await firebaseAuth.verifyIdToken(token);
+    } catch (erroAuth) {
+      console.error("Falha na autenticação Firebase:", erroAuth.message);
+
+      return res.status(401).json({
+        sucesso: false,
+        erro: "Sessão inválida ou expirada. Entre novamente."
+      });
+    }
+
+    if (!usuario?.uid) {
+      return res.status(401).json({
+        sucesso: false,
+        erro: "Não foi possível validar sua conta."
+      });
+    }
+
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
     if (!apiKey) {
       return res.status(500).json({
         sucesso: false,
-        erro: "A chave da API do Google Places não está configurada na Vercel."
+        erro: "A variável GOOGLE_MAPS_API_KEY não está configurada na Vercel."
       });
     }
 
     const corpo = req.body || {};
     const cidade = String(corpo.cidade || "").trim();
     const estado = String(corpo.estado || "").trim();
-    const nicho = String(corpo.nicho || corpo.segmento || "").trim();
+    const nicho = String(
+      corpo.nicho || corpo.segmento || ""
+    ).trim();
 
     if (!cidade || !estado || !nicho) {
       return res.status(400).json({
@@ -223,28 +276,33 @@ module.exports = async function handler(req, res) {
       )
     );
 
-    const leads = resultados
-      .flat()
-      .map(formatarLead);
+    const empresas = removerDuplicados(
+      resultados.flat().map(formatarLead)
+    );
 
-    const unicos = removerDuplicados(leads);
-
-    unicos.sort((a, b) => b.pontuacao - a.pontuacao);
+    empresas.sort(
+      (a, b) => b.pontuacao - a.pontuacao
+    );
 
     return res.status(200).json({
       sucesso: true,
       cidade,
       estado,
       nicho,
-      total: unicos.length,
-      leads: unicos
+      total: empresas.length,
+      empresas
     });
   } catch (erro) {
     console.error("Erro na busca de leads:", erro);
 
     return res.status(500).json({
       sucesso: false,
-      erro: "Não foi possível buscar os estabelecimentos. Tente novamente."
+      erro:
+        erro.message?.includes("FIREBASE_SERVICE_ACCOUNT")
+          ? "A autenticação do servidor precisa ser configurada na Vercel."
+          : erro.message?.startsWith("Google Places retornou HTTP")
+            ? erro.message
+            : "Não foi possível buscar os estabelecimentos. Confira os logs da Vercel."
     });
   }
-};
+}
