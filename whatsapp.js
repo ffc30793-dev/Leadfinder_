@@ -1,0 +1,2 @@
+export function whatsappUrl(phone){const n=String(phone||"").replace(/\D/g,"");return n.length>=10?`https://wa.me/${n}`:"#";}
+export function openWhatsApp(phone){const url=whatsappUrl(phone);if(url!=="#")window.open(url,"_blank","noopener");}
