@@ -100,7 +100,7 @@
       const badge = hasSite ? "Site informado" : "Site não listado no Google";
       const map = company.maps ? `<a class="btn btn-ghost" href="${safeText(company.maps)}" target="_blank" rel="noopener">Ver no Maps</a>` : "";
       const whatsapp = waLink(company.telefone);
-      const whatsBtn = whatsapp ? `<a class="btn btn-primary" href="${whatsapp}" target="_blank" rel="noopener">WhatsApp</a>` : "";
+      const whatsBtn = whatsapp ? `<a class="btn btn-whatsapp" href="${whatsapp}" target="_blank" rel="noopener"><span aria-hidden="true">◉</span> WhatsApp</a>` : "";
       const saveBtn = `<button class="btn btn-ghost save-lead">${saved ? "Salvo ✓" : "♡ Salvar lead"}</button>`;
       card.innerHTML = `<div class="result-main"><h3>${safeText(company.nome)}</h3><div class="result-meta"><span>⌖ ${safeText(company.endereco || "Endereço não informado")}</span>${company.telefone ? `<span>☎ ${safeText(company.telefone)}</span>` : ""}${hasSite ? `<span>↗ <a href="${safeText(company.site)}" target="_blank" rel="noopener">${safeText(company.site)}</a></span>` : ""}</div><span class="result-badge">${badge}</span></div><div class="result-actions">${whatsBtn}${map}<button class="btn btn-ghost copy-message">Copiar abordagem</button>${saveBtn}</div>`;
       card.querySelector(".copy-message")?.addEventListener("click", async e => {

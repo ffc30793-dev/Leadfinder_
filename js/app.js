@@ -266,7 +266,7 @@ function cardEmpresa(empresa, indice, salvos = false) {
         <p class="muted">${textoSeguro(empresa.situacao || "Informações públicas disponíveis")}</p>
       </div>
       <div class="lead-actions">
-        ${whatsapp ? `<a class="btn btn-primary" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>` : ""}
+        ${whatsapp ? `<a class="btn btn-whatsapp" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">◉</span> Abrir WhatsApp</a>` : ""}
         <button class="btn btn-ghost" type="button" data-copy="${indice}">Copiar abordagem</button>
         ${salvos
           ? `<button class="btn btn-ghost" type="button" data-remove="${textoSeguro(id)}">Remover</button>`
