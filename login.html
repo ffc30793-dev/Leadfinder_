@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#03100b">
+  <meta name="description" content="Entre ou crie sua conta no LeadFinder.">
+  <title>Acessar — LeadFinder</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+  <style>
+    body.login-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 15% 10%,rgba(23,180,105,.16),transparent 40%),#030806}
+    .login-wrap{width:min(100%,470px)}.login-card{padding:clamp(24px,5vw,42px);border:1px solid rgba(49,220,132,.22);border-radius:24px;background:rgba(9,20,14,.92);box-shadow:0 25px 80px rgba(0,0,0,.45),0 0 35px rgba(28,210,113,.06)}
+    .login-brand{display:inline-flex;margin-bottom:32px;text-decoration:none}.login-kicker{display:inline-block;margin-bottom:10px;color:#55e59a;font-size:.72rem;font-weight:800;letter-spacing:.14em}.login-card h1{margin:0 0 10px;font-size:clamp(1.8rem,6vw,2.35rem);letter-spacing:-.04em}.login-subtitle{margin:0 0 26px;color:#a6b6ab;line-height:1.6}.login-form{display:grid;gap:13px}.login-form input{width:100%;min-height:50px;padding:14px 15px;border:1px solid rgba(163,190,170,.2);border-radius:12px;background:#07100a;color:#f4fff7;outline:none}.login-form input:focus{border-color:#32d47b;box-shadow:0 0 0 3px rgba(50,212,123,.12)}.login-form input[hidden]{display:none}.login-submit{margin-top:5px;min-height:50px}.login-message{min-height:22px;color:#8debb2;font-size:.9rem}.login-switch,.login-back{display:block;width:100%;padding:10px;border:0;background:none;color:#a7e9bf;text-align:center;cursor:pointer}.login-back{margin-top:8px;color:#a3afa7;text-decoration:none;font-size:.9rem}.login-divider{height:1px;margin:18px 0;background:rgba(163,190,170,.12)}
+  </style>
+</head>
+<body class="login-page">
+  <main class="login-wrap">
+    <section class="login-card">
+      <a class="brand login-brand" href="./login.html" aria-label="LeadFinder">
+        <span class="brand-mark">L</span><span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
+      </a>
+      <span class="login-kicker">SUA PROSPECÇÃO COMEÇA AQUI</span>
+      <h1 id="auth-titulo">Entre na sua conta</h1>
+      <p class="login-subtitle" id="auth-descricao">Acesse seu painel e continue encontrando novas oportunidades.</p>
+      <form class="login-form" id="auth-form">
+        <input id="nome" type="text" placeholder="Nome completo" autocomplete="name" hidden>
+        <input id="email" type="email" placeholder="Seu e-mail" autocomplete="email" required>
+        <input id="telefone" type="tel" placeholder="Celular com DDD" autocomplete="tel" hidden>
+        <input id="senha" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password" minlength="6" required>
+        <button id="auth-submit" class="btn btn-primary btn-full login-submit" type="submit">Entrar</button>
+      </form>
+      <p id="auth-mensagem" class="login-message" role="status" aria-live="polite"></p>
+      <div class="login-divider"></div>
+      <button id="trocar-auth" class="login-switch" type="button">Ainda não tem conta? Cadastre-se</button>
+      <a class="login-back" href="./index.html">← Voltar para apresentação</a>
+    </section>
+  </main>
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>

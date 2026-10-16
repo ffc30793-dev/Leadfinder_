@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#05040b">
+  <meta name="theme-color" content="#03100b">
   <meta name="description" content="LeadFinder — prospecção inteligente de empresas.">
   <title>LeadFinder — Prospecção Inteligente</title>
   <link rel="stylesheet" href="./css/style.css">
@@ -12,7 +12,7 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-      <a class="brand" href="#inicio" aria-label="LeadFinder início">
+      <a class="brand" href="./index.html" aria-label="LeadFinder início">
         <span class="brand-mark">L</span>
         <span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
       </a>
@@ -59,8 +59,6 @@
             <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
           </div>
 
-          <button id="btn-login" class="btn btn-ghost top-login">Entrar</button>
-          <button id="btn-cadastro" class="btn btn-primary top-signup">Criar conta</button>
         </div>
       </header>
 
@@ -509,38 +507,6 @@
           </div>
         </section>
 
-        <!-- LOGIN E CADASTRO -->
-        <section class="view auth-view" id="view-auth">
-          <div class="auth-card panel">
-            <a class="brand auth-brand" href="#inicio" data-view="inicio">
-              <span class="brand-mark">L</span>
-              <span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
-            </a>
-
-            <span class="section-kicker">BEM-VINDO DE VOLTA</span>
-            <h1 id="auth-titulo">Entre na sua conta</h1>
-            <p class="muted">Acesse seu painel de prospecção.</p>
-
-            <form id="auth-form">
-              <input id="nome" type="text" placeholder="Nome completo" autocomplete="name" hidden>
-              <input id="email" type="email" placeholder="Seu e-mail" autocomplete="email" required>
-              <input id="telefone" type="tel" placeholder="Celular com DDD" autocomplete="tel" hidden>
-              <input id="senha" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password" minlength="6" required>
-
-              <button id="auth-submit" class="btn btn-primary btn-full" type="submit">Entrar</button>
-            </form>
-
-            <p id="auth-mensagem" class="auth-message" role="status" aria-live="polite"></p>
-
-            <button id="trocar-auth" class="auth-switch" type="button">
-              Ainda não tem conta? Cadastre-se
-            </button>
-
-            <button id="voltar-inicio" class="auth-back" type="button">
-              ← Voltar à página inicial
-            </button>
-          </div>
-        </section>
 
       </main>
 
@@ -557,6 +523,6 @@
 
   <!-- Arquivos JavaScript corretos -->
   <script type="module" src="./js/app.js"></script>
-  <script type="module" src="./js/auth.js"></script>
+  
 </body>
               </html>
