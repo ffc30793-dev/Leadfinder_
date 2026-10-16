@@ -1,4 +1,3 @@
-
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
@@ -214,9 +213,12 @@ async function descontarCreditos(db, uid) {
 
     if (!documento.exists) {
       const erro = new Error(
-        "Perfil não encontrado. Entre novamente na sua conta."
+        "Perfil não encontrado no documento usuarios/" +
+        uid +
+        ". Confira o UID da conta e o ID do perfil no Firestore."
       );
-      erro.status = 403;
+
+      erro.status = 404;
       throw erro;
     }
 
@@ -227,6 +229,7 @@ async function descontarCreditos(db, uid) {
       const erro = new Error(
         "Créditos insuficientes. Você precisa de 6 créditos para pesquisar."
       );
+
       erro.status = 402;
       throw erro;
     }
@@ -247,9 +250,11 @@ async function devolverCreditos(db, uid) {
 
   await db.runTransaction(async transacao => {
     const documento = await transacao.get(referencia);
+
     if (!documento.exists) return;
 
     const creditos = Number(documento.data().creditos);
+
     if (!Number.isFinite(creditos)) return;
 
     transacao.update(referencia, {
@@ -273,7 +278,6 @@ export default async function handler(req, res) {
 
   let uid;
   let db;
-  let cobrou = false;
 
   try {
     const autorizacao = req.headers.authorization || "";
@@ -328,9 +332,8 @@ export default async function handler(req, res) {
       });
     }
 
-    // Os créditos são validados e descontados no servidor.
+    // Desconta 6 créditos somente se o perfil existir e tiver saldo.
     const creditosRestantes = await descontarCreditos(db, uid);
-    cobrou = true;
 
     try {
       const consultas = [
@@ -368,10 +371,9 @@ export default async function handler(req, res) {
         creditosRestantes
       });
     } catch (erroBusca) {
-      // Se a busca falhar, tenta devolver os créditos descontados.
+      // Devolve os créditos se a pesquisa falhar.
       try {
         await devolverCreditos(db, uid);
-        cobrou = false;
       } catch (erroEstorno) {
         console.error("Falha ao devolver créditos:", erroEstorno);
       }
