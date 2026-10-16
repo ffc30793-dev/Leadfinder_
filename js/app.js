@@ -25,7 +25,6 @@ const segmentos = [
 ];
 
 let usuarioAtual = null;
-let modoCadastro = false;
 let buscando = false;
 
 function mensagem(texto) {
@@ -164,10 +163,6 @@ function configurarNavegacao() {
     $("#sidebar")?.classList.toggle("open");
   });
 
-  $("#btn-login")?.addEventListener("click", () => abrirAuth(false));
-  $("#btn-cadastro")?.addEventListener("click", () => abrirAuth(true));
-  $("#trocar-auth")?.addEventListener("click", () => abrirAuth(!modoCadastro));
-  $("#voltar-inicio")?.addEventListener("click", () => mostrarView("inicio"));
 
   $("#global-search")?.addEventListener("keydown", (evento) => {
     if (evento.key === "Enter") {
@@ -181,39 +176,6 @@ function configurarNavegacao() {
       alert("O pagamento ainda não está conectado. Nenhuma cobrança foi feita.");
     });
   });
-}
-
-function abrirAuth(cadastro) {
-  modoCadastro = cadastro;
-
-  const nome = $("#nome");
-  const telefone = $("#telefone");
-  const titulo = $("#auth-titulo");
-  const botao = $("#auth-submit");
-  const alternar = $("#trocar-auth");
-
-  if (nome) {
-    nome.hidden = !cadastro;
-    nome.required = cadastro;
-  }
-
-  if (telefone) {
-    telefone.hidden = !cadastro;
-    telefone.required = cadastro;
-  }
-
-  if (titulo) titulo.textContent = cadastro ? "Crie sua conta" : "Entre na sua conta";
-  if (botao) botao.textContent = cadastro ? "Criar conta grátis" : "Entrar";
-  if (alternar) alternar.textContent = cadastro
-    ? "Já tem uma conta? Entrar"
-    : "Ainda não tem conta? Cadastre-se";
-
-  if ($("#senha")) {
-    $("#senha").autocomplete = cadastro ? "new-password" : "current-password";
-  }
-
-  mensagemAuth("");
-  mostrarView("auth");
 }
 
 function lerSalvos() {
@@ -266,7 +228,7 @@ function cardEmpresa(empresa, indice, salvos = false) {
         <p class="muted">${textoSeguro(empresa.situacao || "Informações públicas disponíveis")}</p>
       </div>
       <div class="lead-actions">
-        ${whatsapp ? `<a class="btn btn-whatsapp" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer"><span aria-hidden="true">◉</span> Abrir WhatsApp</a>` : ""}
+        ${whatsapp ? `<a class="btn btn-primary" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>` : ""}
         <button class="btn btn-ghost" type="button" data-copy="${indice}">Copiar abordagem</button>
         ${salvos
           ? `<button class="btn btn-ghost" type="button" data-remove="${textoSeguro(id)}">Remover</button>`
@@ -402,8 +364,7 @@ async function executarBusca(origem) {
   }
 
   if (!usuarioAtual) {
-    mensagemAuth("Entre ou crie uma conta antes de pesquisar empresas.");
-    abrirAuth(false);
+    window.location.href = "./login.html";
     return;
   }
 
@@ -431,8 +392,7 @@ async function executarBusca(origem) {
     } catch {}
 
     if (!resposta.ok) {
-      const extra = [dados.codigo, dados.detalhe].filter(Boolean).join(" | ");
-      throw new Error((dados.erro || dados.mensagem || `Erro na pesquisa (${resposta.status}).`) + (extra ? ` [${extra}]` : ""));
+      throw new Error(dados.erro || dados.mensagem || `Erro na pesquisa (${resposta.status}).`);
     }
 
     let empresas = Array.isArray(dados.empresas) ? dados.empresas : [];
@@ -485,7 +445,7 @@ function configurarUsuario() {
     usuarioAtual = usuario || null;
 
     if (!usuario) {
-      atualizarPerfil({ nome: "Visitante", plano: "FREE", creditos: 30 });
+      window.location.replace("./login.html");
       return;
     }
 
@@ -542,8 +502,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           plano: "FREE",
           creditos: 30
         });
-        mensagemAuth("Você saiu da sua conta.");
-        mostrarView("inicio");
+        window.location.replace("./login.html");
       } catch (erro) {
         console.error(erro);
         mensagemAuth("Não foi possível sair da conta.");
@@ -556,5 +515,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-
-                 
+  
