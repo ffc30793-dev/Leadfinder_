@@ -1,4 +1,7 @@
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { auth, firestore, getFirebase } from "./firebase.js";
+
+onAuthStateChanged(auth, (user) => { if (!user) window.location.replace("./index.html"); });
 
 let authMod;
 let fsMod;
@@ -25,6 +28,7 @@ const segmentos = [
 ];
 
 let usuarioAtual = null;
+let modoCadastro = false;
 let buscando = false;
 
 function mensagem(texto) {
@@ -163,6 +167,10 @@ function configurarNavegacao() {
     $("#sidebar")?.classList.toggle("open");
   });
 
+  $("#btn-login")?.addEventListener("click", () => abrirAuth(false));
+  $("#btn-cadastro")?.addEventListener("click", () => abrirAuth(true));
+  $("#trocar-auth")?.addEventListener("click", () => abrirAuth(!modoCadastro));
+  $("#voltar-inicio")?.addEventListener("click", () => mostrarView("inicio"));
 
   $("#global-search")?.addEventListener("keydown", (evento) => {
     if (evento.key === "Enter") {
@@ -176,6 +184,39 @@ function configurarNavegacao() {
       alert("O pagamento ainda não está conectado. Nenhuma cobrança foi feita.");
     });
   });
+}
+
+function abrirAuth(cadastro) {
+  modoCadastro = cadastro;
+
+  const nome = $("#nome");
+  const telefone = $("#telefone");
+  const titulo = $("#auth-titulo");
+  const botao = $("#auth-submit");
+  const alternar = $("#trocar-auth");
+
+  if (nome) {
+    nome.hidden = !cadastro;
+    nome.required = cadastro;
+  }
+
+  if (telefone) {
+    telefone.hidden = !cadastro;
+    telefone.required = cadastro;
+  }
+
+  if (titulo) titulo.textContent = cadastro ? "Crie sua conta" : "Entre na sua conta";
+  if (botao) botao.textContent = cadastro ? "Criar conta grátis" : "Entrar";
+  if (alternar) alternar.textContent = cadastro
+    ? "Já tem uma conta? Entrar"
+    : "Ainda não tem conta? Cadastre-se";
+
+  if ($("#senha")) {
+    $("#senha").autocomplete = cadastro ? "new-password" : "current-password";
+  }
+
+  mensagemAuth("");
+  mostrarView("auth");
 }
 
 function lerSalvos() {
@@ -364,7 +405,8 @@ async function executarBusca(origem) {
   }
 
   if (!usuarioAtual) {
-    window.location.href = "./login.html";
+    mensagemAuth("Entre ou crie uma conta antes de pesquisar empresas.");
+    abrirAuth(false);
     return;
   }
 
@@ -445,7 +487,7 @@ function configurarUsuario() {
     usuarioAtual = usuario || null;
 
     if (!usuario) {
-      window.location.replace("./login.html");
+      atualizarPerfil({ nome: "Visitante", plano: "FREE", creditos: 30 });
       return;
     }
 
@@ -502,7 +544,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           plano: "FREE",
           creditos: 30
         });
-        window.location.replace("./login.html");
+        mensagemAuth("Você saiu da sua conta.");
+        mostrarView("inicio");
       } catch (erro) {
         console.error(erro);
         mensagemAuth("Não foi possível sair da conta.");
