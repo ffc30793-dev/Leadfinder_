@@ -431,7 +431,8 @@ async function executarBusca(origem) {
     } catch {}
 
     if (!resposta.ok) {
-      throw new Error(dados.erro || dados.mensagem || `Erro na pesquisa (${resposta.status}).`);
+      const extra = [dados.codigo, dados.detalhe].filter(Boolean).join(" | ");
+      throw new Error((dados.erro || dados.mensagem || `Erro na pesquisa (${resposta.status}).`) + (extra ? ` [${extra}]` : ""));
     }
 
     let empresas = Array.isArray(dados.empresas) ? dados.empresas : [];
@@ -555,4 +556,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-  
+
+                 
