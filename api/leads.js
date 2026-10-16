@@ -20,15 +20,24 @@ function obterFirebaseAdmin() {
 
   const credencialRaw =
     process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ||
+    process.env.FIREBASE_SERVICE_ACCOUNT;
 
   if (!credencialRaw) {
     throw new Error(
-      "Configure FIREBASE_SERVICE_ACCOUNT_KEY na Vercel."
+      "Configure FIREBASE_SERVICE_ACCOUNT na Vercel."
     );
   }
 
-  const credencial = JSON.parse(credencialRaw);
+  let credencial;
+
+  try {
+    credencial = JSON.parse(credencialRaw);
+  } catch {
+    throw new Error(
+      "A variável Firebase precisa conter um JSON válido."
+    );
+  }
 
   initializeApp({
     credential: cert(credencial)
@@ -62,7 +71,9 @@ function classificarUrl(url = "") {
         host === dominio || host.endsWith(`.${dominio}`)
     );
 
-    return ehRedeSocial ? "SO_REDE_SOCIAL" : "TEM_SITE";
+    return ehRedeSocial
+      ? "SO_REDE_SOCIAL"
+      : "TEM_SITE";
   } catch {
     return "SITE_NAO_ENCONTRADO";
   }
@@ -84,19 +95,21 @@ function formatarLead(place) {
     place.internationalPhoneNumber ||
     "";
 
+  const endereco = place.formattedAddress || "";
   const statusSite = classificarUrl(site);
 
   let pontuacao = 0;
+
   if (statusSite === "SITE_NAO_ENCONTRADO") pontuacao += 10;
   if (statusSite === "SO_REDE_SOCIAL") pontuacao += 6;
   if (telefone) pontuacao += 3;
-  if (place.formattedAddress) pontuacao += 1;
+  if (endereco) pontuacao += 1;
   if (statusSite === "TEM_SITE") pontuacao -= 10;
 
   return {
     id: place.id || "",
     nome: place.displayName?.text || "Estabelecimento sem nome",
-    endereco: place.formattedAddress || "",
+    endereco,
     telefone,
     whatsapp: criarLinkWhatsApp(telefone),
     site,
@@ -175,6 +188,7 @@ async function buscarGooglePlaces({
 
   if (!resposta.ok) {
     const detalhe = await resposta.text();
+
     console.error(
       "Google Places:",
       resposta.status,
@@ -195,6 +209,7 @@ export default async function handler(req, res) {
 
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
+
     return res.status(405).json({
       sucesso: false,
       erro: "Método não permitido. Use POST."
@@ -202,10 +217,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Validar a sessão do Firebase antes de pesquisar.
     const autorizacao = req.headers.authorization || "";
     const token = autorizacao.startsWith("Bearer ")
-      ? autorizacao.slice(7)
+      ? autorizacao.slice(7).trim()
       : "";
 
     if (!token) {
@@ -216,11 +230,15 @@ export default async function handler(req, res) {
     }
 
     let usuario;
+
     try {
       const firebaseAuth = obterFirebaseAdmin();
       usuario = await firebaseAuth.verifyIdToken(token);
     } catch (erroAuth) {
-      console.error("Falha na autenticação Firebase:", erroAuth.message);
+      console.error(
+        "Falha na autenticação Firebase:",
+        erroAuth.message
+      );
 
       return res.status(401).json({
         sucesso: false,
@@ -298,11 +316,9 @@ export default async function handler(req, res) {
     return res.status(500).json({
       sucesso: false,
       erro:
-        erro.message?.includes("FIREBASE_SERVICE_ACCOUNT")
-          ? "A autenticação do servidor precisa ser configurada na Vercel."
-          : erro.message?.startsWith("Google Places retornou HTTP")
-            ? erro.message
-            : "Não foi possível buscar os estabelecimentos. Confira os logs da Vercel."
+        erro.message?.startsWith("Google Places retornou HTTP")
+          ? erro.message
+          : "Não foi possível buscar os estabelecimentos. Confira os logs da Vercel."
     });
   }
 }
