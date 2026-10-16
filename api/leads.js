@@ -16,7 +16,9 @@ const SOCIAL_DOMAINS = [
 ];
 
 function obterFirebaseAdmin() {
-  if (getApps().length) return getAuth();
+  if (getApps().length) {
+    return getAuth();
+  }
 
   const credencialRaw =
     process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
@@ -39,8 +41,15 @@ function obterFirebaseAdmin() {
     );
   }
 
+  if (credencial.project_id !== "leadfinder-378a9") {
+    throw new Error(
+      "O projeto da credencial Firebase não corresponde ao projeto LeadFinder."
+    );
+  }
+
   initializeApp({
-    credential: cert(credencial)
+    credential: cert(credencial),
+    projectId: "leadfinder-378a9"
   });
 
   return getAuth();
@@ -55,7 +64,9 @@ function normalizarTexto(valor = "") {
 }
 
 function classificarUrl(url = "") {
-  if (!url) return "SITE_NAO_ENCONTRADO";
+  if (!url) {
+    return "SITE_NAO_ENCONTRADO";
+  }
 
   try {
     const endereco = new URL(
@@ -90,6 +101,7 @@ function criarLinkWhatsApp(telefone = "") {
 
 function formatarLead(place) {
   const site = place.websiteUri || "";
+
   const telefone =
     place.nationalPhoneNumber ||
     place.internationalPhoneNumber ||
@@ -100,11 +112,20 @@ function formatarLead(place) {
 
   let pontuacao = 0;
 
-  if (statusSite === "SITE_NAO_ENCONTRADO") pontuacao += 10;
-  if (statusSite === "SO_REDE_SOCIAL") pontuacao += 6;
+  if (statusSite === "SITE_NAO_ENCONTRADO") {
+    pontuacao += 10;
+  }
+
+  if (statusSite === "SO_REDE_SOCIAL") {
+    pontuacao += 6;
+  }
+
   if (telefone) pontuacao += 3;
   if (endereco) pontuacao += 1;
-  if (statusSite === "TEM_SITE") pontuacao -= 10;
+
+  if (statusSite === "TEM_SITE") {
+    pontuacao -= 10;
+  }
 
   return {
     id: place.id || "",
@@ -123,7 +144,9 @@ function formatarLead(place) {
 }
 
 function chaveLead(lead) {
-  if (lead.id) return `id:${lead.id}`;
+  if (lead.id) {
+    return `id:${lead.id}`;
+  }
 
   return [
     normalizarTexto(lead.nome),
@@ -201,6 +224,7 @@ async function buscarGooglePlaces({
   }
 
   const dados = await resposta.json();
+
   return dados.places || [];
 }
 
@@ -218,6 +242,7 @@ export default async function handler(req, res) {
 
   try {
     const autorizacao = req.headers.authorization || "";
+
     const token = autorizacao.startsWith("Bearer ")
       ? autorizacao.slice(7).trim()
       : "";
@@ -233,16 +258,20 @@ export default async function handler(req, res) {
 
     try {
       const firebaseAuth = obterFirebaseAdmin();
+
       usuario = await firebaseAuth.verifyIdToken(token);
     } catch (erroAuth) {
       console.error(
         "Falha na autenticação Firebase:",
-        erroAuth.message
+        erroAuth.code || "",
+        erroAuth.message || ""
       );
 
       return res.status(401).json({
         sucesso: false,
-        erro: "Sessão inválida ou expirada. Entre novamente."
+        erro: "Falha na autenticação Firebase.",
+        codigo: erroAuth.code || "sem_codigo",
+        detalhe: erroAuth.message || "Erro desconhecido"
       });
     }
 
@@ -263,8 +292,10 @@ export default async function handler(req, res) {
     }
 
     const corpo = req.body || {};
+
     const cidade = String(corpo.cidade || "").trim();
     const estado = String(corpo.estado || "").trim();
+
     const nicho = String(
       corpo.nicho || corpo.segmento || ""
     ).trim();
