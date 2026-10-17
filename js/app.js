@@ -40,7 +40,22 @@ function mensagemAuth(texto) {
   if (settings) settings.textContent = texto;
 }
 
+const PAGINAS = {
+  inicio: "./painel.html",
+  buscar: "./buscar.html",
+  leads: "./leads.html",
+  creditos: "./creditos.html",
+  planos: "./planos.html",
+  configuracoes: "./configuracoes.html"
+};
+
 function mostrarView(nome) {
+  // Cada tela agora é uma página: se a tela não existe aqui, abre a página dela
+  if (!document.getElementById(`view-${nome}`)) {
+    if (PAGINAS[nome]) window.location.href = PAGINAS[nome];
+    return;
+  }
+
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.toggle("active", view.id === `view-${nome}`);
   });
@@ -177,6 +192,13 @@ function configurarNavegacao() {
     });
   });
 }
+
+document.addEventListener("click", (evento) => {
+  const menu = $("#sidebar");
+  if (!menu?.classList.contains("open")) return;
+  if (evento.target.closest("#sidebar, #mobile-menu")) return;
+  menu.classList.remove("open");
+});
 
 function lerSalvos() {
   try {
@@ -500,7 +522,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     configurarUsuario();
     renderizarSalvos();
 
-    $("#sair")?.addEventListener("click", async () => {
+    document.querySelectorAll("#sair, #sair-menu").forEach((botaoSair) => botaoSair.addEventListener("click", async () => {
       try {
         await authMod.signOut(auth);
         usuarioAtual = null;
@@ -514,7 +536,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error(erro);
         mensagemAuth("Não foi possível sair da conta.");
       }
-    });
+    }));
   } catch (erro) {
     console.error("Erro ao iniciar o LeadFinder:", erro);
     mensagem("Não foi possível iniciar o sistema. Confira a configuração do Firebase.");
