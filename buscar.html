@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="./css/responsive.css">
+  <link rel="stylesheet" href="./css/menu.css">
 </head>
 <body>
   <div class="app-shell">
@@ -19,7 +20,6 @@
       <div class="side-label">MENU PRINCIPAL</div>
       <nav class="side-nav" aria-label="Menu principal">
         <button class="nav-item" data-view="inicio"><span class="nav-icon">⌂</span>Início</button>
-        <button class="nav-item" data-view="como-funciona"><span class="nav-icon">?</span>Como funciona</button>
         <button class="nav-item active" data-view="buscar"><span class="nav-icon">⌕</span>Buscar empresas</button>
         <button class="nav-item" data-view="leads"><span class="nav-icon">◇</span>Meus leads</button>
         <button class="nav-item" data-view="creditos"><span class="nav-icon">▤</span>Créditos</button>
@@ -32,6 +32,8 @@
         <p>Conheça os planos para ampliar sua prospecção.</p>
         <button class="btn btn-primary btn-full" data-view="planos">Ver planos <span>→</span></button>
       </div>
+      <button id="sair-menu" class="btn btn-ghost btn-full" type="button">Sair da conta</button>
+
       <div class="sidebar-bottom">
         <span class="status-dot"></span> Sistema operacional
         <small>LeadFinder v1.0</small>
@@ -41,19 +43,19 @@
     <div class="workspace">
       <header class="topbar">
         <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu">☰</button>
-        <div class="top-search">
+        <a class="top-brand" href="./painel.html">Lead<span class="green">Finder</span></a>
+        <div class="top-search" hidden>
           <span>⌕</span>
           <input id="global-search" type="search" placeholder="Encontre empresas que precisam de um site...">
         </div>
         <div class="top-actions">
           <div class="credit-pill"><span>▤</span><b id="credit-count">30</b> créditos</div>
-          <button class="icon-button" aria-label="Notificações">♧</button>
           <div class="profile-chip">
             <span class="avatar">L</span>
             <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
           </div>
-          <button id="btn-login" class="btn btn-ghost top-login">Entrar</button>
-          <button id="btn-cadastro" class="btn btn-primary top-signup">Criar conta</button>
+          <button id="btn-login" class="btn btn-ghost top-login" hidden>Entrar</button>
+          <button id="btn-cadastro" class="btn btn-primary top-signup" hidden>Criar conta</button>
         </div>
       </header>
 

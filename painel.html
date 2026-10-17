@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="./css/base.css">
   <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="./css/responsive.css">
+  <link rel="stylesheet" href="./css/menu.css">
 </head>
 <body>
   <div class="app-shell">
@@ -19,7 +20,6 @@
       <div class="side-label">MENU PRINCIPAL</div>
       <nav class="side-nav" aria-label="Menu principal">
         <button class="nav-item active" data-view="inicio"><span class="nav-icon">⌂</span>Início</button>
-        <button class="nav-item" data-view="como-funciona"><span class="nav-icon">?</span>Como funciona</button>
         <button class="nav-item" data-view="buscar"><span class="nav-icon">⌕</span>Buscar empresas</button>
         <button class="nav-item" data-view="leads"><span class="nav-icon">◇</span>Meus leads</button>
         <button class="nav-item" data-view="creditos"><span class="nav-icon">▤</span>Créditos</button>
@@ -32,6 +32,8 @@
         <p>Conheça os planos para ampliar sua prospecção.</p>
         <button class="btn btn-primary btn-full" data-view="planos">Ver planos <span>→</span></button>
       </div>
+      <button id="sair-menu" class="btn btn-ghost btn-full" type="button">Sair da conta</button>
+
       <div class="sidebar-bottom">
         <span class="status-dot"></span> Sistema operacional
         <small>LeadFinder v1.0</small>
@@ -41,19 +43,19 @@
     <div class="workspace">
       <header class="topbar">
         <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu">☰</button>
-        <div class="top-search">
+        <a class="top-brand" href="./painel.html">Lead<span class="green">Finder</span></a>
+        <div class="top-search" hidden>
           <span>⌕</span>
           <input id="global-search" type="search" placeholder="Encontre empresas que precisam de um site...">
         </div>
         <div class="top-actions">
           <div class="credit-pill"><span>▤</span><b id="credit-count">30</b> créditos</div>
-          <button class="icon-button" aria-label="Notificações">♧</button>
           <div class="profile-chip">
             <span class="avatar">L</span>
             <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
           </div>
-          <button id="btn-login" class="btn btn-ghost top-login">Entrar</button>
-          <button id="btn-cadastro" class="btn btn-primary top-signup">Criar conta</button>
+          <button id="btn-login" class="btn btn-ghost top-login" hidden>Entrar</button>
+          <button id="btn-cadastro" class="btn btn-primary top-signup" hidden>Criar conta</button>
         </div>
       </header>
 
@@ -65,24 +67,68 @@
               <h1>Encontre empresas que <span class="green">precisam de um site.</span></h1>
               <p>Descubra oportunidades, encontre estabelecimentos por localização e prepare abordagens para oferecer seus serviços digitais.</p>
               <div class="hero-actions">
-                <button class="btn btn-primary" data-view="buscar">Começar agora <span>→</span></button>
-                <button class="btn btn-ghost" data-view="como-funciona">Saiba mais</button>
-              </div>
-              <div class="hero-orbit orbit-one"></div>
-              <div class="hero-orbit orbit-two"></div>
-              <div class="hero-graphic">
-                <div class="graphic-window"><div class="window-dots">● ● ●</div><div class="graph-line">⌁⌁⌁↗</div><span class="graphic-pin">⌖</span></div>
-                <div class="floating-tag tag-one">⌖ Localização</div>
-                <div class="floating-tag tag-two">↗ Oportunidades</div>
+                <button class="btn btn-primary" data-view="buscar">Começar a buscar <span>→</span></button>
+                <button class="btn btn-ghost" data-scroll="como-funciona">Saiba mais</button>
               </div>
             </div>
           </div>
-          <div class="feature-grid">
+
+<div class="feature-grid">
             <article class="feature-card"><span class="feature-icon">⌖</span><h3>Busca inteligente</h3><p>Encontre empresas por estado, cidade e segmento.</p></article>
             <article class="feature-card"><span class="feature-icon">▤</span><h3>Dados organizados</h3><p>Visualize nome, endereço, telefone e site informado.</p></article>
             <article class="feature-card"><span class="feature-icon">↗</span><h3>Abordagem pronta</h3><p>Prepare mensagens para iniciar conversas com potenciais clientes.</p></article>
             <article class="feature-card"><span class="feature-icon">◎</span><h3>Mais oportunidades</h3><p>Salve os negócios encontrados e organize sua prospecção.</p></article>
           </div>
+
+          <section class="section-block" id="como-funciona">
+            <div class="section-heading"><div>
+              <span class="section-kicker">SIMPLES E DIRETO</span>
+              <h2>Como funciona?</h2>
+              <p class="muted">Do filtro ao primeiro contato em poucos passos.</p>
+            </div></div>
+            <div class="steps-grid">
+              <article class="step-card"><span>01</span><h3>Escolha a localização</h3><p>Selecione o estado e a cidade em que deseja prospectar.</p></article>
+              <article class="step-card"><span>02</span><h3>Defina o segmento</h3><p>Encontre empresas de acordo com o tipo de negócio.</p></article>
+              <article class="step-card"><span>03</span><h3>Veja os resultados</h3><p>Confira as informações disponíveis para cada estabelecimento.</p></article>
+              <article class="step-card"><span>04</span><h3>Entre em contato</h3><p>Use o WhatsApp quando disponível e personalize sua abordagem.</p></article>
+          </div>
+          </section>
+
+          <section class="section-block">
+            <div class="section-heading"><div>
+              <span class="section-kicker">PLANOS E CRÉDITOS</span>
+              <h2>Escolha seu ritmo de prospecção</h2>
+              <p class="muted">Comece grátis e evolua conforme sua necessidade. Cada busca custa 6 créditos.</p>
+            </div></div>
+            <div class="plans-grid">
+            <article class="plan-card">
+              <span class="plan-label">PARA COMEÇAR</span>
+              <h3>Grátis</h3>
+              <div class="plan-price">R$ 0 <small>/ mês</small></div>
+              <p>30 créditos iniciais</p>
+              <ul><li>Busca de empresas</li><li>Resultados organizados</li><li>Abordagem básica</li></ul>
+              <button class="btn btn-ghost btn-full" data-view="buscar">Usar plano grátis</button>
+            </article>
+            <article class="plan-card">
+              <span class="plan-label">MAIS POPULAR</span>
+              <h3>Básico</h3>
+              <div class="plan-price">R$ 19,90 <small>/ mês</small></div>
+              <p>Para quem está começando</p>
+              <ul><li>Mais créditos</li><li>Organização de leads</li><li>Mais oportunidades</li></ul>
+              <button class="btn btn-primary btn-full" data-plan="BASIC">Escolher Básico</button>
+            </article>
+            <article class="plan-card featured">
+              <span class="plan-label">PARA CRESCER</span>
+              <h3>Pro</h3>
+              <div class="plan-price">R$ 30 <small>/ mês</small></div>
+              <p>Para prospecção intensiva</p>
+              <ul><li>Recursos avançados</li><li>Mais filtros</li><li>Fluxo ampliado</li></ul>
+              <button class="btn btn-primary btn-full" data-plan="PRO">Escolher Pro</button>
+            </article>
+          </div>
+          </section>
+
+          <p class="cta-final"><button class="btn btn-primary" data-view="buscar">Começar a buscar <span>→</span></button></p>
         </section>
       </main>
 
