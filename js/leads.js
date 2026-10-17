@@ -363,6 +363,10 @@ export default async function handler(req, res) {
     let filtradas = lista;
     if (necessidade === "sem-site") filtradas = lista.filter(e => !e.site);
     else if (necessidade === "site") filtradas = lista.filter(e => e.site);
+    // Empresas sem site aparecem primeiro (são os melhores leads)
+    filtradas = [...filtradas].sort(
+      (a, b) => (a.site ? 1 : 0) - (b.site ? 1 : 0)
+    );
     const entregues = filtradas.slice(0, limite);
 
     return res.status(200).json({
