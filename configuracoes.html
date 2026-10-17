@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#03100b">
+  <title>Configurações — LeadFinder</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="./painel.html" aria-label="LeadFinder início">
+        <span class="brand-mark">L</span>
+        <span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
+      </a>
+      <div class="side-label">MENU PRINCIPAL</div>
+      <nav class="side-nav" aria-label="Menu principal">
+        <button class="nav-item" data-view="inicio"><span class="nav-icon">⌂</span>Início</button>
+        <button class="nav-item" data-view="como-funciona"><span class="nav-icon">?</span>Como funciona</button>
+        <button class="nav-item" data-view="buscar"><span class="nav-icon">⌕</span>Buscar empresas</button>
+        <button class="nav-item" data-view="leads"><span class="nav-icon">◇</span>Meus leads</button>
+        <button class="nav-item" data-view="creditos"><span class="nav-icon">▤</span>Créditos</button>
+        <button class="nav-item" data-view="planos"><span class="nav-icon">♛</span>Planos</button>
+        <button class="nav-item active" data-view="configuracoes"><span class="nav-icon">⚙</span>Configurações</button>
+      </nav>
+      <div class="sidebar-promo">
+        <div class="promo-symbol">↗</div>
+        <strong>Quer mais oportunidades?</strong>
+        <p>Conheça os planos para ampliar sua prospecção.</p>
+        <button class="btn btn-primary btn-full" data-view="planos">Ver planos <span>→</span></button>
+      </div>
+      <div class="sidebar-bottom">
+        <span class="status-dot"></span> Sistema operacional
+        <small>LeadFinder v1.0</small>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu">☰</button>
+        <div class="top-search">
+          <span>⌕</span>
+          <input id="global-search" type="search" placeholder="Encontre empresas que precisam de um site...">
+        </div>
+        <div class="top-actions">
+          <div class="credit-pill"><span>▤</span><b id="credit-count">30</b> créditos</div>
+          <button class="icon-button" aria-label="Notificações">♧</button>
+          <div class="profile-chip">
+            <span class="avatar">L</span>
+            <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
+          </div>
+          <button id="btn-login" class="btn btn-ghost top-login">Entrar</button>
+          <button id="btn-cadastro" class="btn btn-primary top-signup">Criar conta</button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="view active" id="view-configuracoes">
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">PREFERÊNCIAS</span>
+              <h1>Configurações</h1>
+              <p class="muted">Informações da sua conta e sessão.</p>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <article class="panel settings-card">
+              <span class="panel-icon">♙</span>
+              <h2>Perfil da conta</h2>
+              <p class="muted">Confira as informações usadas no seu cadastro.</p>
+              <div class="setting-row"><span>Nome</span><strong id="settings-name">—</strong></div>
+              <div class="setting-row"><span>E-mail</span><strong id="settings-email">—</strong></div>
+              <div class="setting-row"><span>Plano</span><strong id="settings-plan">Grátis</strong></div>
+            </article>
+            <article class="panel settings-card">
+              <span class="panel-icon">⚿</span>
+              <h2>Sessão</h2>
+              <p class="muted">Saia da sua conta neste dispositivo.</p>
+              <button id="sair" class="btn btn-danger" type="button">Sair da conta</button>
+              <p id="auth-mensagem-settings" class="muted" role="status" aria-live="polite"></p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span>© 2026 LeadFinder — Prospecção Inteligente</span>
+        <div>
+          <span>● Tecnologia moderna</span>
+          <span>⌖ Dados de empresas</span>
+          <span>▣ Sistema responsivo</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>

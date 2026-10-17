@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#03100b">
+  <title>Buscar empresas — LeadFinder</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="./painel.html" aria-label="LeadFinder início">
+        <span class="brand-mark">L</span>
+        <span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
+      </a>
+      <div class="side-label">MENU PRINCIPAL</div>
+      <nav class="side-nav" aria-label="Menu principal">
+        <button class="nav-item" data-view="inicio"><span class="nav-icon">⌂</span>Início</button>
+        <button class="nav-item" data-view="como-funciona"><span class="nav-icon">?</span>Como funciona</button>
+        <button class="nav-item active" data-view="buscar"><span class="nav-icon">⌕</span>Buscar empresas</button>
+        <button class="nav-item" data-view="leads"><span class="nav-icon">◇</span>Meus leads</button>
+        <button class="nav-item" data-view="creditos"><span class="nav-icon">▤</span>Créditos</button>
+        <button class="nav-item" data-view="planos"><span class="nav-icon">♛</span>Planos</button>
+        <button class="nav-item" data-view="configuracoes"><span class="nav-icon">⚙</span>Configurações</button>
+      </nav>
+      <div class="sidebar-promo">
+        <div class="promo-symbol">↗</div>
+        <strong>Quer mais oportunidades?</strong>
+        <p>Conheça os planos para ampliar sua prospecção.</p>
+        <button class="btn btn-primary btn-full" data-view="planos">Ver planos <span>→</span></button>
+      </div>
+      <div class="sidebar-bottom">
+        <span class="status-dot"></span> Sistema operacional
+        <small>LeadFinder v1.0</small>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu">☰</button>
+        <div class="top-search">
+          <span>⌕</span>
+          <input id="global-search" type="search" placeholder="Encontre empresas que precisam de um site...">
+        </div>
+        <div class="top-actions">
+          <div class="credit-pill"><span>▤</span><b id="credit-count">30</b> créditos</div>
+          <button class="icon-button" aria-label="Notificações">♧</button>
+          <div class="profile-chip">
+            <span class="avatar">L</span>
+            <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
+          </div>
+          <button id="btn-login" class="btn btn-ghost top-login">Entrar</button>
+          <button id="btn-cadastro" class="btn btn-primary top-signup">Criar conta</button>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <section class="view active" id="view-buscar">
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">PROSPECÇÃO</span>
+              <h1>Buscar empresas</h1>
+              <p class="muted">Encontre negócios para apresentar seus serviços digitais.</p>
+            </div>
+            <span class="credit-pill"><b id="credit-count-search">30</b> créditos</span>
+          </div>
+          <div class="search-layout">
+            <div class="panel filter-panel">
+              <div class="panel-heading"><h2>Filtros de busca</h2><span class="panel-icon">⚙</span></div>
+              <label for="estado-search">Estado</label>
+              <select id="estado-search" required><option value="">Selecione o estado</option></select>
+              <label for="cidade-search">Cidade</label>
+              <select id="cidade-search" disabled required><option value="">Selecione primeiro o estado</option></select>
+              <label for="nicho-search">Segmento</label>
+              <select id="nicho-search" required>
+                <option value="">Escolha um segmento</option>
+                <option>Restaurante</option>
+                <option>Pizzaria</option>
+                <option>Hamburgueria</option>
+                <option>Barbearia</option>
+                <option>Salão de beleza</option>
+                <option>Clínica</option>
+                <option>Dentista</option>
+                <option>Academia</option>
+                <option>Oficina mecânica</option>
+                <option>Loja de roupas</option>
+                <option>Imobiliária</option>
+                <option>Hotel</option>
+                <option>Pet shop</option>
+                <option>Padaria</option>
+                <option>Cafeteria</option>
+              </select>
+              <label for="necessidade-search">Necessidade de serviço</label>
+              <select id="necessidade-search">
+                <option value="todos">Todas as oportunidades</option>
+                <option value="sem-site">Possível empresa sem site listado</option>
+                <option value="site">Empresas com site informado</option>
+              </select>
+              <button id="buscar-leads-2" class="btn btn-primary btn-full" type="button">⌕ Buscar empresas</button>
+              <p class="credit-note">Uma ausência de site listado não garante que a empresa não tenha um site.</p>
+            </div>
+            <div class="panel results-panel">
+              <div class="results-header">
+                <div><span class="section-kicker">SEUS RESULTADOS</span><h2>Resultados da busca</h2></div>
+                <span id="results-count" class="count-badge">0 encontrados</span>
+              </div>
+              <p id="resultado-status" class="muted" role="status" aria-live="polite">Escolha os filtros e inicie uma busca.</p>
+              <div id="resultados" class="results-list"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <span>© 2026 LeadFinder — Prospecção Inteligente</span>
+        <div>
+          <span>● Tecnologia moderna</span>
+          <span>⌖ Dados de empresas</span>
+          <span>▣ Sistema responsivo</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/auth.js"></script>
+</body>
+</html>
