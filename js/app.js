@@ -369,6 +369,23 @@ function renderizarSalvos() {
   });
 }
 
+function lerVistos(chave) {
+  try {
+    const todos = JSON.parse(localStorage.getItem("lf_vistos") || "{}");
+    return Array.isArray(todos[chave]) ? todos[chave] : [];
+  } catch {
+    return [];
+  }
+}
+
+function gravarVistos(chave, ids) {
+  try {
+    const todos = JSON.parse(localStorage.getItem("lf_vistos") || "{}");
+    todos[chave] = [...new Set([...(todos[chave] || []), ...ids])].slice(-1000);
+    localStorage.setItem("lf_vistos", JSON.stringify(todos));
+  } catch {}
+}
+
 async function executarBusca(origem) {
   if (buscando) return;
 
@@ -390,6 +407,8 @@ async function executarBusca(origem) {
     return;
   }
 
+  const chaveVistos = [estado, cidade, nicho].join("|");
+
   buscando = true;
   mostrarView("buscar");
   mensagem("Buscando empresas nas fontes públicas. Aguarde...");
@@ -405,7 +424,7 @@ async function executarBusca(origem) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ estado, cidade, nicho, necessidade })
+      body: JSON.stringify({ estado, cidade, nicho, necessidade, jaVistos: lerVistos(chaveVistos) })
     });
 
     let dados = {};
@@ -418,6 +437,7 @@ async function executarBusca(origem) {
     }
 
     let empresas = Array.isArray(dados.empresas) ? dados.empresas : [];
+    gravarVistos(chaveVistos, empresas.map((e) => e.id).filter(Boolean));
 
     if (typeof dados.creditosRestantes === "number") {
       ["#credit-count", "#credit-count-search", "#credit-count-page"].forEach((seletor) => {
@@ -433,9 +453,14 @@ async function executarBusca(origem) {
     }
 
     renderizarResultados(empresas);
-    mensagem(empresas.length
-      ? `Busca concluída. Foram encontradas ${empresas.length} empresas. Os dados podem estar incompletos.`
-      : "A consulta terminou, mas não retornou empresas com esses filtros. Tente outro segmento ou cidade.");
+    if (dados.semNovos) {
+      mensagem("Não há mais empresas novas para esta busca. Nenhum crédito foi descontado. Tente outro segmento ou outra cidade.");
+    } else if (empresas.length) {
+      const mais = dados.restantes ? ` Ainda há cerca de ${dados.restantes} para ver: busque de novo.` : "";
+      mensagem(`Foram encontradas ${empresas.length} empresas novas.${mais} Os dados podem estar incompletos.`);
+    } else {
+      mensagem("A consulta terminou, mas não retornou empresas com esses filtros. Tente outro segmento ou cidade.");
+    }
   } catch (erro) {
     console.error("Erro ao buscar empresas:", erro);
     mensagem(`Não foi possível realizar a busca: ${erro.message}`);
@@ -542,6 +567,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     mensagem("Não foi possível iniciar o sistema. Confira a configuração do Firebase.");
   }
 });
+
 
 
   
