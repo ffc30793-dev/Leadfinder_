@@ -1,41 +1,317 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#03100b">
-  <meta name="description" content="Entre ou crie sua conta no LeadFinder.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070611">
+  <meta name="description" content="Acesse sua conta LeadFinder.">
   <title>Acessar — LeadFinder</title>
+
   <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/responsive.css">
+
   <style>
-    body.login-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 15% 10%,rgba(23,180,105,.16),transparent 40%),#030806}
-    .login-wrap{width:min(100%,470px)}.login-card{padding:clamp(24px,5vw,42px);border:1px solid rgba(49,220,132,.22);border-radius:24px;background:rgba(9,20,14,.92);box-shadow:0 25px 80px rgba(0,0,0,.45),0 0 35px rgba(28,210,113,.06)}
-    .login-brand{display:inline-flex;margin-bottom:32px;text-decoration:none}.login-kicker{display:inline-block;margin-bottom:10px;color:#55e59a;font-size:.72rem;font-weight:800;letter-spacing:.14em}.login-card h1{margin:0 0 10px;font-size:clamp(1.8rem,6vw,2.35rem);letter-spacing:-.04em}.login-subtitle{margin:0 0 26px;color:#a6b6ab;line-height:1.6}.login-form{display:grid;gap:13px}.login-form input{width:100%;min-height:50px;padding:14px 15px;border:1px solid rgba(163,190,170,.2);border-radius:12px;background:#07100a;color:#f4fff7;outline:none}.login-form input:focus{border-color:#32d47b;box-shadow:0 0 0 3px rgba(50,212,123,.12)}.login-form input[hidden]{display:none}.login-submit{margin-top:5px;min-height:50px}.login-message{min-height:22px;color:#8debb2;font-size:.9rem}.login-switch,.login-back{display:block;width:100%;padding:10px;border:0;background:none;color:#a7e9bf;text-align:center;cursor:pointer}.login-back{margin-top:8px;color:#a3afa7;text-decoration:none;font-size:.9rem}.login-divider{height:1px;margin:18px 0;background:rgba(163,190,170,.12)}
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body.login-page {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 22px 16px;
+      color: #f8f5ff;
+      background:
+        radial-gradient(ellipse at 10% 0%, #25102f 0, transparent 42%),
+        radial-gradient(ellipse at 100% 100%, #0a1b35 0, transparent 45%),
+        #070611;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .login-card {
+      padding: clamp(24px, 6vw, 38px);
+      border: 1px solid rgba(180, 92, 255, .25);
+      border-radius: 22px;
+      background: rgba(13, 11, 27, .96);
+      box-shadow: 0 24px 75px rgba(0, 0, 0, .4);
+    }
+
+    .login-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 34px;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .login-brand-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #ff3cac, #9b5cff, #477bff);
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+    .login-brand-name {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -.6px;
+    }
+
+    .login-brand-name small {
+      display: block;
+      margin-top: 4px;
+      color: #aaa4c4;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: .3px;
+    }
+
+    .login-kicker {
+      margin: 0 0 10px;
+      color: #d49aff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .login-card h1 {
+      margin: 0 0 10px;
+      color: #fff;
+      font-size: clamp(27px, 7vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -.8px;
+    }
+
+    .login-subtitle {
+      margin: 0 0 26px;
+      color: #aaa4c4;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .login-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .login-field {
+      display: grid;
+      gap: 7px;
+      color: #e8e2f7;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .login-field input {
+      width: 100%;
+      min-width: 0;
+      min-height: 49px;
+      padding: 13px 14px;
+      border: 1px solid rgba(180, 92, 255, .25);
+      border-radius: 11px;
+      outline: none;
+      background: #090817;
+      color: #fff;
+      font: inherit;
+      font-weight: 400;
+    }
+
+    .login-field input::placeholder {
+      color: #77718f;
+    }
+
+    .login-field input:focus {
+      border-color: #ff3cac;
+      box-shadow: 0 0 0 3px rgba(255, 60, 172, .12);
+    }
+
+    .login-field input[hidden] {
+      display: none !important;
+    }
+
+    .login-submit {
+      width: 100%;
+      min-height: 50px;
+      margin-top: 5px;
+      border: 0;
+      border-radius: 11px;
+      background: linear-gradient(105deg, #ff3cac, #a64dff 58%, #477bff);
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .login-submit:disabled {
+      cursor: wait;
+      opacity: .65;
+    }
+
+    .login-message {
+      min-height: 20px;
+      margin: 14px 0 0;
+      color: #d6b8ff;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .login-divider {
+      height: 1px;
+      margin: 20px 0 12px;
+      background: rgba(255, 255, 255, .09);
+    }
+
+    .login-switch,
+    .login-back {
+      display: block;
+      width: 100%;
+      padding: 11px 5px;
+      border: 0;
+      background: transparent;
+      color: #d49aff;
+      text-align: center;
+      text-decoration: none;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .login-switch:hover,
+    .login-back:hover {
+      color: #ff8dce;
+    }
+
+    .login-back {
+      color: #aaa4c4;
+    }
+
+    @media (max-width: 360px) {
+      .login-card {
+        padding: 22px 18px;
+      }
+    }
   </style>
 </head>
+
 <body class="login-page">
   <main class="login-wrap">
     <section class="login-card">
-      <a class="brand login-brand" href="./login.html" aria-label="LeadFinder">
-        <span class="brand-mark">L</span><span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
+      <a class="login-brand" href="./login.html" aria-label="LeadFinder">
+        <span class="login-brand-mark">L</span>
+        <span class="login-brand-name">
+          LeadFinder
+          <small>Prospecção Inteligente</small>
+        </span>
       </a>
-      <span class="login-kicker">SUA PROSPECÇÃO COMEÇA AQUI</span>
+
+      <p class="login-kicker">SUA PROSPECÇÃO COMEÇA AQUI</p>
+
       <h1 id="auth-titulo">Entre na sua conta</h1>
-      <p class="login-subtitle" id="auth-descricao">Acesse seu painel e continue encontrando novas oportunidades.</p>
+
+      <p class="login-subtitle" id="auth-descricao">
+        Acesse seu painel e continue encontrando novas oportunidades.
+      </p>
+
       <form class="login-form" id="auth-form">
-        <input id="nome" type="text" placeholder="Nome completo" autocomplete="name" hidden>
-        <input id="email" type="email" placeholder="Seu e-mail" autocomplete="email" required>
-        <input id="telefone" type="tel" placeholder="Celular com DDD" autocomplete="tel" hidden>
-        <input id="senha" type="password" placeholder="Senha (mínimo 6 caracteres)" autocomplete="current-password" minlength="6" required>
-        <button id="auth-submit" class="btn btn-primary btn-full login-submit" type="submit">Entrar</button>
+        <label class="login-field">
+          Nome completo
+          <input
+            id="nome"
+            name="nome"
+            type="text"
+            placeholder="Digite seu nome"
+            autocomplete="name"
+            hidden
+          >
+        </label>
+
+        <label class="login-field">
+          E-mail
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="voce@exemplo.com"
+            autocomplete="email"
+            required
+          >
+        </label>
+
+        <label class="login-field">
+          Celular com DDD
+          <input
+            id="telefone"
+            name="telefone"
+            type="tel"
+            placeholder="(00) 00000-0000"
+            autocomplete="tel"
+            hidden
+          >
+        </label>
+
+        <label class="login-field">
+          Senha
+          <input
+            id="senha"
+            name="senha"
+            type="password"
+            placeholder="Mínimo de 6 caracteres"
+            autocomplete="current-password"
+            minlength="6"
+            required
+          >
+        </label>
+
+        <button
+          id="auth-submit"
+          class="login-submit"
+          type="submit"
+        >
+          Entrar
+        </button>
       </form>
-      <p id="auth-mensagem" class="login-message" role="status" aria-live="polite"></p>
+
+      <p
+        id="auth-mensagem"
+        class="login-message"
+        role="status"
+        aria-live="polite"
+      ></p>
+
       <div class="login-divider"></div>
-      <button id="trocar-auth" class="login-switch" type="button">Ainda não tem conta? Cadastre-se</button>
-      <a class="login-back" href="./index.html">← Voltar para apresentação</a>
+
+      <button
+        id="trocar-auth"
+        class="login-switch"
+        type="button"
+      >
+        Ainda não tem conta? Cadastre-se
+      </button>
+
+      <a class="login-back" href="./index.html">
+        ← Voltar para apresentação
+      </a>
     </section>
   </main>
+
   <script type="module" src="./js/auth.js"></script>
 </body>
 </html>
