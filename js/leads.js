@@ -155,6 +155,10 @@ export default async function handler(req, res) {
     const estado = String(body.estado || "").trim();
     const nicho = String(body.nicho || "").trim();
     const necessidade = String(body.necessidade || "").trim();
+    // Empresas que este usuário já recebeu nesta mesma busca (para trazer só novas)
+    const jaVistos = new Set(
+      Array.isArray(body.jaVistos) ? body.jaVistos.slice(0, 1000).map(String) : []
+    );
 
     if (!cidade || !estado || !nicho) {
       return res.status(400).json({
@@ -195,45 +199,59 @@ export default async function handler(req, res) {
       "places.nationalPhoneNumber",
       "places.internationalPhoneNumber",
       "places.websiteUri",
-      "places.googleMapsUri"
+      "places.googleMapsUri",
+      "nextPageToken"
     ].join(",");
 
     async function pesquisarGoogle(textQuery) {
-      const resposta = await fetch(
-        "https://places.googleapis.com/v1/places:searchText",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": placesKey,
-            "X-Goog-FieldMask": fieldMask
-          },
-          body: JSON.stringify({
-            textQuery,
-            languageCode: "pt-BR",
-            regionCode: "BR",
-            pageSize: 20
-          })
+      const todos = [];
+      let pageToken = "";
+
+      // Busca até 3 páginas (60 resultados) enquanto faltarem empresas novas
+      for (let pagina = 0; pagina < 3; pagina++) {
+        const resposta = await fetch(
+          "https://places.googleapis.com/v1/places:searchText",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Goog-Api-Key": placesKey,
+              "X-Goog-FieldMask": fieldMask
+            },
+            body: JSON.stringify({
+              textQuery,
+              languageCode: "pt-BR",
+              regionCode: "BR",
+              pageSize: 20,
+              ...(pageToken ? { pageToken } : {})
+            })
+          }
+        );
+
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+          console.error(
+            "Erro Google Places:",
+            resposta.status,
+            dados.error?.status || "Erro na consulta"
+          );
+
+          throw new Error(
+            resposta.status === 429
+              ? "Limite de consultas do Google atingido."
+              : "Não foi possível concluir as pesquisas no Google Places."
+          );
         }
-      );
 
-      const dados = await resposta.json().catch(() => ({}));
+        todos.push(...(dados.places || []));
+        pageToken = dados.nextPageToken || "";
 
-      if (!resposta.ok) {
-        console.error(
-          "Erro Google Places:",
-          resposta.status,
-          dados.error?.status || "Erro na consulta"
-        );
-
-        throw new Error(
-          resposta.status === 429
-            ? "Limite de consultas do Google atingido."
-            : "Não foi possível concluir as pesquisas no Google Places."
-        );
+        const novos = todos.filter((p) => !jaVistos.has(p.id)).length;
+        if (!pageToken || novos >= limite * 2) break;
       }
 
-      return dados.places || [];
+      return todos;
     }
 
     // Executa as consultas em paralelo
@@ -360,19 +378,29 @@ export default async function handler(req, res) {
       return a.nome.localeCompare(b.nome, "pt-BR");
     });
 
-    let filtradas = lista;
-    if (necessidade === "sem-site") filtradas = lista.filter(e => !e.site);
-    else if (necessidade === "site") filtradas = lista.filter(e => e.site);
+    let filtradas = lista.filter((e) => !jaVistos.has(e.id));
+    if (necessidade === "sem-site") filtradas = filtradas.filter(e => !e.site);
+    else if (necessidade === "site") filtradas = filtradas.filter(e => e.site);
     // Empresas sem site aparecem primeiro (são os melhores leads)
     filtradas = [...filtradas].sort(
       (a, b) => (a.site ? 1 : 0) - (b.site ? 1 : 0)
     );
     const entregues = filtradas.slice(0, limite);
 
+    // Sem empresas novas: devolve os créditos desta busca
+    let creditosRestantes = cobranca.restantes;
+    if (!entregues.length) {
+      await devolverCreditos(db, uid);
+      cobrado = false;
+      creditosRestantes += CUSTO_BUSCA;
+    }
+
     return res.status(200).json({
       sucesso: true,
       quantidade: entregues.length,
-      creditosRestantes: cobranca.restantes,
+      creditosRestantes,
+      semNovos: !entregues.length,
+      restantes: filtradas.length - entregues.length,
       plano: cobranca.plano,
       limiteResultados: limite,
       fonte: "Google Places API",
@@ -396,4 +424,5 @@ export default async function handler(req, res) {
       erro: error.message || "Erro ao buscar empresas. Tente novamente."
     });
   }
-                  }
+          }
+      
