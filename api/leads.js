@@ -1,3 +1,92 @@
+import { getApps, initializeApp, cert } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+
+const PROJECT_ID = "leadfinder-378a9";
+const COLECAO_USUARIOS = "usuarios";
+const CUSTO_BUSCA = 6;
+// Máximo de empresas por busca, de acordo com o plano (ajuste aqui)
+const LIMITE_POR_PLANO = { FREE: 6, BASICO: 15, PRO: 15, MAX: 50 };
+
+function obterFirebaseAdmin() {
+  const existente = getApps().find(
+    app => app.options.projectId === PROJECT_ID
+  );
+
+  if (existente) return existente;
+
+  const credencialRaw =
+    process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ||
+    process.env.FIREBASE_SERVICE_ACCOUNT;
+
+  if (!credencialRaw) {
+    throw new Error(
+      "Configure a credencial Firebase nas variáveis da Vercel."
+    );
+  }
+
+  let credencial;
+
+  try {
+    credencial = JSON.parse(credencialRaw);
+  } catch {
+    throw new Error("A credencial Firebase precisa ser um JSON válido.");
+  }
+
+  if (credencial.project_id !== PROJECT_ID) {
+    throw new Error("A credencial pertence a outro projeto Firebase.");
+  }
+
+  return initializeApp({
+    credential: cert(credencial),
+    projectId: PROJECT_ID
+  });
+}
+
+async function descontarCreditos(db, uid, conta = {}) {
+  const referencia = db.collection(COLECAO_USUARIOS).doc(uid);
+
+  return db.runTransaction(async transacao => {
+    const documento = await transacao.get(referencia);
+    const existente = documento.exists ? documento.data() : null;
+
+    // Conta sem perfil: cria o perfil FREE com 30 créditos
+    const creditos = existente ? Number(existente.creditos) : 30;
+    const plano = String(existente?.plano || "FREE")
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+
+    if (!Number.isFinite(creditos) || creditos < CUSTO_BUSCA) {
+      const erro = new Error(
+        "Créditos insuficientes. Você precisa de 6 créditos para pesquisar."
+      );
+      erro.status = 402;
+      throw erro;
+    }
+
+    const restantes = creditos - CUSTO_BUSCA;
+
+    transacao.set(referencia, {
+      ...(existente ? {} : {
+        nome: conta.name || (conta.email || "").split("@")[0] || "",
+        email: conta.email || "",
+        plano: "FREE",
+        criadoEm: FieldValue.serverTimestamp()
+      }),
+      creditos: restantes,
+      atualizadoEm: FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    return { restantes, plano };
+  });
+}
+
+async function devolverCreditos(db, uid) {
+  await db.collection(COLECAO_USUARIOS).doc(uid).set({
+    creditos: FieldValue.increment(CUSTO_BUSCA),
+    atualizadoEm: FieldValue.serverTimestamp()
+  }, { merge: true });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
@@ -6,6 +95,10 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ erro: "Use POST." });
   }
+
+  let db = null;
+  let uid = "";
+  let cobrado = false;
 
   try {
     const firebaseKey = process.env.FIREBASE_API_KEY;
@@ -46,11 +139,22 @@ export default async function handler(req, res) {
       });
     }
 
+    const infoAuth = await authResponse.json();
+    const conta = (infoAuth.users || [])[0] || {};
+    uid = conta.localId || "";
+
+    if (!uid) {
+      return res.status(401).json({
+        erro: "Sessão inválida. Entre novamente."
+      });
+    }
+
     // 2. Validar filtros
     const body = req.body || {};
     const cidade = String(body.cidade || "").trim();
     const estado = String(body.estado || "").trim();
     const nicho = String(body.nicho || "").trim();
+    const necessidade = String(body.necessidade || "").trim();
 
     if (!cidade || !estado || !nicho) {
       return res.status(400).json({
@@ -67,6 +171,15 @@ export default async function handler(req, res) {
         erro: "Um dos filtros é muito longo."
       });
     }
+
+    // Cobra os créditos no servidor (devolve se a busca falhar)
+    db = getFirestore(obterFirebaseAdmin());
+    const cobranca = await descontarCreditos(db, uid, {
+      email: conta.email,
+      name: conta.displayName
+    });
+    cobrado = true;
+    const limite = LIMITE_POR_PLANO[cobranca.plano] || LIMITE_POR_PLANO.FREE;
 
     // 3. Consultas diferentes para encontrar mais empresas
     const consultas = [
@@ -247,20 +360,38 @@ export default async function handler(req, res) {
       return a.nome.localeCompare(b.nome, "pt-BR");
     });
 
+    let filtradas = lista;
+    if (necessidade === "sem-site") filtradas = lista.filter(e => !e.site);
+    else if (necessidade === "site") filtradas = lista.filter(e => e.site);
+    // Empresas sem site aparecem primeiro (são os melhores leads)
+    filtradas = [...filtradas].sort(
+      (a, b) => (a.site ? 1 : 0) - (b.site ? 1 : 0)
+    );
+    const entregues = filtradas.slice(0, limite);
+
     return res.status(200).json({
       sucesso: true,
-      quantidade: lista.length,
+      quantidade: entregues.length,
+      creditosRestantes: cobranca.restantes,
+      plano: cobranca.plano,
+      limiteResultados: limite,
       fonte: "Google Places API",
       consultasRealizadas: consultas.length,
       aviso:
         "Resultados combinados e deduplicados. A ausência de um site nos dados do Google não comprova que a empresa não tenha site. Números encontrados não têm WhatsApp ativo confirmado.",
-      empresas: lista
+      empresas: entregues
     });
   } catch (error) {
     console.error("Erro na busca:", error.message);
 
+    if (cobrado && db) {
+      try { await devolverCreditos(db, uid); } catch (e) {
+        console.error("Falha ao devolver créditos:", e.message);
+      }
+    }
+
     return res.status(
-      error.message.includes("Limite de consultas") ? 429 : 502
+      error.status || (error.message.includes("Limite de consultas") ? 429 : 502)
     ).json({
       erro: error.message || "Erro ao buscar empresas. Tente novamente."
     });
