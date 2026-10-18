@@ -7,6 +7,29 @@ const CUSTO_BUSCA = 6;
 // Máximo de empresas por busca, de acordo com o plano (ajuste aqui)
 const LIMITE_POR_PLANO = { FREE: 6, BASICO: 15, PRO: 15, MAX: 50 };
 
+// Endereços que NÃO são site próprio da empresa (redes sociais e diretórios)
+const DOMINIOS_NAO_SITE = [
+  "instagram.com", "facebook.com", "fb.com", "tiktok.com", "linkedin.com",
+  "youtube.com", "youtu.be", "x.com", "twitter.com", "wa.me", "whatsapp.com",
+  "linktr.ee", "linktree.com", "beacons.ai", "datasus.gov.br", "gov.br",
+  "google.com", "goo.gl", "ifood.com.br", "tripadvisor.com", "guiamais.com.br",
+  "apontador.com.br", "telelistas.net", "solutudo.com.br", "yelp.com",
+  "doctoralia.com.br", "waze.com"
+];
+
+function classificarSite(url) {
+  if (!url) return "NENHUM";
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    const naoSite = DOMINIOS_NAO_SITE.some(
+      (d) => host === d || host.endsWith("." + d)
+    );
+    return naoSite ? "NAO_SITE" : "SITE";
+  } catch {
+    return "SITE";
+  }
+}
+
 function obterFirebaseAdmin() {
   const existente = getApps().find(
     app => app.options.projectId === PROJECT_ID
@@ -343,12 +366,12 @@ export default async function handler(req, res) {
 
     const lista = Array.from(todasEmpresas.values()).map((empresa) => {
       const temTelefone = Boolean(empresa.numero);
-      const temSite = Boolean(empresa.site);
+      const tipoSite = classificarSite(empresa.site);
+      const temSite = tipoSite === "SITE";
 
       // Pontuação indica disponibilidade de contato, não qualidade garantida
       const pontuacao =
-        (temTelefone ? 2 : 0) +
-        (temSite ? 1 : 0);
+        (temTelefone ? 2 : 0);
 
       return {
         id: empresa.id,
@@ -361,7 +384,11 @@ export default async function handler(req, res) {
           ? `https://wa.me/${empresa.numero}`
           : "",
         instagram: "",
-        situacao: temSite ? "POSSUI_SITE" : "SITE_NAO_ENCONTRADO",
+        situacao: temSite
+          ? "POSSUI_SITE"
+          : tipoSite === "NAO_SITE"
+            ? "SO_REDE_SOCIAL"
+            : "SITE_NAO_ENCONTRADO",
         pontuacaoContato: pontuacao,
         temTelefone,
         temSite,
@@ -379,11 +406,11 @@ export default async function handler(req, res) {
     });
 
     let filtradas = lista.filter((e) => !jaVistos.has(e.id));
-    if (necessidade === "sem-site") filtradas = filtradas.filter(e => !e.site);
-    else if (necessidade === "site") filtradas = filtradas.filter(e => e.site);
+    if (necessidade === "sem-site") filtradas = filtradas.filter(e => !e.temSite);
+    else if (necessidade === "site") filtradas = filtradas.filter(e => e.temSite);
     // Empresas sem site aparecem primeiro (são os melhores leads)
     filtradas = [...filtradas].sort(
-      (a, b) => (a.site ? 1 : 0) - (b.site ? 1 : 0)
+      (a, b) => (a.temSite ? 1 : 0) - (b.temSite ? 1 : 0)
     );
     const entregues = filtradas.slice(0, limite);
 
@@ -424,5 +451,4 @@ export default async function handler(req, res) {
       erro: error.message || "Erro ao buscar empresas. Tente novamente."
     });
   }
-          }
-      
+                  }
