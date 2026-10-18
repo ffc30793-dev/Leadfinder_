@@ -228,6 +228,14 @@ function mensagemAbordagem(empresa) {
   return `Olá! Tudo bem? Encontrei a ${nome} e trabalho com criação de sites profissionais para empresas. Gostaria de conversar sobre como uma presença online pode ajudar o negócio de vocês. Posso te apresentar uma ideia?`;
 }
 
+function rotuloSituacao(situacao) {
+  return ({
+    POSSUI_SITE: "Possui site próprio",
+    SO_REDE_SOCIAL: "Sem site próprio (só rede social ou diretório)",
+    SITE_NAO_ENCONTRADO: "Sem site listado"
+  })[situacao] || "Informações públicas disponíveis";
+}
+
 function cardEmpresa(empresa, indice, salvos = false) {
   const id = String(empresa.id || empresa.nome || indice);
   const salvo = lerSalvos().some((item) => String(item.id || item.nome) === id);
@@ -247,7 +255,7 @@ function cardEmpresa(empresa, indice, salvos = false) {
         ${telefone ? `<p>Telefone: ${textoSeguro(empresa.telefone)}</p>` : ""}
         ${site ? `<p>Site: <a href="${textoSeguro(site)}" target="_blank" rel="noopener noreferrer">${textoSeguro(site)}</a></p>` : ""}
         ${mapa ? `<p><a href="${textoSeguro(mapa)}" target="_blank" rel="noopener noreferrer">Ver no mapa</a></p>` : ""}
-        <p class="muted">${textoSeguro(empresa.situacao || "Informações públicas disponíveis")}</p>
+        <p class="muted">${textoSeguro(rotuloSituacao(empresa.situacao))}</p>
       </div>
       <div class="lead-actions">
         ${whatsapp ? `<a class="btn btn-primary" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>` : ""}
@@ -447,9 +455,9 @@ async function executarBusca(origem) {
     }
 
     if (necessidade === "sem-site") {
-      empresas = empresas.filter((empresa) => !empresa.site);
+      empresas = empresas.filter((empresa) => !empresa.temSite);
     } else if (necessidade === "site") {
-      empresas = empresas.filter((empresa) => Boolean(empresa.site));
+      empresas = empresas.filter((empresa) => Boolean(empresa.temSite));
     }
 
     renderizarResultados(empresas);
@@ -567,7 +575,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     mensagem("Não foi possível iniciar o sistema. Confira a configuração do Firebase.");
   }
 });
-
 
 
   
