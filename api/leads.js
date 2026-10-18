@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { getApps, initializeApp, cert } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
@@ -6,6 +7,29 @@ const COLECAO_USUARIOS = "usuarios";
 const CUSTO_BUSCA = 6;
 // Máximo de empresas por busca, de acordo com o plano (ajuste aqui)
 const LIMITE_POR_PLANO = { FREE: 6, BASICO: 15, PRO: 15, MAX: 50 };
+
+// Endereços que NÃO são site próprio da empresa (redes sociais e diretórios)
+const DOMINIOS_NAO_SITE = [
+  "instagram.com", "facebook.com", "fb.com", "tiktok.com", "linkedin.com",
+  "youtube.com", "youtu.be", "x.com", "twitter.com", "wa.me", "whatsapp.com",
+  "linktr.ee", "linktree.com", "beacons.ai", "datasus.gov.br", "gov.br",
+  "google.com", "goo.gl", "ifood.com.br", "tripadvisor.com", "guiamais.com.br",
+  "apontador.com.br", "telelistas.net", "solutudo.com.br", "yelp.com",
+  "doctoralia.com.br", "waze.com"
+];
+
+function classificarSite(url) {
+  if (!url) return "NENHUM";
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
+    const naoSite = DOMINIOS_NAO_SITE.some(
+      (d) => host === d || host.endsWith("." + d)
+    );
+    return naoSite ? "NAO_SITE" : "SITE";
+  } catch {
+    return "SITE";
+  }
+}
 
 function obterFirebaseAdmin() {
   const existente = getApps().find(
@@ -155,6 +179,10 @@ export default async function handler(req, res) {
     const estado = String(body.estado || "").trim();
     const nicho = String(body.nicho || "").trim();
     const necessidade = String(body.necessidade || "").trim();
+    // Empresas que este usuário já recebeu nesta mesma busca (para trazer só novas)
+    const jaVistos = new Set(
+      Array.isArray(body.jaVistos) ? body.jaVistos.slice(0, 1000).map(String) : []
+    );
 
     if (!cidade || !estado || !nicho) {
       return res.status(400).json({
@@ -181,6 +209,24 @@ export default async function handler(req, res) {
     cobrado = true;
     const limite = LIMITE_POR_PLANO[cobranca.plano] || LIMITE_POR_PLANO.FREE;
 
+    // Empresas já entregues a este usuário nesta busca (guardadas no servidor)
+    const chaveBusca = createHash("sha1")
+      .update([estado, cidade, nicho].join("|").toLowerCase())
+      .digest("hex");
+    const refVistos = db
+      .collection(COLECAO_USUARIOS)
+      .doc(uid)
+      .collection("buscas")
+      .doc(chaveBusca);
+
+    try {
+      const docVistos = await refVistos.get();
+      const idsSalvos = docVistos.exists ? docVistos.data().ids || [] : [];
+      for (const id of idsSalvos) jaVistos.add(String(id));
+    } catch (e) {
+      console.error("Falha ao ler empresas já vistas:", e.message);
+    }
+
     // 3. Consultas diferentes para encontrar mais empresas
     const consultas = [
       `${nicho} em ${cidade}, ${estado}, Brasil`,
@@ -195,45 +241,59 @@ export default async function handler(req, res) {
       "places.nationalPhoneNumber",
       "places.internationalPhoneNumber",
       "places.websiteUri",
-      "places.googleMapsUri"
+      "places.googleMapsUri",
+      "nextPageToken"
     ].join(",");
 
     async function pesquisarGoogle(textQuery) {
-      const resposta = await fetch(
-        "https://places.googleapis.com/v1/places:searchText",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": placesKey,
-            "X-Goog-FieldMask": fieldMask
-          },
-          body: JSON.stringify({
-            textQuery,
-            languageCode: "pt-BR",
-            regionCode: "BR",
-            pageSize: 20
-          })
+      const todos = [];
+      let pageToken = "";
+
+      // Busca até 3 páginas (60 resultados) enquanto faltarem empresas novas
+      for (let pagina = 0; pagina < 3; pagina++) {
+        const resposta = await fetch(
+          "https://places.googleapis.com/v1/places:searchText",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Goog-Api-Key": placesKey,
+              "X-Goog-FieldMask": fieldMask
+            },
+            body: JSON.stringify({
+              textQuery,
+              languageCode: "pt-BR",
+              regionCode: "BR",
+              pageSize: 20,
+              ...(pageToken ? { pageToken } : {})
+            })
+          }
+        );
+
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+          console.error(
+            "Erro Google Places:",
+            resposta.status,
+            dados.error?.status || "Erro na consulta"
+          );
+
+          throw new Error(
+            resposta.status === 429
+              ? "Limite de consultas do Google atingido."
+              : "Não foi possível concluir as pesquisas no Google Places."
+          );
         }
-      );
 
-      const dados = await resposta.json().catch(() => ({}));
+        todos.push(...(dados.places || []));
+        pageToken = dados.nextPageToken || "";
 
-      if (!resposta.ok) {
-        console.error(
-          "Erro Google Places:",
-          resposta.status,
-          dados.error?.status || "Erro na consulta"
-        );
-
-        throw new Error(
-          resposta.status === 429
-            ? "Limite de consultas do Google atingido."
-            : "Não foi possível concluir as pesquisas no Google Places."
-        );
+        const novos = todos.filter((p) => !jaVistos.has(p.id)).length;
+        if (!pageToken || novos >= limite * 2) break;
       }
 
-      return dados.places || [];
+      return todos;
     }
 
     // Executa as consultas em paralelo
@@ -325,12 +385,12 @@ export default async function handler(req, res) {
 
     const lista = Array.from(todasEmpresas.values()).map((empresa) => {
       const temTelefone = Boolean(empresa.numero);
-      const temSite = Boolean(empresa.site);
+      const tipoSite = classificarSite(empresa.site);
+      const temSite = tipoSite === "SITE";
 
       // Pontuação indica disponibilidade de contato, não qualidade garantida
       const pontuacao =
-        (temTelefone ? 2 : 0) +
-        (temSite ? 1 : 0);
+        (temTelefone ? 2 : 0);
 
       return {
         id: empresa.id,
@@ -343,7 +403,11 @@ export default async function handler(req, res) {
           ? `https://wa.me/${empresa.numero}`
           : "",
         instagram: "",
-        situacao: temSite ? "POSSUI_SITE" : "SITE_NAO_ENCONTRADO",
+        situacao: temSite
+          ? "POSSUI_SITE"
+          : tipoSite === "NAO_SITE"
+            ? "SO_REDE_SOCIAL"
+            : "SITE_NAO_ENCONTRADO",
         pontuacaoContato: pontuacao,
         temTelefone,
         temSite,
@@ -360,19 +424,44 @@ export default async function handler(req, res) {
       return a.nome.localeCompare(b.nome, "pt-BR");
     });
 
-    let filtradas = lista;
-    if (necessidade === "sem-site") filtradas = lista.filter(e => !e.site);
-    else if (necessidade === "site") filtradas = lista.filter(e => e.site);
+    let filtradas = lista.filter((e) => !jaVistos.has(e.id));
+    if (necessidade === "sem-site") filtradas = filtradas.filter(e => !e.temSite);
+    else if (necessidade === "site") filtradas = filtradas.filter(e => e.temSite);
     // Empresas sem site aparecem primeiro (são os melhores leads)
     filtradas = [...filtradas].sort(
-      (a, b) => (a.site ? 1 : 0) - (b.site ? 1 : 0)
+      (a, b) => (a.temSite ? 1 : 0) - (b.temSite ? 1 : 0)
     );
     const entregues = filtradas.slice(0, limite);
+
+    // Guarda no servidor as empresas entregues, para a próxima busca trazer novas
+    if (entregues.length) {
+      try {
+        await refVistos.set(
+          {
+            ids: FieldValue.arrayUnion(...entregues.map((e) => String(e.id))),
+            atualizadoEm: FieldValue.serverTimestamp()
+          },
+          { merge: true }
+        );
+      } catch (e) {
+        console.error("Falha ao salvar empresas vistas:", e.message);
+      }
+    }
+
+    // Sem empresas novas: devolve os créditos desta busca
+    let creditosRestantes = cobranca.restantes;
+    if (!entregues.length) {
+      await devolverCreditos(db, uid);
+      cobrado = false;
+      creditosRestantes += CUSTO_BUSCA;
+    }
 
     return res.status(200).json({
       sucesso: true,
       quantidade: entregues.length,
-      creditosRestantes: cobranca.restantes,
+      creditosRestantes,
+      semNovos: !entregues.length,
+      restantes: filtradas.length - entregues.length,
       plano: cobranca.plano,
       limiteResultados: limite,
       fonte: "Google Places API",
