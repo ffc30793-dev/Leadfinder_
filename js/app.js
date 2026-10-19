@@ -1,4 +1,7 @@
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import { auth, firestore, getFirebase } from "./firebase.js";
+
+onAuthStateChanged(auth, (user) => { if (!user) window.location.replace("./index.html"); });
 
 let authMod;
 let fsMod;
@@ -25,7 +28,34 @@ const segmentos = [
 ];
 
 let usuarioAtual = null;
+let modoCadastro = false;
 let buscando = false;
+
+const LIMITES_DIARIOS = { FREE: 5, PRO: 25, MAX: 100, BUSINESS: 100 };
+function chaveUso(uid) { return `lf_daily_searches_${uid || "visitante"}`; }
+function usoDiario(uid) {
+  const hoje = new Date().toLocaleDateString("en-CA");
+  try {
+    const salvo = JSON.parse(localStorage.getItem(chaveUso(uid)) || "null");
+    return salvo && salvo.data === hoje ? Number(salvo.quantidade || 0) : 0;
+  } catch { return 0; }
+}
+function limitePlano(plano) { return LIMITES_DIARIOS[String(plano || "FREE").toUpperCase()] ?? 5; }
+function registrarPesquisa(uid) {
+  const hoje = new Date().toLocaleDateString("en-CA");
+  const quantidade = usoDiario(uid) + 1;
+  localStorage.setItem(chaveUso(uid), JSON.stringify({ data: hoje, quantidade }));
+  atualizarContadorPesquisas();
+}
+function atualizarContadorPesquisas() {
+  const uid = usuarioAtual?.uid || "visitante";
+  const plano = window.leadfinderPlan || "FREE";
+  const usados = usoDiario(uid), limite = limitePlano(plano);
+  ["credit-count", "credit-count-search", "credit-count-page"].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = `${usados}/${limite}`;
+  });
+  const stat = document.getElementById("daily-limit-stat"); if (stat) stat.textContent = limite;
+}
 
 function mensagem(texto) {
   const el = $("#resultado-status");
@@ -40,22 +70,7 @@ function mensagemAuth(texto) {
   if (settings) settings.textContent = texto;
 }
 
-const PAGINAS = {
-  inicio: "./painel.html",
-  buscar: "./buscar.html",
-  leads: "./leads.html",
-  creditos: "./creditos.html",
-  planos: "./planos.html",
-  configuracoes: "./configuracoes.html"
-};
-
 function mostrarView(nome) {
-  // Cada tela agora é uma página: se a tela não existe aqui, abre a página dela
-  if (!document.getElementById(`view-${nome}`)) {
-    if (PAGINAS[nome]) window.location.href = PAGINAS[nome];
-    return;
-  }
-
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.toggle("active", view.id === `view-${nome}`);
   });
@@ -178,6 +193,10 @@ function configurarNavegacao() {
     $("#sidebar")?.classList.toggle("open");
   });
 
+  $("#btn-login")?.addEventListener("click", () => abrirAuth(false));
+  $("#btn-cadastro")?.addEventListener("click", () => abrirAuth(true));
+  $("#trocar-auth")?.addEventListener("click", () => abrirAuth(!modoCadastro));
+  $("#voltar-inicio")?.addEventListener("click", () => mostrarView("inicio"));
 
   $("#global-search")?.addEventListener("keydown", (evento) => {
     if (evento.key === "Enter") {
@@ -193,12 +212,38 @@ function configurarNavegacao() {
   });
 }
 
-document.addEventListener("click", (evento) => {
-  const menu = $("#sidebar");
-  if (!menu?.classList.contains("open")) return;
-  if (evento.target.closest("#sidebar, #mobile-menu")) return;
-  menu.classList.remove("open");
-});
+function abrirAuth(cadastro) {
+  modoCadastro = cadastro;
+
+  const nome = $("#nome");
+  const telefone = $("#telefone");
+  const titulo = $("#auth-titulo");
+  const botao = $("#auth-submit");
+  const alternar = $("#trocar-auth");
+
+  if (nome) {
+    nome.hidden = !cadastro;
+    nome.required = cadastro;
+  }
+
+  if (telefone) {
+    telefone.hidden = !cadastro;
+    telefone.required = cadastro;
+  }
+
+  if (titulo) titulo.textContent = cadastro ? "Crie sua conta" : "Entre na sua conta";
+  if (botao) botao.textContent = cadastro ? "Criar conta grátis" : "Entrar";
+  if (alternar) alternar.textContent = cadastro
+    ? "Já tem uma conta? Entrar"
+    : "Ainda não tem conta? Cadastre-se";
+
+  if ($("#senha")) {
+    $("#senha").autocomplete = cadastro ? "new-password" : "current-password";
+  }
+
+  mensagemAuth("");
+  mostrarView("auth");
+}
 
 function lerSalvos() {
   try {
@@ -228,14 +273,6 @@ function mensagemAbordagem(empresa) {
   return `Olá! Tudo bem? Encontrei a ${nome} e trabalho com criação de sites profissionais para empresas. Gostaria de conversar sobre como uma presença online pode ajudar o negócio de vocês. Posso te apresentar uma ideia?`;
 }
 
-function rotuloSituacao(situacao) {
-  return ({
-    POSSUI_SITE: "Possui site próprio",
-    SO_REDE_SOCIAL: "Sem site próprio (só rede social ou diretório)",
-    SITE_NAO_ENCONTRADO: "Sem site listado"
-  })[situacao] || "Informações públicas disponíveis";
-}
-
 function cardEmpresa(empresa, indice, salvos = false) {
   const id = String(empresa.id || empresa.nome || indice);
   const salvo = lerSalvos().some((item) => String(item.id || item.nome) === id);
@@ -255,7 +292,7 @@ function cardEmpresa(empresa, indice, salvos = false) {
         ${telefone ? `<p>Telefone: ${textoSeguro(empresa.telefone)}</p>` : ""}
         ${site ? `<p>Site: <a href="${textoSeguro(site)}" target="_blank" rel="noopener noreferrer">${textoSeguro(site)}</a></p>` : ""}
         ${mapa ? `<p><a href="${textoSeguro(mapa)}" target="_blank" rel="noopener noreferrer">Ver no mapa</a></p>` : ""}
-        <p class="muted">${textoSeguro(rotuloSituacao(empresa.situacao))}</p>
+        <p class="muted">${textoSeguro(empresa.situacao || "Informações públicas disponíveis")}</p>
       </div>
       <div class="lead-actions">
         ${whatsapp ? `<a class="btn btn-primary" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>` : ""}
@@ -377,23 +414,6 @@ function renderizarSalvos() {
   });
 }
 
-function lerVistos(chave) {
-  try {
-    const todos = JSON.parse(localStorage.getItem("lf_vistos") || "{}");
-    return Array.isArray(todos[chave]) ? todos[chave] : [];
-  } catch {
-    return [];
-  }
-}
-
-function gravarVistos(chave, ids) {
-  try {
-    const todos = JSON.parse(localStorage.getItem("lf_vistos") || "{}");
-    todos[chave] = [...new Set([...(todos[chave] || []), ...ids])].slice(-1000);
-    localStorage.setItem("lf_vistos", JSON.stringify(todos));
-  } catch {}
-}
-
 async function executarBusca(origem) {
   if (buscando) return;
 
@@ -411,11 +431,19 @@ async function executarBusca(origem) {
   }
 
   if (!usuarioAtual) {
-    window.location.href = "./login.html";
+    mensagemAuth("Entre ou crie uma conta antes de pesquisar empresas.");
+    abrirAuth(false);
     return;
   }
 
-  const chaveVistos = [estado, cidade, nicho].join("|");
+  const planoAtual = window.leadfinderPlan || "FREE";
+  const limite = limitePlano(planoAtual);
+  const usados = usoDiario(usuarioAtual.uid);
+  if (usados >= limite) {
+    mensagem(`Você já usou suas ${limite} pesquisas de hoje. O limite renova amanhã; confira os planos para ampliar sua cota.`);
+    atualizarContadorPesquisas();
+    return;
+  }
 
   buscando = true;
   mostrarView("buscar");
@@ -432,7 +460,7 @@ async function executarBusca(origem) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ estado, cidade, nicho, necessidade, jaVistos: lerVistos(chaveVistos) })
+      body: JSON.stringify({ estado, cidade, nicho })
     });
 
     let dados = {};
@@ -445,30 +473,18 @@ async function executarBusca(origem) {
     }
 
     let empresas = Array.isArray(dados.empresas) ? dados.empresas : [];
-    gravarVistos(chaveVistos, empresas.map((e) => e.id).filter(Boolean));
-
-    if (typeof dados.creditosRestantes === "number") {
-      ["#credit-count", "#credit-count-search", "#credit-count-page"].forEach((seletor) => {
-        const el = $(seletor);
-        if (el) el.textContent = dados.creditosRestantes;
-      });
-    }
 
     if (necessidade === "sem-site") {
-      empresas = empresas.filter((empresa) => !empresa.temSite);
+      empresas = empresas.filter((empresa) => !empresa.site);
     } else if (necessidade === "site") {
-      empresas = empresas.filter((empresa) => Boolean(empresa.temSite));
+      empresas = empresas.filter((empresa) => Boolean(empresa.site));
     }
 
+    registrarPesquisa(usuarioAtual.uid);
     renderizarResultados(empresas);
-    if (dados.semNovos) {
-      mensagem("Não há mais empresas novas para esta busca. Nenhum crédito foi descontado. Tente outro segmento ou outra cidade.");
-    } else if (empresas.length) {
-      const mais = dados.restantes ? ` Ainda há cerca de ${dados.restantes} para ver: busque de novo.` : "";
-      mensagem(`Foram encontradas ${empresas.length} empresas novas.${mais} Os dados podem estar incompletos.`);
-    } else {
-      mensagem("A consulta terminou, mas não retornou empresas com esses filtros. Tente outro segmento ou cidade.");
-    }
+    mensagem(empresas.length
+      ? `Busca concluída. Foram encontradas ${empresas.length} empresas. Os dados podem estar incompletos.`
+      : "A consulta terminou, mas não retornou empresas com esses filtros. Tente outro segmento ou cidade.");
   } catch (erro) {
     console.error("Erro ao buscar empresas:", erro);
     mensagem(`Não foi possível realizar a busca: ${erro.message}`);
@@ -480,17 +496,15 @@ async function executarBusca(origem) {
 function atualizarPerfil(dados) {
   const nome = dados?.displayName || dados?.nome || dados?.email?.split("@")[0] || "Visitante";
   const plano = dados?.plano || "FREE";
-  const creditos = dados?.creditos ?? 30;
-
-  if ($("#profile-name")) $("#profile-name").textContent = nome;
-  if ($("#profile-plan")) $("#profile-plan").textContent = plano === "FREE" ? "Plano Grátis" : `Plano ${plano}`;
-  if ($("#credit-count")) $("#credit-count").textContent = creditos;
-  if ($("#credit-count-search")) $("#credit-count-search").textContent = creditos;
-  if ($("#credit-count-page")) $("#credit-count-page").textContent = creditos;
-  if ($("#credit-plan")) $("#credit-plan").textContent = plano === "FREE" ? "Grátis" : plano;
-  if ($("#settings-name")) $("#settings-name").textContent = nome;
-  if ($("#settings-email")) $("#settings-email").textContent = dados?.email || "—";
-  if ($("#settings-plan")) $("#settings-plan").textContent = plano === "FREE" ? "Grátis" : plano;
+  window.leadfinderPlan = plano;
+  if ($("profile-name")) $("profile-name").textContent = nome;
+  const nomePlano = plano === "FREE" ? "Grátis" : (plano === "MAX" ? "Business" : plano);
+  if ($("profile-plan")) $("profile-plan").textContent = `Plano ${nomePlano}`;
+  if ($("credit-plan")) $("credit-plan").textContent = nomePlano;
+  if ($("settings-name")) $("settings-name").textContent = nome;
+  if ($("settings-email")) $("settings-email").textContent = dados?.email || "—";
+  if ($("settings-plan")) $("settings-plan").textContent = nomePlano;
+  atualizarContadorPesquisas();
 }
 
 function configurarUsuario() {
@@ -507,7 +521,7 @@ function configurarUsuario() {
     usuarioAtual = usuario || null;
 
     if (!usuario) {
-      window.location.replace("./login.html");
+      atualizarPerfil({ nome: "Visitante", plano: "FREE" });
       return;
     }
 
@@ -524,7 +538,6 @@ function configurarUsuario() {
       nome: perfil.nome || usuario.displayName || usuario.email?.split("@")[0],
       email: usuario.email,
       plano: perfil.plano || "FREE",
-      creditos: perfil.creditos ?? 30
     });
   });
 }
@@ -555,21 +568,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     configurarUsuario();
     renderizarSalvos();
 
-    document.querySelectorAll("#sair, #sair-menu").forEach((botaoSair) => botaoSair.addEventListener("click", async () => {
+    $("#sair")?.addEventListener("click", async () => {
       try {
         await authMod.signOut(auth);
         usuarioAtual = null;
         atualizarPerfil({
           nome: "Visitante",
           plano: "FREE",
-          creditos: 30
         });
-        window.location.replace("./login.html");
+        mensagemAuth("Você saiu da sua conta.");
+        mostrarView("inicio");
       } catch (erro) {
         console.error(erro);
         mensagemAuth("Não foi possível sair da conta.");
       }
-    }));
+    });
   } catch (erro) {
     console.error("Erro ao iniciar o LeadFinder:", erro);
     mensagem("Não foi possível iniciar o sistema. Confira a configuração do Firebase.");

@@ -1,9 +1,9 @@
-// Regra central de créditos (também deve existir no backend).
-export const SEARCH_COST=6;
-export const DEFAULT_PLANS={
- FREE:{credits:30,maxResults:6,approach:"simple"},
- PRO:{credits:100,maxResults:15,approach:"enhanced"},
- MAX:{credits:null,maxResults:50,approach:"advanced"}
+// Compatibilidade com versões antigas: o LeadFinder agora usa limite diário de pesquisas.
+export const DEFAULT_PLANS = {
+  FREE: { dailySearches: 5, maxResults: 6, approach: "simple" },
+  PRO: { dailySearches: 25, maxResults: 15, approach: "enhanced" },
+  MAX: { dailySearches: 100, maxResults: 50, approach: "advanced" }
 };
-export function canSearch(user){return Number(user?.credits||0)>=SEARCH_COST;}
-export function consumeCreditsLocal(user){if(!canSearch(user)) throw new Error("INSUFFICIENT_CREDITS");user.credits-=SEARCH_COST;return user;}
+export function dailyLimit(plan = "FREE") { return DEFAULT_PLANS[String(plan).toUpperCase()]?.dailySearches ?? 5; }
+export function canSearch(user, usedToday = 0) { return usedToday < dailyLimit(user?.plan || user?.plano || "FREE"); }
+export function consumeCreditsLocal(user) { return user; }
