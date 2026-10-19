@@ -1,116 +1,3 @@
-import { createHash } from "node:crypto";
-import { getApps, initializeApp, cert } from "firebase-admin/app";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
-
-const PROJECT_ID = "leadfinder-378a9";
-const COLECAO_USUARIOS = "usuarios";
-const CUSTO_BUSCA = 6;
-// Máximo de empresas por busca, de acordo com o plano (ajuste aqui)
-const LIMITE_POR_PLANO = { FREE: 6, BASICO: 15, PRO: 15, MAX: 50 };
-
-// Endereços que NÃO são site próprio da empresa (redes sociais e diretórios)
-const DOMINIOS_NAO_SITE = [
-  "instagram.com", "facebook.com", "fb.com", "tiktok.com", "linkedin.com",
-  "youtube.com", "youtu.be", "x.com", "twitter.com", "wa.me", "whatsapp.com",
-  "linktr.ee", "linktree.com", "beacons.ai", "datasus.gov.br", "gov.br",
-  "google.com", "goo.gl", "ifood.com.br", "tripadvisor.com", "guiamais.com.br",
-  "apontador.com.br", "telelistas.net", "solutudo.com.br", "yelp.com",
-  "doctoralia.com.br", "waze.com"
-];
-
-function classificarSite(url) {
-  if (!url) return "NENHUM";
-  try {
-    const host = new URL(url).hostname.replace(/^www\./, "").toLowerCase();
-    const naoSite = DOMINIOS_NAO_SITE.some(
-      (d) => host === d || host.endsWith("." + d)
-    );
-    return naoSite ? "NAO_SITE" : "SITE";
-  } catch {
-    return "SITE";
-  }
-}
-
-function obterFirebaseAdmin() {
-  const existente = getApps().find(
-    app => app.options.projectId === PROJECT_ID
-  );
-
-  if (existente) return existente;
-
-  const credencialRaw =
-    process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ||
-    process.env.FIREBASE_SERVICE_ACCOUNT;
-
-  if (!credencialRaw) {
-    throw new Error(
-      "Configure a credencial Firebase nas variáveis da Vercel."
-    );
-  }
-
-  let credencial;
-
-  try {
-    credencial = JSON.parse(credencialRaw);
-  } catch {
-    throw new Error("A credencial Firebase precisa ser um JSON válido.");
-  }
-
-  if (credencial.project_id !== PROJECT_ID) {
-    throw new Error("A credencial pertence a outro projeto Firebase.");
-  }
-
-  return initializeApp({
-    credential: cert(credencial),
-    projectId: PROJECT_ID
-  });
-}
-
-async function descontarCreditos(db, uid, conta = {}) {
-  const referencia = db.collection(COLECAO_USUARIOS).doc(uid);
-
-  return db.runTransaction(async transacao => {
-    const documento = await transacao.get(referencia);
-    const existente = documento.exists ? documento.data() : null;
-
-    // Conta sem perfil: cria o perfil FREE com 30 créditos
-    const creditos = existente ? Number(existente.creditos) : 30;
-    const plano = String(existente?.plano || "FREE")
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-
-    if (!Number.isFinite(creditos) || creditos < CUSTO_BUSCA) {
-      const erro = new Error(
-        "Créditos insuficientes. Você precisa de 6 créditos para pesquisar."
-      );
-      erro.status = 402;
-      throw erro;
-    }
-
-    const restantes = creditos - CUSTO_BUSCA;
-
-    transacao.set(referencia, {
-      ...(existente ? {} : {
-        nome: conta.name || (conta.email || "").split("@")[0] || "",
-        email: conta.email || "",
-        plano: "FREE",
-        criadoEm: FieldValue.serverTimestamp()
-      }),
-      creditos: restantes,
-      atualizadoEm: FieldValue.serverTimestamp()
-    }, { merge: true });
-
-    return { restantes, plano };
-  });
-}
-
-async function devolverCreditos(db, uid) {
-  await db.collection(COLECAO_USUARIOS).doc(uid).set({
-    creditos: FieldValue.increment(CUSTO_BUSCA),
-    atualizadoEm: FieldValue.serverTimestamp()
-  }, { merge: true });
-}
-
 export default async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
@@ -119,10 +6,6 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ erro: "Use POST." });
   }
-
-  let db = null;
-  let uid = "";
-  let cobrado = false;
 
   try {
     const firebaseKey = process.env.FIREBASE_API_KEY;
@@ -163,26 +46,11 @@ export default async function handler(req, res) {
       });
     }
 
-    const infoAuth = await authResponse.json();
-    const conta = (infoAuth.users || [])[0] || {};
-    uid = conta.localId || "";
-
-    if (!uid) {
-      return res.status(401).json({
-        erro: "Sessão inválida. Entre novamente."
-      });
-    }
-
     // 2. Validar filtros
     const body = req.body || {};
     const cidade = String(body.cidade || "").trim();
     const estado = String(body.estado || "").trim();
     const nicho = String(body.nicho || "").trim();
-    const necessidade = String(body.necessidade || "").trim();
-    // Empresas que este usuário já recebeu nesta mesma busca (para trazer só novas)
-    const jaVistos = new Set(
-      Array.isArray(body.jaVistos) ? body.jaVistos.slice(0, 1000).map(String) : []
-    );
 
     if (!cidade || !estado || !nicho) {
       return res.status(400).json({
@@ -200,33 +68,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Cobra os créditos no servidor (devolve se a busca falhar)
-    db = getFirestore(obterFirebaseAdmin());
-    const cobranca = await descontarCreditos(db, uid, {
-      email: conta.email,
-      name: conta.displayName
-    });
-    cobrado = true;
-    const limite = LIMITE_POR_PLANO[cobranca.plano] || LIMITE_POR_PLANO.FREE;
-
-    // Empresas já entregues a este usuário nesta busca (guardadas no servidor)
-    const chaveBusca = createHash("sha1")
-      .update([estado, cidade, nicho].join("|").toLowerCase())
-      .digest("hex");
-    const refVistos = db
-      .collection(COLECAO_USUARIOS)
-      .doc(uid)
-      .collection("buscas")
-      .doc(chaveBusca);
-
-    try {
-      const docVistos = await refVistos.get();
-      const idsSalvos = docVistos.exists ? docVistos.data().ids || [] : [];
-      for (const id of idsSalvos) jaVistos.add(String(id));
-    } catch (e) {
-      console.error("Falha ao ler empresas já vistas:", e.message);
-    }
-
     // 3. Consultas diferentes para encontrar mais empresas
     const consultas = [
       `${nicho} em ${cidade}, ${estado}, Brasil`,
@@ -241,59 +82,45 @@ export default async function handler(req, res) {
       "places.nationalPhoneNumber",
       "places.internationalPhoneNumber",
       "places.websiteUri",
-      "places.googleMapsUri",
-      "nextPageToken"
+      "places.googleMapsUri"
     ].join(",");
 
     async function pesquisarGoogle(textQuery) {
-      const todos = [];
-      let pageToken = "";
+      const resposta = await fetch(
+        "https://places.googleapis.com/v1/places:searchText",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": placesKey,
+            "X-Goog-FieldMask": fieldMask
+          },
+          body: JSON.stringify({
+            textQuery,
+            languageCode: "pt-BR",
+            regionCode: "BR",
+            pageSize: 20
+          })
+        }
+      );
 
-      // Busca até 3 páginas (60 resultados) enquanto faltarem empresas novas
-      for (let pagina = 0; pagina < 3; pagina++) {
-        const resposta = await fetch(
-          "https://places.googleapis.com/v1/places:searchText",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Goog-Api-Key": placesKey,
-              "X-Goog-FieldMask": fieldMask
-            },
-            body: JSON.stringify({
-              textQuery,
-              languageCode: "pt-BR",
-              regionCode: "BR",
-              pageSize: 20,
-              ...(pageToken ? { pageToken } : {})
-            })
-          }
+      const dados = await resposta.json().catch(() => ({}));
+
+      if (!resposta.ok) {
+        console.error(
+          "Erro Google Places:",
+          resposta.status,
+          dados.error?.status || "Erro na consulta"
         );
 
-        const dados = await resposta.json().catch(() => ({}));
-
-        if (!resposta.ok) {
-          console.error(
-            "Erro Google Places:",
-            resposta.status,
-            dados.error?.status || "Erro na consulta"
-          );
-
-          throw new Error(
-            resposta.status === 429
-              ? "Limite de consultas do Google atingido."
-              : "Não foi possível concluir as pesquisas no Google Places."
-          );
-        }
-
-        todos.push(...(dados.places || []));
-        pageToken = dados.nextPageToken || "";
-
-        const novos = todos.filter((p) => !jaVistos.has(p.id)).length;
-        if (!pageToken || novos >= limite * 2) break;
+        throw new Error(
+          resposta.status === 429
+            ? "Limite de consultas do Google atingido."
+            : "Não foi possível concluir as pesquisas no Google Places."
+        );
       }
 
-      return todos;
+      return dados.places || [];
     }
 
     // Executa as consultas em paralelo
@@ -385,12 +212,12 @@ export default async function handler(req, res) {
 
     const lista = Array.from(todasEmpresas.values()).map((empresa) => {
       const temTelefone = Boolean(empresa.numero);
-      const tipoSite = classificarSite(empresa.site);
-      const temSite = tipoSite === "SITE";
+      const temSite = Boolean(empresa.site);
 
       // Pontuação indica disponibilidade de contato, não qualidade garantida
       const pontuacao =
-        (temTelefone ? 2 : 0);
+        (temTelefone ? 2 : 0) +
+        (temSite ? 1 : 0);
 
       return {
         id: empresa.id,
@@ -403,11 +230,7 @@ export default async function handler(req, res) {
           ? `https://wa.me/${empresa.numero}`
           : "",
         instagram: "",
-        situacao: temSite
-          ? "POSSUI_SITE"
-          : tipoSite === "NAO_SITE"
-            ? "SO_REDE_SOCIAL"
-            : "SITE_NAO_ENCONTRADO",
+        situacao: temSite ? "POSSUI_SITE" : "SITE_NAO_ENCONTRADO",
         pontuacaoContato: pontuacao,
         temTelefone,
         temSite,
@@ -424,63 +247,20 @@ export default async function handler(req, res) {
       return a.nome.localeCompare(b.nome, "pt-BR");
     });
 
-    let filtradas = lista.filter((e) => !jaVistos.has(e.id));
-    if (necessidade === "sem-site") filtradas = filtradas.filter(e => !e.temSite);
-    else if (necessidade === "site") filtradas = filtradas.filter(e => e.temSite);
-    // Empresas sem site aparecem primeiro (são os melhores leads)
-    filtradas = [...filtradas].sort(
-      (a, b) => (a.temSite ? 1 : 0) - (b.temSite ? 1 : 0)
-    );
-    const entregues = filtradas.slice(0, limite);
-
-    // Guarda no servidor as empresas entregues, para a próxima busca trazer novas
-    if (entregues.length) {
-      try {
-        await refVistos.set(
-          {
-            ids: FieldValue.arrayUnion(...entregues.map((e) => String(e.id))),
-            atualizadoEm: FieldValue.serverTimestamp()
-          },
-          { merge: true }
-        );
-      } catch (e) {
-        console.error("Falha ao salvar empresas vistas:", e.message);
-      }
-    }
-
-    // Sem empresas novas: devolve os créditos desta busca
-    let creditosRestantes = cobranca.restantes;
-    if (!entregues.length) {
-      await devolverCreditos(db, uid);
-      cobrado = false;
-      creditosRestantes += CUSTO_BUSCA;
-    }
-
     return res.status(200).json({
       sucesso: true,
-      quantidade: entregues.length,
-      creditosRestantes,
-      semNovos: !entregues.length,
-      restantes: filtradas.length - entregues.length,
-      plano: cobranca.plano,
-      limiteResultados: limite,
+      quantidade: lista.length,
       fonte: "Google Places API",
       consultasRealizadas: consultas.length,
       aviso:
         "Resultados combinados e deduplicados. A ausência de um site nos dados do Google não comprova que a empresa não tenha site. Números encontrados não têm WhatsApp ativo confirmado.",
-      empresas: entregues
+      empresas: lista
     });
   } catch (error) {
     console.error("Erro na busca:", error.message);
 
-    if (cobrado && db) {
-      try { await devolverCreditos(db, uid); } catch (e) {
-        console.error("Falha ao devolver créditos:", e.message);
-      }
-    }
-
     return res.status(
-      error.status || (error.message.includes("Limite de consultas") ? 429 : 502)
+      error.message.includes("Limite de consultas") ? 429 : 502
     ).json({
       erro: error.message || "Erro ao buscar empresas. Tente novamente."
     });
