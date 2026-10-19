@@ -58,7 +58,7 @@ onAuthStateChanged(auth, async (usuario) => {
   if (usuario) {
     let perfil = {};
     try {
-      const snap = await getDoc(doc(db, "usuarios", usuario.uid));
+      const snap = await getDoc(doc(db, "users", usuario.uid));
       if (snap.exists()) perfil = snap.data();
     } catch (erro) {
       console.warn("Não foi possível carregar o perfil:", erro);
@@ -84,7 +84,7 @@ form?.addEventListener("submit", async (evento) => {
   try {
     if (modoCadastro) {
       const credencial = await createUserWithEmailAndPassword(auth, email, senha);
-      await setDoc(doc(db, "usuarios", credencial.user.uid), {
+      await setDoc(doc(db, "users", credencial.user.uid), {
         nome, email, telefone, plano: "FREE", creditos: 30,
         criadoEm: serverTimestamp()
       });
@@ -94,7 +94,7 @@ form?.addEventListener("submit", async (evento) => {
       const credencial = await signInWithEmailAndPassword(auth, email, senha);
       let perfil = {};
       try {
-        const snap = await getDoc(doc(db, "usuarios", credencial.user.uid));
+        const snap = await getDoc(doc(db, "users", credencial.user.uid));
         if (snap.exists()) perfil = snap.data();
       } catch {}
       notificarUsuario(credencial.user, perfil);

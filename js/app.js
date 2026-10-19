@@ -295,8 +295,9 @@ function cardEmpresa(empresa, indice, salvos = false) {
         <p class="muted">${textoSeguro(empresa.situacao || "Informações públicas disponíveis")}</p>
       </div>
       <div class="lead-actions">
-        ${whatsapp ? `<a class="btn btn-primary" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>` : ""}
+        ${whatsapp ? `<a class="btn btn-whatsapp" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>` : ""}
         <button class="btn btn-ghost" type="button" data-copy="${indice}">Copiar abordagem</button>
+        <button class="btn btn-primary" type="button" data-site-prompt="${indice}">Gerar prompt de site</button>
         ${salvos
           ? `<button class="btn btn-ghost" type="button" data-remove="${textoSeguro(id)}">Remover</button>`
           : `<button class="btn btn-ghost" type="button" data-save="${indice}" ${salvo ? "disabled" : ""}>${salvo ? "Salvo" : "Salvar lead"}</button>`}
@@ -364,6 +365,71 @@ function configurarBotoesResultados() {
       }
     });
   });
+
+  $("#resultados")?.querySelectorAll("[data-site-prompt]").forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const empresa = resultadosAtuais[Number(botao.dataset.sitePrompt)];
+      if (empresa) abrirGeradorPrompt(empresa);
+    });
+  });
+}
+
+function montarPromptSite(empresa) {
+  const nome = empresa.nome || "Nome da empresa";
+  const endereco = empresa.endereco || "endereço a confirmar";
+  const telefone = empresa.telefone || "telefone a confirmar";
+  const cidade = empresa.cidade || document.querySelector("#cidade-search")?.value || document.querySelector("#cidade")?.value || "cidade a confirmar";
+  const estado = empresa.estado || document.querySelector("#estado-search")?.value || document.querySelector("#estado")?.value || "estado a confirmar";
+  const site = empresa.site || "nenhum site foi identificado nos dados disponíveis";
+  const segmento = empresa.nicho || empresa.segmento || document.querySelector("#nicho-search")?.value || document.querySelector("#nicho")?.value || "segmento a confirmar";
+  return `Crie um site profissional, moderno e responsivo para ${nome}, negócio do segmento ${segmento}, em ${cidade} - ${estado}.
+
+DADOS DISPONÍVEIS
+- Empresa: ${nome}
+- Segmento: ${segmento}
+- Cidade/estado: ${cidade} - ${estado}
+- Endereço: ${endereco}
+- Telefone: ${telefone}
+- Site atual: ${site}
+
+OBJETIVO
+Apresentar a empresa com credibilidade, explicar seus produtos ou serviços e transformar visitantes em contatos.
+
+ESTRUTURA
+1. Cabeçalho com nome/logo, navegação simples e chamada para contato.
+2. Seção principal com título claro, resumo e botão de contato.
+3. Apresentação do negócio e seus diferenciais, sem inventar fatos.
+4. Serviços/produtos em cartões editáveis.
+5. Galeria com imagens relevantes e otimizadas.
+6. Área de contato com telefone e botão de WhatsApp somente se o número estiver correto.
+7. Rodapé com informações confirmadas.
+
+REQUISITOS
+Design original alinhado ao segmento, tipografia legível, cores consistentes, acessibilidade, SEO local básico, carregamento rápido, layout adaptado para celular/tablet/computador e botões funcionais. Não invente preços, avaliações, horário, endereço, certificações ou serviços não informados; sinalize os dados faltantes para revisão. Entregue o código completo e explique como editar textos, imagens e contatos.`;
+}
+
+function abrirGeradorPrompt(empresa) {
+  let modal = document.getElementById("lf-site-prompt-modal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "lf-site-prompt-modal";
+    modal.className = "lf-prompt-overlay";
+    modal.innerHTML = `<section class="lf-prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="lf-prompt-title"><button type="button" class="lf-prompt-close" aria-label="Fechar">×</button><span class="eyebrow">SITE CREATOR · LEADFINDER</span><h2 id="lf-prompt-title">Gerador de prompt de site</h2><p class="muted">Revise os dados e copie o prompt para sua ferramenta de criação de sites por IA.</p><textarea id="lf-site-prompt-text" aria-label="Prompt do site"></textarea><div class="lf-prompt-actions"><button type="button" class="btn btn-primary" id="lf-copy-site-prompt">Copiar prompt</button><button type="button" class="btn btn-ghost" id="lf-select-site-prompt">Selecionar texto</button></div><p id="lf-site-prompt-status" class="muted" role="status" aria-live="polite"></p></section>`;
+    document.body.appendChild(modal);
+    modal.querySelector(".lf-prompt-close").addEventListener("click", () => modal.classList.remove("open"));
+    modal.addEventListener("click", (event) => { if (event.target === modal) modal.classList.remove("open"); });
+    modal.querySelector("#lf-select-site-prompt").addEventListener("click", () => { const area = modal.querySelector("#lf-site-prompt-text"); area.focus(); area.select(); });
+    modal.querySelector("#lf-copy-site-prompt").addEventListener("click", async () => {
+      const area = modal.querySelector("#lf-site-prompt-text"); const status = modal.querySelector("#lf-site-prompt-status");
+      try { await navigator.clipboard.writeText(area.value); status.textContent = "Prompt copiado. Agora cole na sua ferramenta de IA."; }
+      catch { area.focus(); area.select(); status.textContent = "A cópia automática foi bloqueada. O texto está selecionado para copiar manualmente."; }
+    });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") modal.classList.remove("open"); });
+  }
+  modal.querySelector("#lf-prompt-title").textContent = `Prompt para ${empresa.nome || "esta empresa"}`;
+  modal.querySelector("#lf-site-prompt-text").value = montarPromptSite(empresa);
+  modal.querySelector("#lf-site-prompt-status").textContent = "";
+  modal.classList.add("open");
 }
 
 function renderizarSalvos() {
@@ -527,7 +593,7 @@ function configurarUsuario() {
 
     let perfil = {};
     try {
-      const referencia = fsMod.doc(firestore, "usuarios", usuario.uid);
+      const referencia = fsMod.doc(firestore, "users", usuario.uid);
       const documento = await fsMod.getDoc(referencia);
       if (documento.exists()) perfil = documento.data();
     } catch (erro) {
