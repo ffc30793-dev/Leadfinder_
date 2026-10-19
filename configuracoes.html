@@ -1,148 +1,478 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#03100b">
-  <title>Configurações — LeadFinder</title>
-  <link rel="stylesheet" href="./css/base.css">
-  <link rel="stylesheet" href="./css/style.css">
-  <link rel="stylesheet" href="./css/responsive.css">
-  <link rel="stylesheet" href="./css/menu.css">
-  <style>
-/* Menu no canto (gaveta) + ferramenta em coluna única */
-[hidden]{display:none !important}
-.app-shell{display:block !important}
-.sidebar{position:fixed !important;top:0;left:0;bottom:0;width:min(86vw,310px) !important;z-index:80;overflow-y:auto;transform:translateX(-105%);transition:transform .25s ease;box-shadow:12px 0 40px rgba(0,0,0,.55)}
-.sidebar.open{transform:none !important}
-.workspace{margin-left:0 !important;width:100% !important;max-width:100% !important}
-.mobile-menu{display:inline-grid !important;place-items:center}
-.topbar{display:flex !important;align-items:center;gap:12px}
-.top-brand{font-weight:800;font-size:17px;letter-spacing:-.03em;color:inherit;text-decoration:none}
-.top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
-#sair-menu{margin:8px 16px;width:calc(100% - 32px)}
-.search-layout{display:block !important}
-.search-layout .results-panel{margin-top:18px}
-.filter-panel,.results-panel{max-width:760px;margin-left:auto;margin-right:auto}
-.cta-final{text-align:center;margin:28px 0}
-.hero-grid{display:block !important}
-</style>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#020912"
+    >
+
+    <title>Configurações | LeadFinder</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/dashboard.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="../css/responsive.css"
+    >
 </head>
+
 <body>
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <a class="brand" href="./painel.html" aria-label="LeadFinder início">
-        <span class="brand-mark">L</span>
-        <span>Lead<span class="green">Finder</span><small>Prospecção Inteligente</small></span>
-      </a>
-      <div class="side-label">MENU PRINCIPAL</div>
-      <nav class="side-nav" aria-label="Menu principal">
-        <button class="nav-item" data-view="inicio"><span class="nav-icon">⌂</span>Início</button>
-        <button class="nav-item" data-view="buscar"><span class="nav-icon">⌕</span>Buscar empresas</button>
-        <button class="nav-item" data-view="leads"><span class="nav-icon">◇</span>Meus leads</button>
-        <button class="nav-item" data-view="creditos"><span class="nav-icon">▤</span>Créditos</button>
-        <button class="nav-item" data-view="planos"><span class="nav-icon">♛</span>Planos</button>
-        <button class="nav-item active" data-view="configuracoes"><span class="nav-icon">⚙</span>Configurações</button>
-      </nav>
-      <div class="sidebar-promo">
-        <div class="promo-symbol">↗</div>
-        <strong>Quer mais oportunidades?</strong>
-        <p>Conheça os planos para ampliar sua prospecção.</p>
-        <button class="btn btn-primary btn-full" data-view="planos">Ver planos <span>→</span></button>
-      </div>
-      <button id="sair-menu" class="btn btn-ghost btn-full" type="button">Sair da conta</button>
 
-      <div class="sidebar-bottom">
-        <span class="status-dot"></span> Sistema operacional
-        <small>LeadFinder v1.0</small>
-      </div>
-    </aside>
+    <!-- =====================================
+         APP
+    ====================================== -->
 
-    <div class="workspace">
-      <header class="topbar">
-        <button class="mobile-menu" id="mobile-menu" aria-label="Abrir menu">☰</button>
-        <a class="top-brand" href="./painel.html">Lead<span class="green">Finder</span></a>
-        <div class="top-search" hidden>
-          <span>⌕</span>
-          <input id="global-search" type="search" placeholder="Encontre empresas que precisam de um site...">
-        </div>
-        <div class="top-actions">
-          <div class="credit-pill"><span>▤</span><b id="credit-count">30</b> créditos</div>
-          <div class="profile-chip">
-            <span class="avatar">L</span>
-            <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
-          </div>
-          <button id="btn-login" class="btn btn-ghost top-login" hidden>Entrar</button>
-          <button id="btn-cadastro" class="btn btn-primary top-signup" hidden>Criar conta</button>
-        </div>
-      </header>
+    <div class="dashboard-layout">
 
-      <main class="main-content">
-        <section class="view active" id="view-configuracoes">
-          <div class="page-heading">
-            <div>
-              <span class="section-kicker">PREFERÊNCIAS</span>
-              <h1>Configurações</h1>
-              <p class="muted">Informações da sua conta e sessão.</p>
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar" id="sidebar">
+
+            <div class="sidebar-logo">
+                <span class="logo-symbol">⌁</span>
+
+                <div>
+                    <strong>LeadFinder</strong>
+                    <small>Prospecção Inteligente</small>
+                </div>
             </div>
-          </div>
-          <div class="settings-grid">
-            <article class="panel settings-card">
-              <span class="panel-icon">♙</span>
-              <h2>Perfil da conta</h2>
-              <p class="muted">Confira as informações usadas no seu cadastro.</p>
-              <div class="setting-row"><span>Nome</span><strong id="settings-name">—</strong></div>
-              <div class="setting-row"><span>E-mail</span><strong id="settings-email">—</strong></div>
-              <div class="setting-row"><span>Plano</span><strong id="settings-plan">Grátis</strong></div>
-            </article>
-            <article class="panel settings-card">
-              <span class="panel-icon">⚿</span>
-              <h2>Sessão</h2>
-              <p class="muted">Saia da sua conta neste dispositivo.</p>
-              <button id="sair" class="btn btn-danger" type="button">Sair da conta</button>
-              <p id="auth-mensagem-settings" class="muted" role="status" aria-live="polite"></p>
-            </article>
-          </div>
-        </section>
-      </main>
 
-      <footer class="app-footer">
-        <span>© 2026 LeadFinder — Prospecção Inteligente</span>
-        <div>
-          <span>● Tecnologia moderna</span>
-          <span>⌖ Dados de empresas</span>
-          <span>▣ Sistema responsivo</span>
-        </div>
-      </footer>
+            <nav class="sidebar-nav">
+
+                <a href="dashboard.html">
+                    Início
+                </a>
+
+                <a href="resultados.html">
+                    Buscar leads
+                </a>
+
+                <a href="historico.html">
+                    Histórico
+                </a>
+
+                <a href="planos.html">
+                    Planos
+                </a>
+
+                <a href="perfil.html">
+                    Perfil
+                </a>
+
+                <a
+                    href="configuracoes.html"
+                    class="active"
+                >
+                    Configurações
+                </a>
+
+            </nav>
+
+            <button
+                type="button"
+                class="logout-btn"
+                data-logout
+            >
+                Sair
+            </button>
+
+        </aside>
+
+
+        <!-- =====================================
+             CONTEÚDO
+        ====================================== -->
+
+        <main class="dashboard-main">
+
+            <!-- HEADER -->
+
+            <header class="dashboard-header">
+
+                <button
+                    type="button"
+                    class="menu-button"
+                    id="menuButton"
+                    aria-label="Abrir menu"
+                >
+                    ☰
+                </button>
+
+                <div>
+                    <span class="page-label">
+                        CONFIGURAÇÕES
+                    </span>
+
+                    <h1>
+                        Configurações
+                    </h1>
+                </div>
+
+                <div class="header-user">
+
+                    <span data-user-name>
+                        Usuário
+                    </span>
+
+                    <span
+                        class="plan-badge"
+                        data-plan
+                    >
+                        Grátis
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- =====================================
+                 CONTEÚDO
+            ====================================== -->
+
+            <section class="dashboard-content">
+
+                <!-- CONTA -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                CONTA
+                            </span>
+
+                            <h2>
+                                Preferências da conta
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="settings-list">
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Notificações
+                                </strong>
+
+                                <p>
+                                    Receber avisos sobre sua conta,
+                                    pesquisas diárias e novidades.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="notifications"
+                                    checked
+                                >
+
+                                <span></span>
+
+                            </label>
+
+                        </div>
+
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Atualizações de leads
+                                </strong>
+
+                                <p>
+                                    Receber informações sobre
+                                    novas oportunidades.
+                                </p>
+                            </div>
+
+                            <label class="switch">
+
+                                <input
+                                    type="checkbox"
+                                    id="leadUpdates"
+                                    checked
+                                >
+
+                                <span></span>
+
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PRIVACIDADE -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                PRIVACIDADE
+                            </span>
+
+                            <h2>
+                                Privacidade e segurança
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="settings-list">
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Sessão segura
+                                </strong>
+
+                                <p>
+                                    Mantenha sua conta protegida
+                                    neste dispositivo.
+                                </p>
+                            </div>
+
+                            <span class="status-badge">
+                                Ativa
+                            </span>
+
+                        </div>
+
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Alterar senha
+                                </strong>
+
+                                <p>
+                                    Altere sua senha de acesso
+                                    à conta.
+                                </p>
+                            </div>
+
+                            <a
+                                href="perfil.html"
+                                class="secondary-button"
+                            >
+                                Alterar
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DADOS -->
+
+                <div class="dashboard-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                DADOS
+                            </span>
+
+                            <h2>
+                                Seus dados
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="settings-list">
+
+                        <div class="setting-item">
+
+                            <div>
+                                <strong>
+                                    Exportar dados
+                                </strong>
+
+                                <p>
+                                    Solicite uma cópia das
+                                    informações da sua conta.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                class="secondary-button"
+                                id="exportData"
+                            >
+                                Exportar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ZONA DE PERIGO -->
+
+                <div class="dashboard-card danger-card">
+
+                    <div class="card-header">
+
+                        <div>
+                            <span class="section-label">
+                                CONTA
+                            </span>
+
+                            <h2>
+                                Zona de segurança
+                            </h2>
+                        </div>
+
+                    </div>
+
+                    <div class="setting-item">
+
+                        <div>
+                            <strong>
+                                Encerrar sessão
+                            </strong>
+
+                            <p>
+                                Sair da sua conta neste dispositivo.
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="danger-button"
+                            data-logout
+                        >
+                            Sair
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
     </div>
-  </div>
 
-<script>
-/* Navegação entre páginas (funciona mesmo se o app.js estiver desatualizado) */
-(function () {
-  var P = { inicio: "./painel.html", buscar: "./buscar.html", leads: "./leads.html",
-            creditos: "./creditos.html", planos: "./planos.html", configuracoes: "./configuracoes.html" };
-  var aqui = location.pathname.split("/").pop() || "painel.html";
-  document.addEventListener("click", function (e) {
-    var menu = document.getElementById("sidebar");
-    var el = e.target.closest("[data-view]");
-    if (!el) {
-      if (menu && menu.classList.contains("open") && !e.target.closest("#sidebar, #mobile-menu")) menu.classList.remove("open");
-      return;
-    }
-    var destino = P[el.getAttribute("data-view")];
-    if (!destino) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if (destino.replace("./", "") === aqui) {
-      if (menu) menu.classList.remove("open");
-      window.scrollTo(0, 0);
-      return;
-    }
-    location.href = destino;
-  }, true);
-})();
-</script>
-  <script type="module" src="./js/app.js"></script>
+
+    <!-- =====================================
+         JAVASCRIPT
+    ====================================== -->
+
+    <script src="../js/app.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/credits.js"></script>
+    <script src="../js/plans.js"></script>
+
+    <script>
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
+
+                const exportButton =
+                    document.querySelector("#exportData");
+
+                if (exportButton) {
+
+                    exportButton.addEventListener(
+                        "click",
+                        () => {
+
+                            const user =
+                                localStorage.getItem(
+                                    "leadfinder_user"
+                                );
+
+                            const data = {
+                                usuario: user
+                                    ? JSON.parse(user)
+                                    : null,
+
+                                creditos:
+                                    localStorage.getItem(
+                                        "leadfinder_credits"
+                                    ),
+
+                                exportadoEm:
+                                    new Date().toISOString()
+                            };
+
+                            const file =
+                                new Blob(
+                                    [
+                                        JSON.stringify(
+                                            data,
+                                            null,
+                                            2
+                                        )
+                                    ],
+                                    {
+                                        type:
+                                            "application/json"
+                                    }
+                                );
+
+                            const url =
+                                URL.createObjectURL(file);
+
+                            const link =
+                                document.createElement("a");
+
+                            link.href = url;
+
+                            link.download =
+                                "leadfinder-dados.json";
+
+                            link.click();
+
+                            URL.revokeObjectURL(url);
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+
+    </script>
+
 </body>
-</html>
+  </html>

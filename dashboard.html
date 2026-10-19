@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="theme-color"
+        content="#050807"
+    >
+
+    <title>LeadFinder — Prospecção</title>
+
+    <link
+        rel="stylesheet"
+        href="../css/dashboard.css"
+    >
+</head>
+
+<body class="dashboard-body">
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-top">
+
+            <a
+                href="../index.html"
+                class="brand"
+            >
+
+                <div class="brand-mark">
+                    LF
+                </div>
+
+                <div class="brand-text">
+                    <strong>
+                        LeadFinder
+                    </strong>
+
+                    <span>
+                        Prospecção inteligente
+                    </span>
+                </div>
+
+            </a>
+
+            <button
+                class="sidebar-close"
+                id="sidebarClose"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- MENU -->
+
+        <nav class="sidebar-nav">
+
+            <a
+                href="dashboard.html"
+                class="nav-item active"
+            >
+
+                <span class="nav-icon">⌕</span>
+
+                <span>
+                    Prospecção
+                </span>
+
+            </a>
+
+
+            <a
+                href="resultados.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">▦</span>
+
+                <span>
+                    Meus leads
+                </span>
+
+            </a>
+
+
+            <a
+                href="historico.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">◷</span>
+
+                <span>
+                    Histórico
+                </span>
+
+            </a>
+
+
+            <div class="nav-divider"></div>
+
+
+            <a
+                href="planos.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">◆</span>
+
+                <span>
+                    Planos
+                </span>
+
+            </a>
+
+
+            <a
+                href="perfil.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">◎</span>
+
+                <span>
+                    Meu perfil
+                </span>
+
+            </a>
+
+
+            <a
+                href="configuracoes.html"
+                class="nav-item"
+            >
+
+                <span class="nav-icon">⚙</span>
+
+                <span>
+                    Configurações
+                </span>
+
+            </a>
+
+        </nav>
+
+
+        <!-- BOTTOM -->
+
+        <div class="sidebar-bottom">
+
+            <div class="upgrade-card">
+
+                <div class="upgrade-icon">
+                    ◆
+                </div>
+
+                <strong>
+                    Desbloqueie mais leads
+                </strong>
+
+                <p>
+                    Tenha mais pesquisas diárias e recursos
+                    para acelerar sua prospecção.
+                </p>
+
+                <a href="planos.html">
+
+                    Ver planos
+
+                    <span>→</span>
+
+                </a>
+
+            </div>
+
+
+            <button
+                class="logout-btn"
+                id="logout"
+                type="button"
+            >
+
+                <span>
+                    ↪
+                </span>
+
+                Sair da conta
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- OVERLAY MOBILE -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="main-content">
+
+
+        <!-- =================================================
+             TOPBAR
+             ================================================= -->
+
+        <header class="topbar">
+
+            <button
+                class="mobile-menu-btn"
+                id="menuButton"
+                type="button"
+                aria-label="Abrir menu"
+            >
+                ☰
+            </button>
+
+
+            <div class="topbar-title">
+
+                <span class="topbar-label">
+                    PROSPECÇÃO
+                </span>
+
+                <h1>
+                    Encontre novas oportunidades
+                </h1>
+
+            </div>
+
+
+            <div class="topbar-actions">
+
+                <div class="credits-pill">
+
+                    <span class="credits-dot"></span>
+
+                    <span>
+                        <strong data-credits>
+                            5
+                        </strong>
+                        pesquisas diárias
+                    </span>
+
+                </div>
+
+
+                <a
+                    href="perfil.html"
+                    class="profile-button"
+                >
+
+                    <div class="profile-avatar">
+                        U
+                    </div>
+
+                    <div class="profile-info">
+
+                        <strong data-user-name>
+                            Usuário
+                        </strong>
+
+                        <span>
+                            Plano grátis
+                        </span>
+
+                    </div>
+
+                    <span class="profile-arrow">
+                        ˅
+                    </span>
+
+                </a>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             CONTENT
+             ================================================= -->
+
+        <section class="dashboard-content">
+
+
+            <!-- INTRO -->
+
+            <div class="page-intro">
+
+                <h2>
+                    Encontre empresas para prospectar
+                </h2>
+
+                <p>
+                    Escolha o segmento, localização e
+                    oportunidade. O LeadFinder encontra
+                    negócios com potencial para seus serviços.
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+                 SEARCH
+                 ================================================= -->
+
+            <section class="search-panel">
+
+                <div class="search-panel-header">
+
+                    <div class="search-heading">
+
+                        <div class="search-icon">
+                            ⌕
+                        </div>
+
+                        <div>
+
+                            <h3>
+                                Nova prospecção
+                            </h3>
+
+                            <p>
+                                Defina os filtros para encontrar
+                                os melhores leads.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="search-cost">
+
+                        <span>
+                            CUSTO DA BUSCA
+                        </span>
+
+                        <strong>
+                            1 pesquisa
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- FORM -->
+
+                <form
+                    class="search-form"
+                    id="leadSearchForm"
+                >
+
+
+                    <!-- NICHO -->
+
+                    <div class="field-group">
+
+                        <label for="nicho">
+                            Nicho
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                ◇
+                            </span>
+
+                            <select
+                                id="nicho"
+                                name="nicho"
+                            >
+
+                                <option value="">
+                                    Selecione o nicho
+                                </option>
+
+                                <option>
+                                    Hamburgueria
+                                </option>
+
+                                <option>
+                                    Pizzaria
+                                </option>
+
+                                <option>
+                                    Restaurante
+                                </option>
+
+                                <option>
+                                    Cafeteria
+                                </option>
+
+                                <option>
+                                    Bar
+                                </option>
+
+                                <option>
+                                    Padaria
+                                </option>
+
+                                <option>
+                                    Salão de beleza
+                                </option>
+
+                                <option>
+                                    Barbearia
+                                </option>
+
+                                <option>
+                                    Clínica
+                                </option>
+
+                                <option>
+                                    Dentista
+                                </option>
+
+                                <option>
+                                    Academia
+                                </option>
+
+                                <option>
+                                    Hotel
+                                </option>
+
+                                <option>
+                                    Pousada
+                                </option>
+
+                                <option>
+                                    Pet shop
+                                </option>
+
+                                <option>
+                                    Oficina
+                                </option>
+
+                                <option>
+                                    Auto center
+                                </option>
+
+                                <option>
+                                    Loja de roupas
+                                </option>
+
+                                <option>
+                                    Loja de eletrônicos
+                                </option>
+
+                                <option>
+                                    Mercado
+                                </option>
+
+                                <option>
+                                    Imobiliária
+                                </option>
+
+                                <option>
+                                    Escritório
+                                </option>
+
+                                <option>
+                                    Contabilidade
+                                </option>
+
+                                <option>
+                                    Advocacia
+                                </option>
+
+                                <option>
+                                    Escola
+                                </option>
+
+                                <option>
+                                    Curso
+                                </option>
+
+                                <option>
+                                    Fotografia
+                                </option>
+
+                                <option>
+                                    Eventos
+                                </option>
+
+                                <option>
+                                    Construtora
+                                </option>
+
+                                <option>
+                                    Prestador de serviços
+                                </option>
+
+                                <option>
+                                    Outro
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ESTADO -->
+
+                    <div class="field-group">
+
+                        <label for="estado">
+                            Estado
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                ⌖
+                            </span>
+
+                            <select
+                                id="estado"
+                                name="estado"
+                            >
+
+                                <option value="">
+                                    Selecione o estado
+                                </option>
+
+                                <option value="AC">
+                                    Acre
+                                </option>
+
+                                <option value="AL">
+                                    Alagoas
+                                </option>
+
+                                <option value="AP">
+                                    Amapá
+                                </option>
+
+                                <option value="AM">
+                                    Amazonas
+                                </option>
+
+                                <option value="BA">
+                                    Bahia
+                                </option>
+
+                                <option value="CE">
+                                    Ceará
+                                </option>
+
+                                <option value="DF">
+                                    Distrito Federal
+                                </option>
+
+                                <option value="ES">
+                                    Espírito Santo
+                                </option>
+
+                                <option value="GO">
+                                    Goiás
+                                </option>
+
+                                <option value="MA">
+                                    Maranhão
+                                </option>
+
+                                <option value="MT">
+                                    Mato Grosso
+                                </option>
+
+                                <option value="MS">
+                                    Mato Grosso do Sul
+                                </option>
+
+                                <option value="MG">
+                                    Minas Gerais
+                                </option>
+
+                                <option value="PA">
+                                    Pará
+                                </option>
+
+                                <option value="PB">
+                                    Paraíba
+                                </option>
+
+                                <option value="PR">
+                                    Paraná
+                                </option>
+
+                                <option value="PE">
+                                    Pernambuco
+                                </option>
+
+                                <option value="PI">
+                                    Piauí
+                                </option>
+
+                                <option value="RJ">
+                                    Rio de Janeiro
+                                </option>
+
+                                <option value="RN">
+                                    Rio Grande do Norte
+                                </option>
+
+                                <option value="RS">
+                                    Rio Grande do Sul
+                                </option>
+
+                                <option value="RO">
+                                    Rondônia
+                                </option>
+
+                                <option value="RR">
+                                    Roraima
+                                </option>
+
+                                <option value="SC">
+                                    Santa Catarina
+                                </option>
+
+                                <option value="SP">
+                                    São Paulo
+                                </option>
+
+                                <option value="SE">
+                                    Sergipe
+                                </option>
+
+                                <option value="TO">
+                                    Tocantins
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- CIDADE -->
+
+                    <div class="field-group">
+
+                        <label for="cidade">
+                            Cidade
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                ⌂
+                            </span>
+
+                            <select
+                                id="cidade"
+                                name="cidade"
+                                disabled
+                            >
+
+                                <option value="">
+                                    Primeiro selecione o estado
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- OPORTUNIDADE -->
+
+                    <div class="field-group">
+
+                        <label for="oportunidade">
+                            Oportunidade
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">
+                                ✦
+                            </span>
+
+                            <select
+                                id="oportunidade"
+                                name="oportunidade"
+                            >
+
+                                <option value="">
+                                    Todas as oportunidades
+                                </option>
+
+                                <option>
+                                    Sem site
+                                </option>
+
+                                <option>
+                                    Site desatualizado
+                                </option>
+
+                                <option>
+                                    Landing page
+                                </option>
+
+                                <option>
+                                    Loja virtual
+                                </option>
+
+                                <option>
+                                    Cardápio digital
+                                </option>
+
+                                <option>
+                                    Google / Maps
+                                </option>
+
+                                <option>
+                                    Identidade visual
+                                </option>
+
+                                <option>
+                                    Design
+                                </option>
+
+                                <option>
+                                    Redes sociais
+                                </option>
+
+                                <option>
+                                    Automação
+                                </option>
+
+                                <option>
+                                    Agendamento online
+                                </option>
+
+                                
