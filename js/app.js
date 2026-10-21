@@ -30,6 +30,8 @@ const segmentos = [
 let usuarioAtual = null;
 let modoCadastro = false;
 let buscando = false;
+let mapaLeads = null;
+let camadaMarcadores = null;
 
 const LIMITES_DIARIOS = { FREE: 5, PRO: 25, MAX: 100, BUSINESS: 100 };
 function chaveUso(uid) { return `lf_daily_searches_${uid || "visitante"}`; }
@@ -256,6 +258,38 @@ function lerSalvos() {
 function salvarSalvos(lista) {
   localStorage.setItem("lf_saved_leads", JSON.stringify(lista));
   renderizarSalvos();
+  sincronizarSalvosFirestore(lista).catch((erro) => console.warn("Falha ao sincronizar leads salvos:", erro));
+}
+
+async function sincronizarSalvosFirestore(lista) {
+  if (!usuarioAtual || !fsMod || !firestore) return;
+  const existentes = await fsMod.getDocs(fsMod.query(fsMod.collection(firestore, "leads"), fsMod.where("userId", "==", usuarioAtual.uid)));
+  const desejados = new Set(lista.map((item) => String(item.id || item.nome)));
+  const porChave = new Map(existentes.docs.map((doc) => [String(doc.data().leadId || doc.id), doc]));
+  for (const [chave, docSnap] of porChave) {
+    if (!desejados.has(chave)) await fsMod.deleteDoc(docSnap.ref);
+  }
+  for (const lead of lista) {
+    const chave = String(lead.id || lead.nome || "lead").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 100);
+    const docId = `${usuarioAtual.uid}_${chave}`;
+    await fsMod.setDoc(fsMod.doc(firestore, "leads", docId), {
+      ...lead, userId: usuarioAtual.uid, leadId: String(lead.id || lead.nome), savedAt: new Date().toISOString()
+    }, { merge: true });
+  }
+}
+
+async function carregarSalvosFirestore(usuario) {
+  if (!usuario || !fsMod || !firestore) return;
+  try {
+    const snapshot = await fsMod.getDocs(fsMod.query(fsMod.collection(firestore, "leads"), fsMod.where("userId", "==", usuario.uid)));
+    const remotos = snapshot.docs.map((d) => d.data()).filter((d) => d.nome);
+    if (remotos.length) {
+      const locais = lerSalvos();
+      const combinados = new Map([...locais, ...remotos].map((lead) => [String(lead.id || lead.nome), lead]));
+      localStorage.setItem("lf_saved_leads", JSON.stringify([...combinados.values()]));
+      renderizarSalvos();
+    }
+  } catch (erro) { console.warn("Não foi possível carregar leads salvos do Firestore:", erro); }
 }
 
 function textoSeguro(valor) {
@@ -292,7 +326,9 @@ function cardEmpresa(empresa, indice, salvos = false) {
         ${telefone ? `<p>Telefone: ${textoSeguro(empresa.telefone)}</p>` : ""}
         ${site ? `<p>Site: <a href="${textoSeguro(site)}" target="_blank" rel="noopener noreferrer">${textoSeguro(site)}</a></p>` : ""}
         ${mapa ? `<p><a href="${textoSeguro(mapa)}" target="_blank" rel="noopener noreferrer">Ver no mapa</a></p>` : ""}
+        <div class="lead-score-row"><span class="lead-temperature temp-${String(empresa.temperatura || "MORNO").toLowerCase()}">${textoSeguro(empresa.temperatura || "MORNO")}</span><span class="lead-score">Oportunidade: ${Number(empresa.pontuacaoOportunidade || 0)}/75</span></div>
         <p class="muted">${textoSeguro(empresa.situacao || "Informações públicas disponíveis")}</p>
+        <p class="muted">Instagram: ${empresa.seguidoresInstagram == null ? "seguidores não verificados" : `${Number(empresa.seguidoresInstagram).toLocaleString("pt-BR")} seguidores`}</p>
       </div>
       <div class="lead-actions">
         ${whatsapp ? `<a class="btn btn-whatsapp" href="${textoSeguro(whatsapp)}" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>` : ""}
@@ -321,7 +357,7 @@ function renderizarResultados(empresas) {
     container.innerHTML = `
       <div class="empty-state">
         <h3>Nenhuma empresa encontrada nesta consulta</h3>
-        <p>Tente outro segmento ou cidade. Os dados dependem da cobertura do OpenStreetMap.</p>
+        <p>Tente outro segmento ou cidade. O mapa mostra apenas coordenadas retornadas pela fonte de empresas.</p>
       </div>`;
     return;
   }
@@ -380,32 +416,50 @@ function montarPromptSite(empresa) {
   const telefone = empresa.telefone || "telefone a confirmar";
   const cidade = empresa.cidade || document.querySelector("#cidade-search")?.value || document.querySelector("#cidade")?.value || "cidade a confirmar";
   const estado = empresa.estado || document.querySelector("#estado-search")?.value || document.querySelector("#estado")?.value || "estado a confirmar";
-  const site = empresa.site || "nenhum site foi identificado nos dados disponíveis";
+  const site = empresa.site || "não identificado na consulta; não afirmar que não existe";
   const segmento = empresa.nicho || empresa.segmento || document.querySelector("#nicho-search")?.value || document.querySelector("#nicho")?.value || "segmento a confirmar";
-  return `Crie um site profissional, moderno e responsivo para ${nome}, negócio do segmento ${segmento}, em ${cidade} - ${estado}.
+  const servico = document.querySelector("#servico-search")?.value || document.querySelector("#servico")?.value || "todos";
+  const foco = ({ cardapio: "cardápio digital rápido e fácil de atualizar", catalogo: "catálogo digital organizado por categorias", design: "identidade visual e imagens profissionais", loja: "loja virtual com fluxo de compra simples", automacao: "automação de atendimento e agendamentos", site: "site institucional profissional" })[servico] || "site profissional com opção de catálogo ou cardápio conforme o segmento";
+  return `ATUE COMO: uma equipe sênior de estratégia digital, UX/UI, copywriting, acessibilidade e desenvolvimento web.
 
-DADOS DISPONÍVEIS
+PROJETO
+Crie uma experiência digital completa e personalizada para ${nome}, do segmento ${segmento}, em ${cidade} - ${estado}. O foco principal é ${foco}. Não crie um template genérico: a identidade deve combinar com o setor e com o público real do negócio.
+
+DADOS DISPONÍVEIS (trate como referência, não como fatos adicionais)
 - Empresa: ${nome}
 - Segmento: ${segmento}
-- Cidade/estado: ${cidade} - ${estado}
-- Endereço: ${endereco}
+- Localização: ${endereco}, ${cidade} - ${estado}
 - Telefone: ${telefone}
-- Site atual: ${site}
+- Site informado na fonte: ${site}
+- Mapa: ${empresa.mapa || "não informado"}
 
-OBJETIVO
-Apresentar a empresa com credibilidade, explicar seus produtos ou serviços e transformar visitantes em contatos.
+OBJETIVO E CONVERSÃO
+Criar confiança, explicar claramente o que a empresa oferece e facilitar o contato ou pedido. Defina uma chamada principal clara, com botões de contato visíveis e caminhos curtos para conversão.
 
-ESTRUTURA
-1. Cabeçalho com nome/logo, navegação simples e chamada para contato.
-2. Seção principal com título claro, resumo e botão de contato.
-3. Apresentação do negócio e seus diferenciais, sem inventar fatos.
-4. Serviços/produtos em cartões editáveis.
-5. Galeria com imagens relevantes e otimizadas.
-6. Área de contato com telefone e botão de WhatsApp somente se o número estiver correto.
-7. Rodapé com informações confirmadas.
+ENTREGÁVEIS E ESTRUTURA
+1. Cabeçalho com marca, navegação objetiva e CTA.
+2. Hero com título específico do segmento, benefício claro e CTA.
+3. Apresentação da empresa usando apenas informações fornecidas; use campos editáveis para o que faltar.
+4. Seção de produtos/serviços em cartões bem organizados. Para restaurantes, incluir cardápio digital com categorias, descrições e preços editáveis; para lojas, catálogo com busca/filtros e CTA; para outros segmentos, adaptar a estrutura ao negócio.
+5. Galeria com imagens de alta qualidade, relevantes e otimizadas; usar placeholders identificados quando não houver fotos reais, sem fingir que são fotos da empresa.
+6. Prova de confiança apenas com dados reais fornecidos; não inventar avaliações, clientes ou certificações.
+7. Contato com WhatsApp apenas se o telefone for válido, formulário acessível e localização se confirmada.
+8. Rodapé completo, política de privacidade quando houver coleta de dados e estados de sucesso/erro dos formulários.
 
-REQUISITOS
-Design original alinhado ao segmento, tipografia legível, cores consistentes, acessibilidade, SEO local básico, carregamento rápido, layout adaptado para celular/tablet/computador e botões funcionais. Não invente preços, avaliações, horário, endereço, certificações ou serviços não informados; sinalize os dados faltantes para revisão. Entregue o código completo e explique como editar textos, imagens e contatos.`;
+DIREÇÃO VISUAL
+Crie sistema visual próprio: paleta coerente com o setor, tipografia com hierarquia, espaçamento consistente, ícones vetoriais profissionais, imagens bem tratadas, contraste acessível, microinterações discretas e acabamento premium. Evite aparência genérica de template de IA.
+
+REQUISITOS TÉCNICOS
+- Responsivo de verdade para celular, tablet e desktop.
+- HTML/CSS/JavaScript ou stack solicitada pela ferramenta; componentes reutilizáveis e código completo.
+- Acessibilidade por teclado, labels, foco visível e semântica correta.
+- SEO local básico, metadados, títulos, descrição, Open Graph e dados estruturados apenas para informações confirmadas.
+- Imagens otimizadas, carregamento rápido e links/botões funcionais.
+- Não inventar endereço, horários, preços, serviços, avaliações, seguidores ou certificações. Marcar lacunas como [CONFIRMAR].
+- Se houver código, entregar todos os arquivos necessários e instruções claras para executar, editar textos, trocar imagens e publicar. Antes de concluir, revisar links, formulários, responsividade e erros de console.
+
+RESULTADO ESPERADO
+Entregue uma solução pronta para personalizar e publicar, com aparência profissional e orientada a conversão, e explique brevemente as decisões visuais e os dados que ainda precisam ser confirmados.`;
 }
 
 function abrirGeradorPrompt(empresa) {
@@ -416,20 +470,22 @@ function abrirGeradorPrompt(empresa) {
     modal.className = "lf-prompt-overlay";
     modal.innerHTML = `<section class="lf-prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="lf-prompt-title"><button type="button" class="lf-prompt-close" aria-label="Fechar">×</button><span class="eyebrow">SITE CREATOR · LEADFINDER</span><h2 id="lf-prompt-title">Gerador de prompt de site</h2><p class="muted">Revise os dados e copie o prompt para sua ferramenta de criação de sites por IA.</p><textarea id="lf-site-prompt-text" aria-label="Prompt do site"></textarea><div class="lf-prompt-actions"><button type="button" class="btn btn-primary" id="lf-copy-site-prompt">Copiar prompt</button><button type="button" class="btn btn-ghost" id="lf-select-site-prompt">Selecionar texto</button></div><p id="lf-site-prompt-status" class="muted" role="status" aria-live="polite"></p></section>`;
     document.body.appendChild(modal);
-    modal.querySelector(".lf-prompt-close").addEventListener("click", () => modal.classList.remove("open"));
-    modal.addEventListener("click", (event) => { if (event.target === modal) modal.classList.remove("open"); });
+    modal.querySelector(".lf-prompt-close").addEventListener("click", () => { modal.classList.remove("open"); document.body.classList.remove("lf-prompt-open"); });
+    modal.addEventListener("click", (event) => { if (event.target === modal) { modal.classList.remove("open"); document.body.classList.remove("lf-prompt-open"); } });
     modal.querySelector("#lf-select-site-prompt").addEventListener("click", () => { const area = modal.querySelector("#lf-site-prompt-text"); area.focus(); area.select(); });
     modal.querySelector("#lf-copy-site-prompt").addEventListener("click", async () => {
       const area = modal.querySelector("#lf-site-prompt-text"); const status = modal.querySelector("#lf-site-prompt-status");
       try { await navigator.clipboard.writeText(area.value); status.textContent = "Prompt copiado. Agora cole na sua ferramenta de IA."; }
       catch { area.focus(); area.select(); status.textContent = "A cópia automática foi bloqueada. O texto está selecionado para copiar manualmente."; }
     });
-    document.addEventListener("keydown", (event) => { if (event.key === "Escape") modal.classList.remove("open"); });
+    document.addEventListener("keydown", (event) => { if (event.key === "Escape") { modal.classList.remove("open"); document.body.classList.remove("lf-prompt-open"); } });
   }
   modal.querySelector("#lf-prompt-title").textContent = `Prompt para ${empresa.nome || "esta empresa"}`;
   modal.querySelector("#lf-site-prompt-text").value = montarPromptSite(empresa);
   modal.querySelector("#lf-site-prompt-status").textContent = "";
   modal.classList.add("open");
+  document.body.classList.add("lf-prompt-open");
+  requestAnimationFrame(() => modal.querySelector("#lf-site-prompt-text")?.focus());
 }
 
 function renderizarSalvos() {
@@ -480,6 +536,28 @@ function renderizarSalvos() {
   });
 }
 
+function atualizarMapa(empresas) {
+  const el = document.getElementById("lead-map");
+  if (!el || !window.L) return;
+  const Leaflet = window.L;
+  const geolocalizadas = empresas.filter((e) => Number.isFinite(Number(e.latitude)) && Number.isFinite(Number(e.longitude)) && e.latitude !== null && e.longitude !== null);
+  if (!mapaLeads) {
+    mapaLeads = Leaflet.map(el, { zoomControl: true, scrollWheelZoom: false }).setView([-14.2, -51.9], 4);
+    Leaflet.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", { attribution: '&copy; OpenStreetMap &copy; CARTO', subdomains: "abcd", maxZoom: 19 }).addTo(mapaLeads);
+    camadaMarcadores = Leaflet.layerGroup().addTo(mapaLeads);
+  }
+  camadaMarcadores.clearLayers();
+  geolocalizadas.forEach((empresa) => {
+    const marker = Leaflet.circleMarker([Number(empresa.latitude), Number(empresa.longitude)], { radius: 6, color: "#ff365f", weight: 2, fillColor: "#ff1744", fillOpacity: .92 }).bindPopup(`<strong>${textoSeguro(empresa.nome)}</strong><br>${textoSeguro(empresa.endereco || "Endereço não informado")}`);
+    marker.addTo(camadaMarcadores);
+  });
+  if (geolocalizadas.length === 1) mapaLeads.setView([Number(geolocalizadas[0].latitude), Number(geolocalizadas[0].longitude)], 14);
+  else if (geolocalizadas.length > 1) mapaLeads.fitBounds(Leaflet.latLngBounds(geolocalizadas.map((e) => [Number(e.latitude), Number(e.longitude)])), { padding: [24, 24], maxZoom: 14 });
+  const status = document.getElementById("lead-map-status");
+  if (status) status.textContent = geolocalizadas.length ? `${geolocalizadas.length} empresas com localização no mapa` : "A pesquisa não retornou coordenadas para exibir pontos neste mapa.";
+  setTimeout(() => mapaLeads.invalidateSize(), 80);
+}
+
 async function executarBusca(origem) {
   if (buscando) return;
 
@@ -488,6 +566,9 @@ async function executarBusca(origem) {
   const cidade = $(`#cidade${sufixo}`)?.value;
   const nicho = $(`#nicho${sufixo}`)?.value;
   const necessidade = $(`#necessidade${sufixo}`)?.value || "todos";
+  const servico = $(`#servico${sufixo}`)?.value || "todos";
+  const temperaturaFiltro = $(`#temperatura${sufixo}`)?.value || "todas";
+  const instagramFiltro = $(`#instagram${sufixo}`)?.value || "todos";
 
   if (!estado || !cidade || !nicho) {
     if (origem === "inicio") mostrarView("inicio");
@@ -526,7 +607,7 @@ async function executarBusca(origem) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
-      body: JSON.stringify({ estado, cidade, nicho })
+      body: JSON.stringify({ estado, cidade, nicho, oportunidade: necessidade })
     });
 
     let dados = {};
@@ -545,10 +626,19 @@ async function executarBusca(origem) {
     } else if (necessidade === "site") {
       empresas = empresas.filter((empresa) => Boolean(empresa.site));
     }
+    if (temperaturaFiltro !== "todas") empresas = empresas.filter((empresa) => empresa.temperatura === temperaturaFiltro);
+    if (instagramFiltro === "poucos") {
+      // Esta fonte não entrega seguidores. Não inventar números: manter apenas perfis verificados futuramente.
+      empresas = empresas.filter((empresa) => Number.isFinite(Number(empresa.seguidoresInstagram)) && Number(empresa.seguidoresInstagram) <= 1000 && empresa.instagramStatus === "VERIFICADO");
+    }
+    if (servico !== "todos") empresas = empresas.map((empresa) => ({ ...empresa, servicoRecomendado: servico }));
 
     registrarPesquisa(usuarioAtual.uid);
     renderizarResultados(empresas);
-    mensagem(empresas.length
+    atualizarMapa(empresas);
+    mensagem(instagramFiltro === "poucos" && !empresas.length
+      ? "Nenhum perfil com até 1.000 seguidores pôde ser confirmado. O Google Places não fornece contagem de seguidores; não exibimos números inventados."
+      : empresas.length
       ? `Busca concluída. Foram encontradas ${empresas.length} empresas. Os dados podem estar incompletos.`
       : "A consulta terminou, mas não retornou empresas com esses filtros. Tente outro segmento ou cidade.");
   } catch (erro) {
@@ -605,6 +695,7 @@ function configurarUsuario() {
       email: usuario.email,
       plano: perfil.plano || "FREE",
     });
+    await carregarSalvosFirestore(usuario);
   });
 }
 
