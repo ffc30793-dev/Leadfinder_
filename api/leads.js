@@ -51,6 +51,7 @@ export default async function handler(req, res) {
     const cidade = String(body.cidade || "").trim();
     const estado = String(body.estado || "").trim();
     const nicho = String(body.nicho || "").trim();
+    const oportunidade = String(body.oportunidade || "todas").trim();
 
     if (!cidade || !estado || !nicho) {
       return res.status(400).json({
@@ -69,11 +70,16 @@ export default async function handler(req, res) {
     }
 
     // 3. Consultas diferentes para encontrar mais empresas
-    const consultas = [
+    const consultasBase = [
       `${nicho} em ${cidade}, ${estado}, Brasil`,
       `${nicho} telefone em ${cidade}, ${estado}, Brasil`,
-      `${nicho} comércio empresas em ${cidade}, ${estado}, Brasil`
+      `${nicho} comércio empresas em ${cidade}, ${estado}, Brasil`,
+      `${nicho} perto de ${cidade}, ${estado}, Brasil`,
+      `${nicho} estabelecimento ${cidade}, ${estado}, Brasil`
     ];
+    const consultas = oportunidade === "cardapio-catalogo"
+      ? [`${nicho} cardápio digital em ${cidade}, ${estado}, Brasil`, `${nicho} catálogo produtos em ${cidade}, ${estado}, Brasil`, ...consultasBase.slice(0, 3)]
+      : consultasBase;
 
     const fieldMask = [
       "places.id",
@@ -82,7 +88,9 @@ export default async function handler(req, res) {
       "places.nationalPhoneNumber",
       "places.internationalPhoneNumber",
       "places.websiteUri",
-      "places.googleMapsUri"
+      "places.googleMapsUri",
+      "places.location",
+      "nextPageToken"
     ].join(",");
 
     async function pesquisarGoogle(textQuery) {
@@ -120,13 +128,31 @@ export default async function handler(req, res) {
         );
       }
 
-      return dados.places || [];
+      const locais = [...(dados.places || [])];
+      // Busca uma página adicional quando o Google disponibilizar um token.
+      let pageToken = dados.nextPageToken;
+      let paginas = 1;
+      while (pageToken && paginas < 2) {
+        const paginaResposta = await fetch("https://places.googleapis.com/v1/places:searchText", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": placesKey,
+            "X-Goog-FieldMask": fieldMask
+          },
+          body: JSON.stringify({ textQuery, languageCode: "pt-BR", regionCode: "BR", pageSize: 20, pageToken })
+        });
+        const paginaDados = await paginaResposta.json().catch(() => ({}));
+        if (!paginaResposta.ok) break;
+        locais.push(...(paginaDados.places || []));
+        pageToken = paginaDados.nextPageToken;
+        paginas += 1;
+      }
+      return locais;
     }
 
-    // Executa as consultas em paralelo
-    const resultados = await Promise.all(
-      consultas.map(pesquisarGoogle)
-    );
+    // Executa as consultas em paralelo; os resultados serão deduplicados abaixo.
+    const resultados = await Promise.all(consultas.map(pesquisarGoogle));
 
     // 4. Reunir e eliminar empresas repetidas
     const empresasPorId = new Map();
@@ -158,6 +184,8 @@ export default async function handler(req, res) {
         existente.numero ||= numero;
         existente.site ||= local.websiteUri || "";
         existente.mapa ||= local.googleMapsUri || "";
+        existente.latitude ??= local.location?.latitude ?? null;
+        existente.longitude ??= local.location?.longitude ?? null;
         continue;
       }
 
@@ -180,7 +208,9 @@ export default async function handler(req, res) {
         telefone,
         numero,
         site: local.websiteUri || "",
-        mapa: local.googleMapsUri || ""
+        mapa: local.googleMapsUri || "",
+        latitude: local.location?.latitude ?? null,
+        longitude: local.location?.longitude ?? null
       };
 
       if (local.id) {
@@ -213,12 +243,12 @@ export default async function handler(req, res) {
     const lista = Array.from(todasEmpresas.values()).map((empresa) => {
       const temTelefone = Boolean(empresa.numero);
       const temSite = Boolean(empresa.site);
-
-      // Pontuação indica disponibilidade de contato, não qualidade garantida
-      const pontuacao =
-        (temTelefone ? 2 : 0) +
-        (temSite ? 1 : 0);
-
+      const temMapa = Boolean(empresa.mapa);
+      const temCoordenadas = Number.isFinite(empresa.latitude) && Number.isFinite(empresa.longitude);
+      // Pontuação heurística e explicável; não representa uma garantia de compra.
+      const pontuacaoContato = (temTelefone ? 2 : 0) + (temSite ? 1 : 0);
+      const pontuacaoOportunidade = (temSite ? 15 : 35) + (temTelefone ? 20 : 0) + (temMapa ? 10 : 0) + (temCoordenadas ? 10 : 0);
+      const temperatura = pontuacaoOportunidade >= 60 ? "QUENTE" : pontuacaoOportunidade >= 40 ? "MORNO" : "FRIO";
       return {
         id: empresa.id,
         nome: empresa.nome,
@@ -226,12 +256,16 @@ export default async function handler(req, res) {
         telefone: empresa.telefone,
         site: empresa.site,
         mapa: empresa.mapa,
-        whatsapp: temTelefone
-          ? `https://wa.me/${empresa.numero}`
-          : "",
+        whatsapp: temTelefone ? `https://wa.me/${empresa.numero}` : "",
         instagram: "",
-        situacao: temSite ? "POSSUI_SITE" : "SITE_NAO_ENCONTRADO",
-        pontuacaoContato: pontuacao,
+        situacao: temSite ? "SITE INFORMADO" : "SITE NÃO LISTADO — confirmar manualmente",
+        pontuacaoContato,
+        pontuacaoOportunidade,
+        temperatura,
+        latitude: empresa.latitude ?? null,
+        longitude: empresa.longitude ?? null,
+        seguidoresInstagram: null,
+        instagramStatus: "NAO_VERIFICADO",
         temTelefone,
         temSite,
         temInstagram: false
@@ -240,8 +274,8 @@ export default async function handler(req, res) {
 
     // Empresas com mais informações de contato aparecem primeiro
     lista.sort((a, b) => {
-      if (a.pontuacaoContato !== b.pontuacaoContato) {
-        return b.pontuacaoContato - a.pontuacaoContato;
+      if (a.pontuacaoOportunidade !== b.pontuacaoOportunidade) {
+        return b.pontuacaoOportunidade - a.pontuacaoOportunidade;
       }
 
       return a.nome.localeCompare(b.nome, "pt-BR");
@@ -253,7 +287,7 @@ export default async function handler(req, res) {
       fonte: "Google Places API",
       consultasRealizadas: consultas.length,
       aviso:
-        "Resultados combinados e deduplicados. A ausência de um site nos dados do Google não comprova que a empresa não tenha site. Números encontrados não têm WhatsApp ativo confirmado.",
+        "Resultados combinados e deduplicados. A ausência de um site nos dados do Google não comprova que a empresa não tenha site. O Google Places não fornece contagem de seguidores do Instagram; esses dados ficam como não verificados. Números encontrados não têm WhatsApp ativo confirmado.",
       empresas: lista
     });
   } catch (error) {
