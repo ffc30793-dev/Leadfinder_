@@ -39,3 +39,20 @@ body { animation: lf-enter .55s cubic-bezier(.2,.7,.2,1) both; }
 .lf-prompt-actions > * { flex: 1 1 180px; }
 a[href*="wa.me"],a[href*="whatsapp.com"],.whatsapp-btn,.whatsapp-button,.btn-whatsapp,[data-action="whatsapp"] { background: #20c967 !important; background-image: none !important; color: #04170b !important; border-color: #20c967 !important; }
 @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+
+/* Mapa de leads: tema escuro e marcadores vermelhos */
+.lead-map-card{margin:0 0 22px;padding:14px;border:1px solid rgba(180,92,255,.2);border-radius:16px;background:#07070d;overflow:hidden}
+.lead-map-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:13px}
+.map-legend{display:inline-flex;align-items:center;gap:7px;color:#aaa4c4;font-size:11px}.map-legend i{width:8px;height:8px;display:inline-block;border-radius:50%;background:#ff1744;box-shadow:0 0 12px rgba(255,23,68,.8)}
+#lead-map{height:260px;width:100%;border-radius:11px;background:#08090d;z-index:1;isolation:isolate}
+#lead-map-status{margin:9px 2px 0;font-size:11px}
+.lead-score-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:10px 0}
+.lead-temperature{display:inline-flex;align-items:center;padding:5px 9px;border:1px solid rgba(255,255,255,.12);border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.05em}
+.temp-quente{color:#ff7b8e;background:rgba(255,54,95,.12);border-color:rgba(255,54,95,.3)}.temp-morno{color:#ffca76;background:rgba(255,190,70,.1);border-color:rgba(255,190,70,.25)}.temp-frio{color:#8fc8ff;background:rgba(70,150,255,.1);border-color:rgba(70,150,255,.25)}
+.lead-score{color:#b9adc9;font-size:11px}
+.lf-prompt-overlay{position:fixed!important;inset:0!important;z-index:10000!important;display:none;align-items:center;justify-content:center;padding:clamp(10px,3vw,28px);background:rgba(2,2,8,.84);backdrop-filter:blur(14px)}
+.lf-prompt-overlay.open{display:flex!important}.lf-prompt-dialog{width:min(900px,100%);height:min(88dvh,800px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;overflow:hidden;position:relative;padding:clamp(18px,3vw,30px);border:1px solid rgba(180,92,255,.4);border-radius:20px;background:linear-gradient(145deg,#17112b,#090711);box-shadow:0 24px 90px rgba(0,0,0,.6)}
+.lf-prompt-dialog h2{margin:10px 42px 6px 0}.lf-prompt-dialog>p{margin:4px 0 10px}.lf-prompt-close{position:absolute;top:13px;right:13px;width:40px;height:40px;border-radius:10px;color:white;background:#211733;border:1px solid rgba(210,190,255,.18);font-size:25px;cursor:pointer}
+#lf-site-prompt-text{display:block;width:100%;flex:1;min-height:120px;height:auto;margin-top:8px;padding:14px;resize:vertical;color:#f8f5ff;background:#080611;border:1px solid #35264e;border-radius:12px;line-height:1.6;overflow:auto}
+.lf-prompt-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}.lf-prompt-actions>*{flex:1 1 170px}.lf-prompt-open{overflow:hidden}
+@media(max-width:600px){#lead-map{height:220px}.lead-map-card{padding:10px}.lf-prompt-overlay{padding:8px}.lf-prompt-dialog{height:calc(100dvh - 16px);max-height:calc(100dvh - 16px);padding:18px 14px;border-radius:16px}.lf-prompt-dialog h2{font-size:21px}#lf-site-prompt-text{height:auto;min-height:100px}.lf-prompt-actions>*{flex-basis:100%}}
