@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="theme-color" content="#03100b">
   <meta name="description" content="LeadFinder — prospecção inteligente de empresas.">
   <title>LeadFinder — Prospecção Inteligente</title>
@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./css/responsive.css">
   <link rel="stylesheet" href="./css/reference-theme.css">
   <link rel="stylesheet" href="./css/reference-layout-theme.css">
+  <link rel="stylesheet" href="./css/etapas.css">
 </head>
 <body>
   <div class="app-shell">
@@ -61,11 +62,16 @@
             <span class="avatar">L</span>
             <span><b id="profile-name">Visitante</b><small id="profile-plan">Plano Grátis</small></span>
           </div>
-
-          <button id="btn-login" class="btn btn-ghost top-login">Entrar</button>
-          <button id="btn-cadastro" class="btn btn-primary top-signup">Criar conta</button>
         </div>
       </header>
+
+      <nav class="stepper" id="stepper" aria-label="Etapas">
+        <button class="step done" data-step="login" type="button" disabled><i>✓</i><span>Login</span></button>
+        <button class="step" data-step="inicio" data-view="inicio" type="button"><i>1</i><span>Início</span></button>
+        <button class="step" data-step="buscar" data-view="buscar" type="button"><i>2</i><span>Buscar</span></button>
+        <button class="step" data-step="resultados" data-view="resultados" type="button"><i>3</i><span>Oportunidades</span></button>
+        <button class="step" data-step="leads" data-view="leads" type="button"><i>4</i><span>Meus leads</span></button>
+      </nav>
 
       <main class="main-content">
 
@@ -145,7 +151,7 @@
               </select>
 
               <button id="buscar-leads" class="btn btn-primary btn-full search-button" type="button">
-                ⌕ Buscar empresas
+                Procurar empresas →
               </button>
 
               <small class="credit-note">◷ Você tem um limite diário de pesquisas conforme seu plano.</small>
@@ -280,6 +286,7 @@
             <span class="credit-pill"><b id="credit-count-search">0/5</b> pesquisas hoje</span>
           </div>
 
+          <p id="buscar-status" class="muted" role="status" aria-live="polite"></p>
           <div class="search-layout">
             <div class="panel filter-panel">
               <div class="panel-heading">
@@ -331,6 +338,19 @@
               <p class="credit-note">Uma ausência de site listado não garante que a empresa não tenha um site.</p>
             </div>
 
+          </div>
+        </section>
+
+        <!-- RESULTADOS (etapa 3) -->
+        <section class="view" id="view-resultados">
+          <div class="page-heading">
+            <div>
+              <span class="section-kicker">ETAPA 3</span>
+              <h1>Oportunidades</h1>
+              <p class="muted">Empresas encontradas para a sua busca.</p>
+            </div>
+            <button class="btn btn-ghost" data-view="buscar" type="button">← Nova busca</button>
+          </div>
             <div class="panel results-panel">
               <div class="results-header">
                 <div>
@@ -346,7 +366,6 @@
 
               <div id="resultados" class="results-list"></div>
             </div>
-          </div>
         </section>
 
         <!-- MEUS LEADS -->
