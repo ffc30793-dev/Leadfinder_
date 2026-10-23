@@ -69,13 +69,12 @@ export default async function handler(req, res) {
     }
 
     // 3. Consultas diferentes para encontrar mais empresas
+    const PAGINAS_POR_CONSULTA = 3; // cada página traz até 20 empresas
     const consultas = [
       `${nicho} em ${cidade}, ${estado}, Brasil`,
-      `${nicho} telefone endereço em ${cidade}, ${estado}, Brasil`,
-      `${nicho} comércio local em ${cidade}, ${estado}, Brasil`,
       `melhores ${nicho} em ${cidade}, ${estado}, Brasil`,
       `${nicho} bairro centro em ${cidade}, ${estado}, Brasil`,
-      `${nicho} aberto em ${cidade}, ${estado}, Brasil`
+      `${nicho} telefone endereço em ${cidade}, ${estado}, Brasil`
     ];
 
     const fieldMask = [
@@ -85,10 +84,13 @@ export default async function handler(req, res) {
       "places.nationalPhoneNumber",
       "places.internationalPhoneNumber",
       "places.websiteUri",
-      "places.googleMapsUri"
+      "places.googleMapsUri",
+      "places.rating",
+      "places.userRatingCount",
+      "nextPageToken"
     ].join(",");
 
-    async function pesquisarGoogle(textQuery) {
+    async function pesquisarPagina(textQuery, pageToken) {
       const resposta = await fetch(
         "https://places.googleapis.com/v1/places:searchText",
         {
@@ -102,7 +104,8 @@ export default async function handler(req, res) {
             textQuery,
             languageCode: "pt-BR",
             regionCode: "BR",
-            pageSize: 20
+            pageSize: 20,
+            ...(pageToken ? { pageToken } : {})
           })
         }
       );
@@ -110,12 +113,7 @@ export default async function handler(req, res) {
       const dados = await resposta.json().catch(() => ({}));
 
       if (!resposta.ok) {
-        console.error(
-          "Erro Google Places:",
-          resposta.status,
-          dados.error?.status || "Erro na consulta"
-        );
-
+        console.error("Erro Google Places:", resposta.status, dados.error?.status || "Erro na consulta");
         throw new Error(
           resposta.status === 429
             ? "Limite de consultas do Google atingido."
@@ -123,7 +121,27 @@ export default async function handler(req, res) {
         );
       }
 
-      return dados.places || [];
+      return dados;
+    }
+
+    // Segue as páginas seguintes de cada consulta (antes só a 1ª página era lida)
+    async function pesquisarGoogle(textQuery) {
+      const locais = [];
+      let pageToken = "";
+
+      for (let pagina = 0; pagina < PAGINAS_POR_CONSULTA; pagina++) {
+        try {
+          const dados = await pesquisarPagina(textQuery, pageToken);
+          locais.push(...(dados.places || []));
+          pageToken = dados.nextPageToken || "";
+        } catch (erro) {
+          if (pagina === 0) throw erro; // falha total só se nem a 1ª página veio
+          break;
+        }
+        if (!pageToken) break;
+      }
+
+      return locais;
     }
 
     // Executa as consultas em paralelo
@@ -183,7 +201,9 @@ export default async function handler(req, res) {
         telefone,
         numero,
         site: local.websiteUri || "",
-        mapa: local.googleMapsUri || ""
+        mapa: local.googleMapsUri || "",
+        nota: local.rating || 0,
+        avaliacoes: local.userRatingCount || 0
       };
 
       if (local.id) {
@@ -229,6 +249,8 @@ export default async function handler(req, res) {
         telefone: empresa.telefone,
         site: empresa.site,
         mapa: empresa.mapa,
+        nota: empresa.nota,
+        avaliacoes: empresa.avaliacoes,
         whatsapp: temTelefone
           ? `https://wa.me/${empresa.numero}`
           : "",
