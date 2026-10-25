@@ -1,291 +1,230 @@
-export default async function handler(req, res) {
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.setHeader("Cache-Control", "no-store");
+// POST /api/leads — busca de empresas (Google Places) com cota diária validada no servidor.
 
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).json({ erro: "Use POST." });
-  }
+import { depsReais, autenticar, erro, lerCorpoJson, responder } from "./_lib/deps.js";
+import { CUSTO_CONTINUACAO, CUSTO_PESQUISA, PLANOS } from "./_lib/plans.js";
+import { devolverPesquisa, reservarPesquisa } from "./_lib/account.js";
+import { ErroDeEntrada, criarCursor, grupoDaBusca, lerCursor, montarConsultas, validarEntrada } from "./_lib/estrategia.js";
+import { buscarEmRodizio, enderecoDaCidade, ErroPlaces } from "./_lib/places.js";
+import { classificarSite, inspecionarVarios } from "./_lib/sites.js";
+import { montarLead } from "./_lib/opportunity.js";
+import { normalizar } from "../shared/catalog.js";
 
+const ALVO_POR_PESQUISA = 40; // empresas aceitas que encerram a busca antes do teto de requisições
+const MAX_REQUISICOES = 6; // teto de chamadas ao Google por pesquisa (controle de custo)
+const MAX_INSPECOES = 12; // sites analisados por pesquisa (redesign / loja virtual / cardápio)
+const VALIDADE_CURSOR_MS = 30 * 60 * 1000;
+const SERVICOS_QUE_INSPECIONAM = new Set(["redesign-sites", "lojas-virtuais", "cardapios-catalogos"]);
+
+// ---------- validação do município no IBGE (falha aberta se o IBGE estiver fora do ar) ----------
+const cacheMunicipios = new Map();
+
+async function municipioExiste(fetchFn, uf, cidade) {
   try {
-    const firebaseKey = process.env.FIREBASE_API_KEY;
-    const placesKey = process.env.GOOGLE_PLACES_API_KEY;
-
-    if (!firebaseKey || !placesKey) {
-      return res.status(500).json({
-        erro: "Configure as chaves do Firebase e do Google Places na Vercel."
-      });
-    }
-
-    // 1. Validar a sessão do usuário
-    const authHeader = req.headers.authorization || "";
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.slice(7)
-      : "";
-
-    if (!token) {
-      return res.status(401).json({
-        erro: "Faça login para buscar empresas."
-      });
-    }
-
-    const authResponse = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(firebaseKey)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ idToken: token })
+    if (!cacheMunicipios.has(uf)) {
+      const controle = new AbortController();
+      const timer = setTimeout(() => controle.abort(), 3000);
+      try {
+        const r = await fetchFn(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`, { signal: controle.signal });
+        if (!r.ok) return true;
+        const lista = await r.json();
+        cacheMunicipios.set(uf, new Set(lista.map((m) => normalizar(m.nome))));
+      } finally {
+        clearTimeout(timer);
       }
-    );
+    }
+    return cacheMunicipios.get(uf).has(normalizar(cidade));
+  } catch {
+    return true;
+  }
+}
 
-    if (!authResponse.ok) {
-      return res.status(401).json({
-        erro: "Sessão inválida. Entre novamente."
+export function criarHandlerLeads(deps) {
+  return async function handler(req, res) {
+    if (req.method !== "POST") {
+      res.setHeader("Allow", "POST");
+      return erro(res, 405, "Use POST.", "metodo");
+    }
+
+    const chavePlaces = deps.env.GOOGLE_PLACES_API_KEY || deps.env.GOOGLE_MAPS_API_KEY;
+    if (!chavePlaces) {
+      return erro(res, 503, "A busca ainda não foi configurada (chave do Google Places ausente).", "config");
+    }
+
+    const usuario = await autenticar(req, deps);
+    if (!usuario) return erro(res, 401, "Sessão inválida. Entre novamente.", "nao_autenticado");
+
+    let entrada;
+    try {
+      entrada = validarEntrada(lerCorpoJson(req));
+    } catch (e) {
+      if (e instanceof ErroDeEntrada || e.codigo === "json_invalido") return erro(res, 400, e.message, e.codigo);
+      throw e;
+    }
+
+    if (!(await municipioExiste(deps.fetch, entrada.uf, entrada.cidade))) {
+      return erro(res, 400, "Cidade não encontrada para este estado (fonte: IBGE).", "cidade_invalida");
+    }
+
+    // ---- continuação (cursor assinado) ----
+    let cursor = null;
+    const chaveSegmento = entrada.segmento?.id || entrada.termosLivres?.[0] || "";
+    if (entrada.continuacao) {
+      cursor = lerCursor(entrada.continuacao, deps.segredoCursor);
+      const ok =
+        cursor &&
+        cursor.uid === usuario.uid &&
+        cursor.uf === entrada.uf &&
+        cursor.cidade === entrada.cidade &&
+        cursor.servico === entrada.servico.id &&
+        cursor.segmento === chaveSegmento &&
+        cursor.exp > deps.now().getTime();
+      if (!ok) return erro(res, 400, "Esta continuação expirou. Faça uma nova pesquisa.", "continuacao_invalida");
+    }
+
+    // ---- cota (transação no servidor) ----
+    const agora = deps.now();
+    const custo = cursor ? CUSTO_CONTINUACAO : CUSTO_PESQUISA;
+    const reserva = await reservarPesquisa(deps.db, usuario.uid, { custo, agora });
+    if (!reserva.ok) {
+      return responder(res, 429, {
+        sucesso: false,
+        codigo: "limite_diario",
+        erro: `Você já usou suas ${reserva.limite} pesquisas de hoje. O limite renova à meia-noite (horário de Brasília).`,
+        uso: { limite: reserva.limite, usadas: reserva.usadas, disponiveis: reserva.restantes }
       });
     }
 
-    // 2. Validar filtros
-    const body = req.body || {};
-    const cidade = String(body.cidade || "").trim();
-    const estado = String(body.estado || "").trim();
-    const nicho = String(body.nicho || "").trim();
+    try {
+      const plano = PLANOS[reserva.plano];
+      const estados = cursor ? cursor.estados : montarConsultas(entrada).map((q) => ({ q }));
+      const excluidos = new Set(entrada.excluir);
+      const aceitos = new Map();
+      const descartados = { foraDaCidade: 0, fechadas: 0, duplicadas: 0, semSiteParaRedesign: 0 };
 
-    if (!cidade || !estado || !nicho) {
-      return res.status(400).json({
-        erro: "Informe cidade, estado e segmento."
+      const aceitar = (p) => {
+        if (!p?.id) return false;
+        if (excluidos.has(p.id) || aceitos.has(p.id)) { descartados.duplicadas++; return false; }
+        if (p.businessStatus && p.businessStatus !== "OPERATIONAL") { descartados.fechadas++; return false; }
+        if (!enderecoDaCidade(p.formattedAddress, entrada.cidade, entrada.uf)) { descartados.foraDaCidade++; return false; }
+        aceitos.set(p.id, p);
+        return true;
+      };
+
+      const busca = await buscarEmRodizio({
+        fetch: deps.fetch,
+        chave: chavePlaces,
+        estados,
+        aceitar,
+        alvo: ALVO_POR_PESQUISA,
+        maxRequisicoes: MAX_REQUISICOES
       });
-    }
 
-    if (
-      cidade.length > 100 ||
-      estado.length > 60 ||
-      nicho.length > 100
-    ) {
-      return res.status(400).json({
-        erro: "Um dos filtros é muito longo."
-      });
-    }
+      let candidatos = [...aceitos.values()];
 
-    // 3. Consultas diferentes para encontrar mais empresas
-    const PAGINAS_POR_CONSULTA = 3; // cada página traz até 20 empresas
-    const consultas = [
-      `${nicho} em ${cidade}, ${estado}, Brasil`,
-      `melhores ${nicho} em ${cidade}, ${estado}, Brasil`,
-      `${nicho} bairro centro em ${cidade}, ${estado}, Brasil`,
-      `${nicho} telefone endereço em ${cidade}, ${estado}, Brasil`
-    ];
+      // Redesign só faz sentido para quem tem algum site para avaliar.
+      if (entrada.servico.exigeSite) {
+        const antes = candidatos.length;
+        candidatos = candidatos.filter((p) => ["proprio", "plataforma_gratuita"].includes(classificarSite(p.websiteUri).status));
+        descartados.semSiteParaRedesign = antes - candidatos.length;
+      }
 
-    const fieldMask = [
-      "places.id",
-      "places.displayName",
-      "places.formattedAddress",
-      "places.nationalPhoneNumber",
-      "places.internationalPhoneNumber",
-      "places.websiteUri",
-      "places.googleMapsUri",
-      "places.rating",
-      "places.userRatingCount",
-      "nextPageToken"
-    ].join(",");
+      // Análise real dos sites (limitada) para os serviços que dependem do conteúdo da página.
+      let inspecoes = new Map();
+      let analisados = 0;
+      if (SERVICOS_QUE_INSPECIONAM.has(entrada.servico.id)) {
+        const urls = candidatos
+          .map((p) => p.websiteUri)
+          .filter((u) => u && ["proprio", "plataforma_gratuita"].includes(classificarSite(u).status))
+          .slice(0, MAX_INSPECOES);
+        inspecoes = await inspecionarVarios(urls, { fetch: deps.fetch, agora }, 5);
+        analisados = urls.length;
+      }
 
-    async function pesquisarPagina(textQuery, pageToken) {
-      const resposta = await fetch(
-        "https://places.googleapis.com/v1/places:searchText",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": placesKey,
-            "X-Goog-FieldMask": fieldMask
-          },
-          body: JSON.stringify({
-            textQuery,
-            languageCode: "pt-BR",
-            regionCode: "BR",
-            pageSize: 20,
-            ...(pageToken ? { pageToken } : {})
-          })
-        }
+      const grupo = grupoDaBusca(entrada);
+      let empresas = candidatos.map((p) =>
+        montarLead(p, { servico: entrada.servico.id, grupo, cidade: entrada.cidade, uf: entrada.uf, agora, inspecao: inspecoes.get(p.websiteUri) })
       );
 
-      const dados = await resposta.json().catch(() => ({}));
+      empresas.sort((a, b) =>
+        b.temperatura.pontos - a.temperatura.pontos ||
+        b.avaliacoes - a.avaliacoes ||
+        a.nome.localeCompare(b.nome, "pt-BR")
+      );
 
-      if (!resposta.ok) {
-        console.error("Erro Google Places:", resposta.status, dados.error?.status || "Erro na consulta");
-        throw new Error(
-          resposta.status === 429
-            ? "Limite de consultas do Google atingido."
-            : "Não foi possível concluir as pesquisas no Google Places."
-        );
+      let cortadoPeloPlano = false;
+      if (plano.maxResultados && empresas.length > plano.maxResultados) {
+        empresas = empresas.slice(0, plano.maxResultados);
+        cortadoPeloPlano = true;
       }
 
-      return dados;
+      // Nada novo: devolve a pesquisa reservada.
+      let usadas = reserva.usadas;
+      if (!empresas.length) {
+        await devolverPesquisa(deps.db, usuario.uid, { custo, dia: reserva.dia, agora });
+        usadas -= custo;
+      }
+
+      const parcial = busca.restam || busca.falhaParcial || cortadoPeloPlano;
+      const avisos = [...busca.avisos];
+      if (busca.restam) avisos.push("Resultados parciais: a fonte pode ter mais empresas. Use “Carregar mais” para continuar sem repetir as já exibidas.");
+      if (cortadoPeloPlano) avisos.push(`Seu plano mostra até ${plano.maxResultados} empresas por pesquisa.`);
+      if (analisados) avisos.push(`Sites analisados nesta busca: ${analisados}. Os demais aparecem como “verificar”.`);
+      avisos.push("Dados do cadastro público do Google Maps. Um número de celular não garante WhatsApp ativo, e “site não identificado” não confirma que a empresa não tenha site.");
+
+      const continuacao = busca.restam
+        ? criarCursor({ uid: usuario.uid, uf: entrada.uf, cidade: entrada.cidade, servico: entrada.servico.id, segmento: chaveSegmento, estados: busca.estados, exp: agora.getTime() + VALIDADE_CURSOR_MS }, deps.segredoCursor)
+        : "";
+
+      // Histórico (apenas metadados; o conteúdo do Google não é armazenado aqui).
+      try {
+        await deps.db.collection("users").doc(usuario.uid).collection("searches").add({
+          criadoEm: agora,
+          uf: entrada.uf,
+          cidade: entrada.cidade,
+          servico: entrada.servico.id,
+          segmento: entrada.segmento?.nome || entrada.termosLivres?.[0] || "",
+          total: empresas.length,
+          continuacao: Boolean(cursor),
+          requisicoes: busca.requisicoes
+        });
+      } catch (e) {
+        console.error("Falha ao registrar histórico:", e?.message);
+      }
+
+      return responder(res, 200, {
+        sucesso: true,
+        fonte: "Google Places API",
+        servico: entrada.servico.id,
+        total: empresas.length,
+        empresas,
+        parcial,
+        continuacao,
+        consultas: estados.map((e) => e.q),
+        requisicoesGoogle: busca.requisicoes,
+        descartados,
+        avisos,
+        uso: { limite: reserva.limite, usadas, disponiveis: Math.max(0, reserva.limite - usadas) },
+        geradoEm: agora.toISOString()
+      });
+    } catch (e) {
+      // Falha: a pesquisa reservada volta para o usuário.
+      try { await devolverPesquisa(deps.db, usuario.uid, { custo, dia: reserva.dia, agora }); } catch (e2) { console.error("Falha ao devolver pesquisa:", e2?.message); }
+
+      if (e instanceof ErroPlaces) {
+        const status = e.codigo === "google_limite" ? 429 : e.codigo === "google_config" ? 503 : 502;
+        return erro(res, status, `${e.message} Sua pesquisa não foi descontada.`, e.codigo);
+      }
+      console.error("Erro na busca:", e?.message);
+      return erro(res, 500, "Erro inesperado ao buscar empresas. Sua pesquisa não foi descontada.", "interno");
     }
+  };
+}
 
-    // Segue as páginas seguintes de cada consulta (antes só a 1ª página era lida)
-    async function pesquisarGoogle(textQuery) {
-      const locais = [];
-      let pageToken = "";
-
-      for (let pagina = 0; pagina < PAGINAS_POR_CONSULTA; pagina++) {
-        try {
-          const dados = await pesquisarPagina(textQuery, pageToken);
-          locais.push(...(dados.places || []));
-          pageToken = dados.nextPageToken || "";
-        } catch (erro) {
-          if (pagina === 0) throw erro; // falha total só se nem a 1ª página veio
-          break;
-        }
-        if (!pageToken) break;
-      }
-
-      return locais;
-    }
-
-    // Executa as consultas em paralelo
-    const resultados = await Promise.all(
-      consultas.map(pesquisarGoogle)
-    );
-
-    // 4. Reunir e eliminar empresas repetidas
-    const empresasPorId = new Map();
-    const empresasPorTelefone = new Map();
-    const empresasPorNomeEndereco = new Map();
-
-    for (const local of resultados.flat()) {
-      const nome = local.displayName?.text || "Empresa sem nome";
-      const telefone =
-        local.internationalPhoneNumber ||
-        local.nationalPhoneNumber ||
-        "";
-
-      const numero = telefone.replace(/\D/g, "");
-      const endereco = local.formattedAddress || `${cidade}, ${estado}`;
-
-      const chaveNomeEndereco = `${nome} ${endereco}`
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
-
-      // Identificador do Google é a forma mais confiável de deduplicar
-      if (local.id && empresasPorId.has(local.id)) {
-        const existente = empresasPorId.get(local.id);
-
-        // Completa dados que estejam ausentes no primeiro resultado
-        existente.telefone ||= telefone;
-        existente.numero ||= numero;
-        existente.site ||= local.websiteUri || "";
-        existente.mapa ||= local.googleMapsUri || "";
-        continue;
-      }
-
-      // Também verifica telefone e combinação de nome/endereço
-      if (numero && empresasPorTelefone.has(numero)) {
-        continue;
-      }
-
-      if (
-        chaveNomeEndereco &&
-        empresasPorNomeEndereco.has(chaveNomeEndereco)
-      ) {
-        continue;
-      }
-
-      const empresa = {
-        id: local.id || `empresa-${chaveNomeEndereco}`,
-        nome,
-        endereco,
-        telefone,
-        numero,
-        site: local.websiteUri || "",
-        mapa: local.googleMapsUri || "",
-        nota: local.rating || 0,
-        avaliacoes: local.userRatingCount || 0
-      };
-
-      if (local.id) {
-        empresasPorId.set(local.id, empresa);
-      }
-
-      if (numero) {
-        empresasPorTelefone.set(numero, empresa);
-      }
-
-      if (chaveNomeEndereco) {
-        empresasPorNomeEndereco.set(chaveNomeEndereco, empresa);
-      }
-    }
-
-    // 5. Organizar contatos disponíveis
-    const empresas = Array.from(empresasPorId.values());
-
-    // Inclui também empresas sem ID, que foram guardadas pelas outras chaves
-    const todasEmpresas = new Map();
-
-    for (const empresa of [
-      ...empresas,
-      ...empresasPorTelefone.values(),
-      ...empresasPorNomeEndereco.values()
-    ]) {
-      todasEmpresas.set(empresa.id, empresa);
-    }
-
-    const lista = Array.from(todasEmpresas.values()).map((empresa) => {
-      const temTelefone = Boolean(empresa.numero);
-      const temSite = Boolean(empresa.site);
-
-      // Pontuação indica disponibilidade de contato, não qualidade garantida
-      const pontuacao =
-        (temTelefone ? 2 : 0) +
-        (temSite ? 1 : 0);
-
-      return {
-        id: empresa.id,
-        nome: empresa.nome,
-        endereco: empresa.endereco,
-        telefone: empresa.telefone,
-        site: empresa.site,
-        mapa: empresa.mapa,
-        nota: empresa.nota,
-        avaliacoes: empresa.avaliacoes,
-        whatsapp: temTelefone
-          ? `https://wa.me/${empresa.numero}`
-          : "",
-        situacao: temSite ? "POSSUI_SITE" : "SITE_NAO_ENCONTRADO",
-        pontuacaoContato: pontuacao,
-        temTelefone,
-        temSite,
-      };
-    });
-
-    // Empresas com mais informações de contato aparecem primeiro
-    lista.sort((a, b) => {
-      if (a.pontuacaoContato !== b.pontuacaoContato) {
-        return b.pontuacaoContato - a.pontuacaoContato;
-      }
-
-      return a.nome.localeCompare(b.nome, "pt-BR");
-    });
-
-    return res.status(200).json({
-      sucesso: true,
-      quantidade: lista.length,
-      fonte: "Google Places API",
-      consultasRealizadas: consultas.length,
-      aviso:
-        "Resultados combinados e deduplicados. A ausência de um site nos dados do Google não comprova que a empresa não tenha site. Números encontrados não têm WhatsApp ativo confirmado.",
-      empresas: lista
-    });
-  } catch (error) {
-    console.error("Erro na busca:", error.message);
-
-    return res.status(
-      error.message.includes("Limite de consultas") ? 429 : 502
-    ).json({
-      erro: error.message || "Erro ao buscar empresas. Tente novamente."
-    });
+export default async function handler(req, res) {
+  try {
+    return await criarHandlerLeads(await depsReais())(req, res);
+  } catch (e) {
+    console.error("Falha ao iniciar /api/leads:", e?.message);
+    return erro(res, e?.codigo === "config" ? 503 : 500, e?.codigo === "config" ? "Servidor sem configuração do Firebase Admin." : "Erro interno.", e?.codigo || "interno");
   }
-                  }
+}
