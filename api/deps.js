@@ -76,7 +76,7 @@ export async function autenticar(req, deps) {
   if (!token) return null;
   try {
     const decodificado = await deps.verifyToken(token);
-    return decodificado?.uid ? decodificado : null;
+    return decodificado?.uid && decodificado.email_verified !== false ? decodificado : null;
   } catch {
     return null;
   }
