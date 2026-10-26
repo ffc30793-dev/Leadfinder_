@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function texto(v, min, max) { return v is string && v.size() >= min && v.size() <= max; }
+
+    // ------------------------------------------------------------------
+    // PERFIL — users/{uid}
+    // O próprio usuário cria e edita apenas campos de cadastro.
+    // Plano, assinatura e limites NÃO ficam aqui: ficam em accounts/{uid} (somente servidor).
+    // Documentos antigos podem ter "plano", "creditos" e "criadoEm"; esses campos são ignorados
+    // pelo servidor e não podem ser alterados pelo cliente.
+    // ------------------------------------------------------------------
+    match /users/{uid} {
+      allow get: if isOwner(uid);
+      allow list: if false;
+
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['nome', 'email', 'telefone', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasAll(['nome', 'email', 'createdAt', 'updatedAt'])
+        && texto(request.resource.data.nome, 1, 100)
+        && request.resource.data.email == request.auth.token.email
+        && (!('telefone' in request.resource.data) || texto(request.resource.data.telefone, 0, 20))
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time;
+
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nome', 'telefone', 'createdAt', 'updatedAt'])
+        && texto(request.resource.data.nome, 1, 100)
+        && (!('telefone' in request.resource.data) || texto(request.resource.data.telefone, 0, 20))
+        && request.resource.data.updatedAt == request.time
+        && (!('createdAt' in request.resource.data)
+            || ('createdAt' in resource.data
+                ? request.resource.data.createdAt == resource.data.createdAt
+                : request.resource.data.createdAt == request.time));
+
+      allow delete: if false;
+
+      // Leads salvos — users/{uid}/leads/{placeId}  (o id do documento é o place_id: sem duplicatas)
+      match /leads/{leadId} {
+        allow read: if isOwner(uid);
+
+        allow create: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['placeId', 'nome', 'categoria', 'endereco', 'cidade', 'uf', 'telefone', 'whatsapp', 'site', 'siteStatus', 'mapa', 'nota', 'avaliacoes', 'servico', 'oportunidade', 'temperatura', 'encontradoEm', 'status', 'observacoes', 'acompanhamento', 'createdAt', 'updatedAt'])
+          && request.resource.data.keys().hasAll(['placeId', 'nome', 'status', 'createdAt', 'updatedAt'])
+          && request.resource.data.placeId == leadId
+          && texto(request.resource.data.nome, 1, 200)
+          && request.resource.data.status in ['pendente', 'realizado', 'interessado', 'descartado']
+          && (!('observacoes' in request.resource.data) || texto(request.resource.data.observacoes, 0, 2000))
+          && request.resource.data.createdAt == request.time
+          && request.resource.data.updatedAt == request.time;
+
+        allow update: if isOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'observacoes', 'acompanhamento', 'updatedAt'])
+          && request.resource.data.status in ['pendente', 'realizado', 'interessado', 'descartado']
+          && (!('observacoes' in request.resource.data) || texto(request.resource.data.observacoes, 0, 2000))
+          && (!('acompanhamento' in request.resource.data) || texto(request.resource.data.acompanhamento, 0, 10))
+          && request.resource.data.updatedAt == request.time;
+
+        allow delete: if isOwner(uid);
+      }
+
+      // Histórico de pesquisas — escrito pelo servidor; o usuário só lê o próprio.
+      match /searches/{id} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // CONTA / PLANO — accounts/{uid}: somente leitura para o dono; escrita só pelo Admin SDK.
+    // ------------------------------------------------------------------
+    match /accounts/{uid} {
+      allow get: if isOwner(uid);
+      allow list, write: if false;
+    }
+
+    // Auditoria de pagamentos: nenhum acesso pelo cliente (regra padrão de negação).
+    match /paymentEvents/{id} {
+      allow read, write: if false;
+    }
+
+    // Mantido do projeto original (somente leitura).
+    match /plans/{id} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Tudo o mais é negado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
