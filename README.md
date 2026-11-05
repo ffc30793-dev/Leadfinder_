@@ -53,7 +53,7 @@ tests/                       testes do servidor (node) e do navegador (Playwrigh
 | `CAKTO_SIGNATURE_HEADER` | não | cabeçalho de assinatura HMAC, se a Cakto usar |
 
 ## Planos e limites (mantidos do projeto original)
-Grátis R$ 0 · 5 pesquisas/dia | Pro R$ 19,90 · 25/dia | Business (id `MAX`) R$ 30,00 · 100/dia.
+Grátis R$ 0 · 5 pesquisas/dia, 5 empresas por pesquisa | Pro R$ 19,90 · 25/dia, 15 empresas | Business (id `MAX`) R$ 30,00 · 100/dia, 50 empresas.
 Definidos em `api/_lib/plans.js`. O dia renova à meia-noite de Brasília. "Carregar mais" consome 1 pesquisa.
 
 ## Testes

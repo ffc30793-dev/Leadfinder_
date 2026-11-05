@@ -62,7 +62,7 @@ export async function render(el) {
         <button class="btn btn-primary" id="btn-buscar" type="submit">${icon("search")} Buscar empresas</button>
         <span class="small muted" id="dica-uso"></span>
       </div>
-      <p class="small muted" style="margin-top:10px">Cada pesquisa consulta o Google Maps. “Site não identificado” significa que o Google não lista um site — não confirma que a empresa não tenha um.</p>
+      <p class="small muted" style="margin-top:10px">Cada pesquisa consulta o Google Maps e traz empresas que ainda não apareceram para você. “Site não identificado” significa que o Google não lista um site — não confirma que a empresa não tenha um.</p>
     </form>
     <p class="small" id="msg-busca" role="status" aria-live="polite" style="margin-top:12px"></p>
     <div id="area-resultados" style="margin-top:18px"></div>`;
@@ -177,6 +177,7 @@ async function executar(continuar) {
 function motivoVazio(d, servicoId) {
   if (!d) return "Tente outra cidade, outro segmento ou outro serviço.";
   const linhas = [];
+  if (d.jaExibidas) linhas.push(`${d.jaExibidas} já apareceram em pesquisas anteriores`);
   if (d.semWhatsapp) linhas.push(`${d.semWhatsapp} sem celular (WhatsApp)`);
   if (d.jaTemSite) linhas.push(`${d.jaTemSite} já têm site próprio`);
   if (d.semSiteParaRedesign) linhas.push(`${d.semSiteParaRedesign} sem site para redesenhar`);
@@ -185,7 +186,9 @@ function motivoVazio(d, servicoId) {
   if (d.foraDoSegmento) linhas.push(`${d.foraDoSegmento} de outro tipo de negócio`);
   if (d.entidadesPublicas) linhas.push(`${d.entidadesPublicas} órgãos públicos/instituições`);
   if (d.foraDaCidade) linhas.push(`${d.foraDaCidade} de outra cidade`);
-  const dica = servicoId === "redesign-sites"
+  const dica = d.jaExibidas && !d.semWhatsapp && !d.jaTemSite && !d.semOportunidade
+    ? "Você já viu tudo o que há para esta busca. Tente outra cidade, outro segmento ou outro serviço."
+    : servicoId === "redesign-sites"
     ? "Em cidade pequena quase ninguém tem site: tente uma cidade maior ou o serviço “Criação de sites”."
     : "Tente uma cidade maior, outro segmento ou outro serviço.";
   return linhas.length ? `O Google devolveu empresas, mas foram descartadas: ${linhas.join(", ")}. ${dica}` : `O Google não encontrou empresas para esta busca. ${dica}`;

@@ -8,25 +8,25 @@ export const PLANOS = {
     nome: "Grátis",
     preco: 0,
     limiteDiario: 5,
-    // Máximo de empresas exibidas por pesquisa (null = sem teto). Grátis: 5 pesquisas/dia × 10 empresas.
-    maxResultados: 10,
-    recursos: ["5 pesquisas por dia", "10 empresas por pesquisa", "Abordagem básica"]
+    // Máximo de empresas exibidas por pesquisa. Cada nova pesquisa traz empresas que ainda não apareceram.
+    maxResultados: 5,
+    recursos: ["5 pesquisas por dia", "5 empresas por pesquisa", "Abordagem básica"]
   },
   PRO: {
     id: "PRO",
     nome: "Pro",
     preco: 19.9,
     limiteDiario: 25,
-    maxResultados: null,
-    recursos: ["25 pesquisas por dia", "Organização de leads", "Mais oportunidades"]
+    maxResultados: 15,
+    recursos: ["25 pesquisas por dia", "15 empresas por pesquisa", "Organização de leads"]
   },
   MAX: {
     id: "MAX",
     nome: "Business",
     preco: 30,
     limiteDiario: 100,
-    maxResultados: null,
-    recursos: ["100 pesquisas por dia", "Recursos avançados", "Fluxo ampliado"]
+    maxResultados: 50,
+    recursos: ["100 pesquisas por dia", "50 empresas por pesquisa", "Recursos avançados"]
   }
 };
 

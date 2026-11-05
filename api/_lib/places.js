@@ -80,54 +80,64 @@ async function requisitar(fetchFn, chave, corpo, { timeoutMs, tentativas = 2 }) 
 }
 
 /**
- * Executa as consultas em rodízio (uma página de cada vez) até atingir `alvo` empresas aceitas,
- * esgotar as páginas ou bater no teto de requisições.
+ * Executa as consultas em ONDAS: a cada onda, até `paralelas` consultas (1 página de cada) vão ao Google
+ * ao mesmo tempo, e a busca para ao atingir `alvo` empresas aceitas, esgotar as páginas ou bater no
+ * teto de requisições. Em paralelo a pesquisa leva o tempo de 1 ou 2 consultas, não a soma de todas.
  *
  * estados: [{ q, token }]  token: undefined = 1ª página | string = próxima página | null = esgotada
  * aceitar(place) -> boolean (cidade correta, não repetida, em funcionamento...) e conta para o alvo.
  */
-export async function buscarEmRodizio({ fetch: fetchFn, chave, estados, aceitar, alvo, maxRequisicoes, timeoutMs = 9000 }) {
+export async function buscarEmRodizio({ fetch: fetchFn, chave, estados, aceitar, alvo, maxRequisicoes, paralelas = 3, timeoutMs = 6000 }) {
   const lugares = [];
   const avisos = [];
   let requisicoes = 0;
   let aceitos = 0;
   let falhaParcial = false;
-  let primeiraPagina = true;
+  let primeiraOnda = true;
+  let parar = false;
 
-  let i = 0;
-  while (requisicoes < maxRequisicoes && aceitos < alvo) {
+  while (requisicoes < maxRequisicoes && aceitos < alvo && !parar) {
     const ativos = estados.filter((e) => e.token !== null);
     if (!ativos.length) break;
-    const est = ativos[i % ativos.length];
-    i++;
+    const lote = ativos.slice(0, Math.min(paralelas, maxRequisicoes - requisicoes));
 
-    const corpo = {
-      textQuery: est.q,
-      languageCode: "pt-BR",
-      regionCode: "BR",
-      pageSize: 20,
-      ...(est.token ? { pageToken: est.token } : {})
-    };
+    const respostas = await Promise.all(lote.map(async (est) => {
+      const corpo = {
+        textQuery: est.q,
+        languageCode: "pt-BR",
+        regionCode: "BR",
+        pageSize: 20,
+        ...(est.token ? { pageToken: est.token } : {})
+      };
+      try {
+        return { est, dados: await requisitar(fetchFn, chave, corpo, { timeoutMs }) };
+      } catch (erro) {
+        return { est, erro };
+      }
+    }));
 
-    try {
-      const dados = await requisitar(fetchFn, chave, corpo, { timeoutMs });
+    // Se TODAS as consultas da primeira onda falharam, a busca falhou. Depois disso, devolve o que já temos (parcial).
+    if (primeiraOnda && respostas.every((r) => r.erro)) throw respostas[0].erro;
+
+    for (const r of respostas) {
+      if (r.erro) {
+        falhaParcial = true;
+        const aviso = r.erro.codigo === "google_limite"
+          ? "O Google limitou as consultas; os resultados abaixo são parciais."
+          : "Uma das consultas ao Google falhou; os resultados abaixo são parciais.";
+        if (!avisos.includes(aviso)) avisos.push(aviso);
+        r.est.token = null;
+        if (r.erro.codigo === "google_limite") parar = true;
+        continue;
+      }
       requisicoes++;
-      for (const p of dados.places || []) {
+      for (const p of r.dados.places || []) {
         lugares.push(p);
         if (aceitar(p)) aceitos++;
       }
-      est.token = dados.nextPageToken || null;
-    } catch (e) {
-      // Falha na primeira requisição = a busca falhou. Depois disso, devolve o que já temos (parcial).
-      if (primeiraPagina) throw e;
-      falhaParcial = true;
-      avisos.push(e.codigo === "google_limite"
-        ? "O Google limitou as consultas; os resultados abaixo são parciais."
-        : "Uma das consultas ao Google falhou; os resultados abaixo são parciais.");
-      est.token = null;
-      if (e.codigo === "google_limite") break;
+      r.est.token = r.dados.nextPageToken || null;
     }
-    primeiraPagina = false;
+    primeiraOnda = false;
   }
 
   const restam = estados.some((e) => e.token !== null);

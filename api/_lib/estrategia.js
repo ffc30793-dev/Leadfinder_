@@ -64,7 +64,7 @@ function termosDaBusca({ segmento, termosLivres, servico }) {
 }
 
 /** Lista ordenada de consultas de texto (deduplicada). A 1ª é a mais precisa. */
-export function montarConsultas(entrada, maximo = 4) {
+export function montarConsultas(entrada, maximo = 6) {
   const { cidade, estadoNome } = entrada;
   const local = `${cidade}, ${estadoNome}`;
   const termos = termosDaBusca(entrada);
@@ -77,6 +77,8 @@ export function montarConsultas(entrada, maximo = 4) {
   if (principal) {
     candidatas.push(`melhores ${principal} em ${local}`);
     candidatas.push(`${principal} centro ${local}`);
+    candidatas.push(`${principal} ${cidade} ${entrada.uf}`);
+    candidatas.push(`${principal} bairro ${local}`);
   }
 
   const vistas = new Set();

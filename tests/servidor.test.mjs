@@ -8,6 +8,7 @@ import { criarHandlerWebhook } from "../api/cakto-webhook.js";
 import { planoEfetivo, reservarPesquisa, devolverPesquisa, diaLocal, resumoConta } from "../api/_lib/account.js";
 import { limparCacheCurto, enderecoDaCidade } from "../api/_lib/places.js";
 import { montarLead } from "../api/_lib/opportunity.js";
+import { criarCursor, lerCursor } from "../api/_lib/estrategia.js";
 
 const corpoBusca = { estado: "PI", cidade: "Teresina", segmento: "Pizzaria", servico: "criacao-sites" };
 const chamar = async (handler, req) => { const res = criarRes(); await handler(req, res); return res; };
@@ -17,9 +18,17 @@ const muitos = (prefixo, n, extra = () => ({})) => Array.from({ length: n }, (_,
 
 test.beforeEach(() => limparCacheCurto());
 
-// Conta PRO ativa (sem teto de resultados por pesquisa) — o plano grátis mostra no máximo 10.
+// Conta PRO ativa — mostra até 15 empresas por pesquisa (grátis: 5; Business: 50).
 const virarPro = (deps) => deps.db.collection("accounts").doc("ana").set({
   plano: "PRO",
+  assinatura: { status: "ativa", renovaEm: new Date(AGORA.getTime() + 5 * 86400000) },
+  uso: { dia: "", contagem: 0 }
+});
+
+// As pesquisas repetidas não mostram a mesma empresa duas vezes; os testes de cota repetem a mesma busca de propósito.
+const esquecerVistos = (deps) => { for (const k of [...deps.db._dados.keys()]) if (k.includes("/vistos/")) deps.db._dados.delete(k); };
+const virarMax = (deps) => deps.db.collection("accounts").doc("ana").set({
+  plano: "MAX",
   assinatura: { status: "ativa", renovaEm: new Date(AGORA.getTime() + 5 * 86400000) },
   uso: { dia: "", contagem: 0 }
 });
@@ -144,51 +153,78 @@ test("busca: deduplica por ID entre consultas e paginação, remove outra cidade
   assert.equal(res.corpo.continuacao, "");
 });
 
-test("busca: respeita o teto de requisições ao Google e oferece continuação sem repetir empresas", async () => {
-  // 1 consulta com 8 páginas de 20 empresas (160 no total); teto de 6 requisições por pesquisa
-  const paginas = Array.from({ length: 8 }, (_, p) => muitos(`q${p}_`, 20));
+test("busca: cada plano mostra a sua quantidade (Pro 15, Business 50) e respeita o teto de requisições ao Google", async () => {
+  const paginas = [muitos("a", 20), muitos("b", 20), muitos("c", 20)];
   const f = criarFetchPlaces({ pizzaria: paginas, "melhores": [[]], "centro": [[]] });
-  const deps = criarDeps({ fetch: f, env: {} });
-  await virarPro(deps);
-  const h = criarHandlerLeads(deps);
 
-  const r1 = await chamar(h, criarReq({ corpo: corpoBusca }));
-  assert.equal(r1.statusCode, 200);
-  assert.ok(r1.corpo.requisicoesGoogle <= 6);
-  assert.equal(r1.corpo.parcial, true);
-  assert.ok(r1.corpo.continuacao);
-  assert.ok(r1.corpo.avisos.some((a) => /parciais/i.test(a)));
-  const ids1 = r1.corpo.empresas.map((e) => e.id);
-  assert.ok(ids1.length >= 40);
+  const dPro = criarDeps({ fetch: f });
+  await virarPro(dPro);
+  const pro = await chamar(criarHandlerLeads(dPro), criarReq({ corpo: corpoBusca }));
+  assert.equal(pro.statusCode, 200);
+  assert.equal(pro.corpo.empresas.length, 15);
+  assert.ok(pro.corpo.requisicoesGoogle <= 8);
+  assert.equal(pro.corpo.continuacao, "");
 
-  const r2 = await chamar(h, criarReq({ corpo: { ...corpoBusca, continuacao: r1.corpo.continuacao, excluir: ids1 } }));
-  assert.equal(r2.statusCode, 200);
-  const ids2 = r2.corpo.empresas.map((e) => e.id);
-  assert.ok(ids2.length > 0);
-  assert.equal(ids2.filter((id) => ids1.includes(id)).length, 0, "continuação não pode repetir empresas já exibidas");
-  assert.equal(r2.corpo.uso.usadas, 2); // a continuação consome 1 pesquisa
+  limparCacheCurto();
+  const dMax = criarDeps({ fetch: criarFetchPlaces({ pizzaria: paginas, "melhores": [[]], "centro": [[]] }) });
+  await virarMax(dMax);
+  const max = await chamar(criarHandlerLeads(dMax), criarReq({ corpo: corpoBusca }));
+  assert.equal(max.corpo.empresas.length, 50);
+  assert.ok(max.corpo.requisicoesGoogle <= 14);
+  assert.ok(max.corpo.avisos.some((a) => /até 50 empresas/.test(a)));
 });
 
-test("busca: continuação adulterada, de outro usuário ou de outra cidade é recusada", async () => {
-  const paginas = Array.from({ length: 8 }, (_, p) => muitos(`z${p}_`, 20));
-  const f = criarFetchPlaces({ pizzaria: paginas, "melhores": [[]], "centro": [[]] });
+test("busca: pesquisar de novo traz empresas diferentes e avisa quando já viu todas (sem cobrar)", async () => {
+  const f = criarFetchPlaces({ pizzaria: [muitos("n", 20)], "melhores": [[]], "centro": [[]] });
   const deps = criarDeps({ fetch: f });
-  await virarPro(deps);
   const h = criarHandlerLeads(deps);
-  const r1 = await chamar(h, criarReq({ corpo: corpoBusca }));
-  const cont = r1.corpo.continuacao;
-  assert.ok(cont);
 
-  assert.equal((await chamar(h, criarReq({ corpo: { ...corpoBusca, continuacao: cont + "x" } }))).statusCode, 400);
-  assert.equal((await chamar(h, criarReq({ token: "tok-bia", corpo: { ...corpoBusca, continuacao: cont } }))).statusCode, 400);
-  assert.equal((await chamar(h, criarReq({ corpo: { ...corpoBusca, cidade: "Parnaíba", continuacao: cont } }))).statusCode, 400);
+  const vistas = new Set();
+  for (let i = 1; i <= 4; i++) {
+    const r = await chamar(h, criarReq({ corpo: corpoBusca }));
+    assert.equal(r.statusCode, 200);
+    assert.equal(r.corpo.empresas.length, 5, `pesquisa ${i}`);
+    for (const e of r.corpo.empresas) {
+      assert.equal(vistas.has(e.id), false, `${e.id} repetiu na pesquisa ${i}`);
+      vistas.add(e.id);
+    }
+    assert.ok(r.corpo.avisos.some((a) => /Pesquise de novo/.test(a)));
+  }
+  assert.equal(vistas.size, 20);
+
+  const acabou = await chamar(h, criarReq({ corpo: corpoBusca }));
+  assert.equal(acabou.corpo.total, 0);
+  assert.equal(acabou.corpo.descartados.jaExibidas, 20);
+  assert.equal(acabou.corpo.uso.usadas, 4); // a pesquisa sem novidades foi devolvida
+  assert.ok(acabou.corpo.avisos.some((a) => /já viu/.test(a)));
+});
+
+test("busca: falta empresa na cidade pedida -> completa com cidades vizinhas e identifica quais", async () => {
+  const daCidade = muitos("pn", 2, () => ({ formattedAddress: "Rua A, 10 - Centro, Parnaíba - PI, 64200-000, Brasil" }));
+  const vizinhas = muitos("lc", 4, () => ({ formattedAddress: "Rua B, 5 - Centro, Luís Correia - PI, 64220-000, Brasil" }));
+  const f = criarFetchPlaces({ "luís correia": [vizinhas], pizzaria: [daCidade], "melhores": [[]], "centro": [[]] });
+  const res = await chamar(criarHandlerLeads(criarDeps({ fetch: f })), criarReq({ corpo: { ...corpoBusca, cidade: "Parnaíba" } }));
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.corpo.empresas.length, 5);
+  assert.equal(res.corpo.empresas.filter((e) => e.cidadeVizinha).length, 3);
+  assert.deepEqual(res.corpo.cidadesVizinhas, ["Luís Correia"]);
+  assert.ok(res.corpo.avisos.some((a) => /completei com cidades vizinhas/.test(a)));
+});
+
+test("cursor assinado: adulterado ou sem segredo é recusado", () => {
+  const cursor = criarCursor({ uid: "ana", x: 1 }, "segredo-de-teste");
+  assert.deepEqual(lerCursor(cursor, "segredo-de-teste"), { uid: "ana", x: 1 });
+  assert.equal(lerCursor(cursor + "x", "segredo-de-teste"), null);
+  assert.equal(lerCursor(cursor, "outro-segredo"), null);
+  assert.equal(lerCursor("", "segredo-de-teste"), null);
 });
 
 test("busca: o limite diário é aplicado no servidor (6ª pesquisa do plano grátis é recusada)", async () => {
   const f = criarFetchPlaces({ pizzaria: [[lugar("a")]], "melhores": [[]], "centro": [[]] });
-  const h = criarHandlerLeads(criarDeps({ fetch: f }));
+  const depsLimite = criarDeps({ fetch: f });
+  const h = criarHandlerLeads(depsLimite);
   const codigos = [];
-  for (let i = 0; i < 6; i++) codigos.push((await chamar(h, criarReq({ corpo: corpoBusca }))).statusCode);
+  for (let i = 0; i < 6; i++) { esquecerVistos(depsLimite); codigos.push((await chamar(h, criarReq({ corpo: corpoBusca }))).statusCode); }
   assert.deepEqual(codigos, [200, 200, 200, 200, 200, 429]);
   const bloqueada = await chamar(h, criarReq({ corpo: corpoBusca }));
   assert.equal(bloqueada.corpo.codigo, "limite_diario");
@@ -202,9 +238,10 @@ test("busca: usuário não consegue se promover alterando dados do perfil (users
   const db = criarDbFalso();
   await db.collection("users").doc("ana").set({ nome: "Ana", plano: "MAX", creditos: 9999 });
   const f = criarFetchPlaces({ pizzaria: [[lugar("a")]], "melhores": [[]], "centro": [[]] });
-  const h = criarHandlerLeads(criarDeps({ db, fetch: f }));
+  const depsPerfil = criarDeps({ db, fetch: f });
+  const h = criarHandlerLeads(depsPerfil);
   const codigos = [];
-  for (let i = 0; i < 7; i++) codigos.push((await chamar(h, criarReq({ corpo: corpoBusca }))).statusCode);
+  for (let i = 0; i < 7; i++) { esquecerVistos(depsPerfil); codigos.push((await chamar(h, criarReq({ corpo: corpoBusca }))).statusCode); }
   assert.equal(codigos.filter((c) => c === 200).length, 5);
 });
 
@@ -434,15 +471,15 @@ test("webhook: renovação estende o ciclo", async () => {
 
 
 // ================= só aparece quem pode ser abordado e precisa do serviço =================
-test("busca: plano grátis mostra no máximo 10 empresas e não oferece \"carregar mais\"", async () => {
+test("busca: plano grátis mostra no máximo 5 empresas e não oferece \"carregar mais\"", async () => {
   const f = criarFetchPlaces({ pizzaria: [muitos("g", 20), muitos("h", 20)], "melhores": [[]], "centro": [[]] });
   const deps = criarDeps({ fetch: f });
   const res = await chamar(criarHandlerLeads(deps), criarReq({ corpo: corpoBusca }));
   assert.equal(res.statusCode, 200);
-  assert.equal(res.corpo.empresas.length, 10);
+  assert.equal(res.corpo.empresas.length, 5);
   assert.equal(res.corpo.continuacao, "");
   assert.equal(res.corpo.parcial, false);
-  assert.ok(res.corpo.avisos.some((a) => /até 10 empresas/.test(a)));
+  assert.ok(res.corpo.avisos.some((a) => /até 5 empresas/.test(a)));
   assert.equal(res.corpo.uso.usadas, 1);
 });
 
