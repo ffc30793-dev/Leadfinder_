@@ -1,0 +1,347 @@
+[
+ {
+  "teste": "Abrir o site (tela de login)",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Painel sem login redireciona para o login",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Login com conta existente leva ao painel",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Perfil ausente foi criado no Firestore ao entrar",
+  "ok": true,
+  "detalhe": "['users/uid_antiga']"
+ },
+ {
+  "teste": "Perfil criado só com campos autorizados (sem plano/créditos)",
+  "ok": true,
+  "detalhe": "{'nome': 'antiga', 'email': 'antiga@exemplo.com', 'telefone': '', 'createdAt': {'__ts': 1792962737817}, 'updatedAt': {'__ts': 1792962737817}}"
+ },
+ {
+  "teste": "Perfil usa createdAt e updatedAt",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Minha conta mostra o e-mail da conta",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Telefone inválido mostra mensagem clara",
+  "ok": true,
+  "detalhe": "Telefone inválido. Use DDD + número, ex.: (86) 99999-0000."
+ },
+ {
+  "teste": "Atualização gravou nome e telefone",
+  "ok": true,
+  "detalhe": "{'nome': 'Maria Antiga', 'email': 'antiga@exemplo.com', 'telefone': '(86) 99999-0000', 'createdAt': {'__ts': 1792962737817}, 'updatedAt': {'__ts': 1792962738410}}"
+ },
+ {
+  "teste": "Dados persistem após atualizar a página",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Nome atualizado aparece no topo",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Dados persistem após sair e entrar de novo",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Cadastro grava o perfil ANTES de redirecionar",
+  "ok": true,
+  "detalhe": "{'nome': 'Laelson Teste', 'email': 'novo@exemplo.com', 'telefone': '(86) 98888-7777', 'createdAt': {'__ts': 1792962740023}, 'updatedAt': {'__ts': 1792962740023}}"
+ },
+ {
+  "teste": "Documento legado ganhou createdAt sem alterar plano/créditos",
+  "ok": true,
+  "detalhe": "{'nome': 'Legado', 'email': 'legado@exemplo.com', 'telefone': '', 'plano': 'MAX', 'creditos': 999, 'criadoEm': {'__ts': 1700000000000}, 'createdAt': {'__ts': 1792962740808}, 'updatedAt': {'__ts': 1792962740808}}"
+ },
+ {
+  "teste": "Plano exibido vem do servidor (Grátis), não do documento legado",
+  "ok": true,
+  "detalhe": "0/5 pesquisas"
+ },
+ {
+  "teste": "Minha conta mostra plano do servidor",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Erro de regras do Firestore gera mensagem clara",
+  "ok": true,
+  "detalhe": "O banco de dados recusou a operação. Confira se as regras do Firestore foram publicadas (firestore.rules)."
+ },
+ {
+  "teste": "Falha de conexão no salvamento gera mensagem clara",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Banner de ausência de conexão aparece",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Banner some quando a conexão volta",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Área 'Olá' abre",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Área 'Buscar empresas' abre",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Área 'Meus leads' abre",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Área 'Gerador de conteúdo' abre",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Área 'Minha conta' abre",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Área 'Planos e assinatura' abre",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Botão voltar do navegador funciona",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Visão geral mostra 0 leads e estado vazio de pesquisas",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Busca exibe resultados",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Enviou serviço, estado, cidade e segmento ao servidor",
+  "ok": true,
+  "detalhe": "{'estado': 'PI', 'cidade': 'Teresina', 'segmento': 'Pizzaria', 'servico': 'criacao-sites'}"
+ },
+ {
+  "teste": "Token do Firebase enviado ao servidor",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "WhatsApp aparece só para celular e abre wa.me",
+  "ok": true,
+  "detalhe": "1"
+ },
+ {
+  "teste": "Telefone fixo NÃO tem botão de WhatsApp",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Rótulo 'Site não identificado' (não afirma 'sem site')",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Temperatura exibe critérios e 'preliminar'",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Aviso de resultado parcial e botão Carregar mais",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Atribuição ao Google Maps presente",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Contador de pesquisas do topo atualizado pelo servidor",
+  "ok": true,
+  "detalhe": "1/5 pesquisas"
+ },
+ {
+  "teste": "Filtro de WhatsApp oculta o telefone fixo",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Filtro de presença de site (rede social) funciona",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Carregar mais envia cursor e ids já exibidos",
+  "ok": true,
+  "detalhe": "{'estado': 'PI', 'cidade': 'Teresina', 'segmento': 'Pizzaria', 'servico': 'criacao-sites', 'continuacao': 'cursor-1', 'excluir': ['a', 'b', 'c']}"
+ },
+ {
+  "teste": "Carregar mais adiciona empresas ao final",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Lead salvo no Firestore em users/{uid}/leads/{placeId}",
+  "ok": true,
+  "detalhe": "['users/uid_legado/leads/a']"
+ },
+ {
+  "teste": "Lead salvo só com campos permitidos e status inicial",
+  "ok": true,
+  "detalhe": "{'placeId': 'a', 'nome': 'Alfa', 'categoria': 'Pizzaria', 'endereco': 'Rua Alfa, 10 - Centro, Teresina - PI', 'cidade': 'Teresina', 'uf': 'PI', 'telefone': '(86) 99999-1234', 'whatsapp': 'https://wa.me/5586999991234', 'site': '', 'siteStatus': 'nao_identificado', 'mapa': 'https://maps.google.com/?ci"
+ },
+ {
+  "teste": "Botão passa a 'Salvo' (sem duplicar)",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Lead salvo é recuperado após recarregar a página",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Situação, observação e acompanhamento gravados",
+  "ok": true,
+  "detalhe": "{'placeId': 'a', 'nome': 'Alfa', 'categoria': 'Pizzaria', 'endereco': 'Rua Alfa, 10 - Centro, Teresina - PI', 'cidade': 'Teresina', 'uf': 'PI', 'telefone': '(86) 99999-1234', 'whatsapp': 'https://wa.me/5586999991234', 'site': '', 'siteStatus': 'nao_identificado', 'mapa': 'https://maps.google.com/?ci"
+ },
+ {
+  "teste": "Pesquisa nos leads salvos filtra",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Pesquisa encontra pelo nome",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Visão geral reflete leads reais (1 salvo, 1 interessado)",
+  "ok": true,
+  "detalhe": "Pesquisas hoje\n2/5\n3 disponíveis\nLeads salvos\n1\nEm Meus leads\nInteressados\n1\nLeads marcados como interessados\nAcompanhamentos\n0\nCom data de hoje ou atrasada"
+ },
+ {
+  "teste": "Gera prompt contextualizado (nome e dicas do segmento)",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Serviços diferentes geram prompts diferentes (não só o título)",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Copiar prompt coloca o texto na área de transferência",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Planos exibem preços e limites do servidor",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Sem checkout configurado, botões pagos ficam desativados e há aviso",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Plano atual destacado",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Com checkout configurado, botão abre o link da Cakto em nova aba",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Limite diário atingido mostra mensagem e link para planos",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Cardápios só oferece segmentos de alimentação + busca ampla",
+  "ok": true,
+  "detalhe": "['Busca ampla do serviço (vários segmentos)', 'Restaurante', 'Pizzaria', 'Hamburgueria', 'Lanchonete', 'Açaiteria e sorveteria', 'Padaria', 'Cafeteria']"
+ },
+ {
+  "teste": "Leads antigos do navegador foram importados para a conta",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Chave local antiga removida após importar",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Sem rolagem horizontal em celular (6 áreas)",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Sem rolagem horizontal em tablet (6 áreas)",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Sem rolagem horizontal em desktop (6 áreas)",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Todos os campos da busca têm rótulo acessível",
+  "ok": true,
+  "detalhe": "[]"
+ },
+ {
+  "teste": "Link 'Pular para o conteúdo' e landmarks presentes",
+  "ok": true,
+  "detalhe": ""
+ },
+ {
+  "teste": "Nenhum botão sem texto/rótulo",
+  "ok": true,
+  "detalhe": "0"
+ },
+ {
+  "teste": "Nenhum link sem destino",
+  "ok": true,
+  "detalhe": "0"
+ },
+ {
+  "teste": "Sem erros no console do navegador",
+  "ok": true,
+  "detalhe": "[]"
+ }
+]
